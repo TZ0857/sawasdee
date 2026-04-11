@@ -1,0 +1,127 @@
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from contextlib import asynccontextmanager
+import os
+
+from sqlalchemy import select
+from app.database import init_db, async_session
+from app.models.user import User
+from app.seed import (
+    generate_seed_users, generate_seed_posts,
+    generate_seed_albums, generate_seed_stories,
+)
+from app.routers import auth, users, posts, messages, albums, subscriptions
+
+
+async def seed_demo_data():
+    """Populate database with demo data if empty."""
+    async with async_session() as session:
+        result = await session.execute(select(User).limit(1))
+        if result.scalar_one_or_none() is not None:
+            return  # Already has data
+
+        print("🌱 Seeding demo data...")
+        seed_users = generate_seed_users()
+        for u in seed_users:
+            session.add(u)
+        await session.flush()
+
+        seed_posts = generate_seed_posts(seed_users)
+        for p in seed_posts:
+            session.add(p)
+
+        seed_albums, seed_photos = generate_seed_albums(seed_users)
+        for a in seed_albums:
+            session.add(a)
+        await session.flush()
+        for ph in seed_photos:
+            session.add(ph)
+
+        seed_stories = generate_seed_stories(seed_users)
+        for s in seed_stories:
+            session.add(s)
+
+        await session.commit()
+        print(f"✅ Seeded {len(seed_users)} users, {len(seed_posts)} posts, {len(seed_albums)} albums, {len(seed_stories)} stories")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    await seed_demo_data()
+    yield
+
+
+app = FastAPI(title="Sawasdee", version="1.0.0", lifespan=lifespan)
+
+# Mount static files and uploads
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+
+templates = Jinja2Templates(directory=templates_dir)
+
+# Include routers
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(posts.router)
+app.include_router(messages.router)
+app.include_router(albums.router)
+app.include_router(subscriptions.router)
+
+
+# Page routes
+@app.get("/", response_class=HTMLResponse)
+async def landing_page(request: Request):
+    return templates.TemplateResponse("pages/landing.html", {"request": request})
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("pages/login.html", {"request": request})
+
+
+@app.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    return templates.TemplateResponse("pages/register.html", {"request": request})
+
+
+@app.get("/explore", response_class=HTMLResponse)
+async def explore_page(request: Request):
+    return templates.TemplateResponse("pages/explore.html", {"request": request})
+
+
+@app.get("/feed", response_class=HTMLResponse)
+async def feed_page(request: Request):
+    return templates.TemplateResponse("pages/feed.html", {"request": request})
+
+
+@app.get("/profile/{username}", response_class=HTMLResponse)
+async def profile_page(request: Request, username: str):
+    return templates.TemplateResponse("pages/profile.html", {"request": request, "username": username})
+
+
+@app.get("/messages", response_class=HTMLResponse)
+async def messages_page(request: Request):
+    return templates.TemplateResponse("pages/messages.html", {"request": request})
+
+
+@app.get("/chat/{user_id}", response_class=HTMLResponse)
+async def chat_page(request: Request, user_id: str):
+    return templates.TemplateResponse("pages/chat.html", {"request": request, "user_id": user_id})
+
+
+@app.get("/subscription", response_class=HTMLResponse)
+async def subscription_page(request: Request):
+    return templates.TemplateResponse("pages/subscription.html", {"request": request})
+
+
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    return templates.TemplateResponse("pages/settings.html", {"request": request})

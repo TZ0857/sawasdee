@@ -1,0 +1,83 @@
+{% extends "components/base.html" %}
+{% block title %}個人頁面{% endblock %}
+{% block navbar %}{% include "components/navbar.html" %}{% endblock %}
+{% block content %}
+<div class="main-content">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-cover-placeholder" id="profileCover"></div>
+            <div class="profile-info">
+                <div class="profile-avatar-placeholder" id="profileAvatar">S</div>
+                <div style="padding-bottom:0.5rem">
+                    <h1 class="profile-name" id="profileName">Loading...</h1>
+                    <p class="profile-meta" id="profileMeta"></p>
+                    <div class="flex gap-2 mt-2" id="profileActions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+            <div class="profile-tab active" data-tab="info" onclick="switchTab('info')">資料</div>
+            <div class="profile-tab" data-tab="albums" onclick="switchTab('albums')">相簿</div>
+            <div class="profile-tab" data-tab="posts" onclick="switchTab('posts')">動態</div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tabInfo" class="tab-content">
+            <div class="card">
+                <div class="card-body" id="profileDetails">
+                    <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabAlbums" class="tab-content hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3>相簿</h3>
+                <button class="btn btn-primary btn-sm hidden" id="createAlbumBtn" onclick="showCreateAlbum()">建立相簿</button>
+            </div>
+            <div class="album-grid" id="albumGrid"></div>
+        </div>
+
+        <div id="tabPosts" class="tab-content hidden">
+            <div id="profilePosts"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Album Modal -->
+<div class="modal-overlay" id="createAlbumModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>建立新相簿</h3>
+            <button class="modal-close" onclick="closeModal('createAlbumModal')">×</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">相簿名稱</label>
+            <input type="text" class="form-input" id="albumTitle" placeholder="我的相簿">
+        </div>
+        <div class="form-group">
+            <label class="form-label">類型</label>
+            <select class="form-select" id="albumType">
+                <option value="public">公開相簿</option>
+                <option value="private">私密相簿 (需申請)</option>
+            </select>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="createAlbum()">建立</button>
+    </div>
+</div>
+
+<!-- Photo Viewer Modal -->
+<div class="modal-overlay" id="photoViewerModal">
+    <div class="modal" style="max-width:700px; padding:0; background:transparent; border:none;">
+        <button class="modal-close" onclick="closeModal('photoViewerModal')" style="position:absolute; top:1rem; right:1rem; z-index:1">×</button>
+        <img id="photoViewerImg" style="width:100%; border-radius:var(--radius-lg);">
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>const profileUsername = "{{ username }}";</script>
+<script src="/static/js/profile.js"></script>
+{% endblock %}

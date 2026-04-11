@@ -1,0 +1,44 @@
+{% extends "components/base.html" %}
+{% block title %}探索{% endblock %}
+{% block navbar %}{% include "components/navbar.html" %}{% endblock %}
+{% block content %}
+<div class="main-content">
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h2 style="font-family:var(--font-heading)">探索會員</h2>
+            <button class="btn btn-secondary btn-sm" onclick="toggleFilters()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+                篩選
+            </button>
+        </div>
+
+        <div class="filter-bar hidden" id="filterBar">
+            <div class="form-group" style="margin-bottom:0">
+                <input type="number" class="form-input" id="filterMinAge" placeholder="最小年齡" min="18">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <input type="number" class="form-input" id="filterMaxAge" placeholder="最大年齡" max="80">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <input type="number" class="form-input" id="filterMinHeight" placeholder="最矮 (cm)" step="0.1">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <input type="number" class="form-input" id="filterMaxHeight" placeholder="最高 (cm)" step="0.1">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="applyFilters()">套用</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetFilters()">重設</button>
+        </div>
+
+        <div class="user-grid" id="userGrid">
+            <div class="flex-center" style="grid-column:1/-1; padding:4rem;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <div class="flex-center mt-4 mb-3 gap-2" id="pagination"></div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/explore.js"></script>
+{% endblock %}

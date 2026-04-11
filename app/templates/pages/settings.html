@@ -1,0 +1,81 @@
+{% extends "components/base.html" %}
+{% block title %}設定{% endblock %}
+{% block navbar %}{% include "components/navbar.html" %}{% endblock %}
+{% block content %}
+<div class="main-content">
+    <div class="container-sm" style="padding-top:2rem;">
+        <h2 style="font-family:var(--font-heading); margin-bottom:1.5rem;">帳號設定</h2>
+        <div class="card">
+            <div class="card-body">
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label class="form-label">顯示名稱</label>
+                        <input type="text" class="form-input" id="setName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">身高 (cm)</label>
+                        <input type="number" class="form-input" id="setHeight" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">體重 (kg)</label>
+                        <input type="number" class="form-input" id="setWeight" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">興趣</label>
+                        <input type="text" class="form-input" id="setInterests">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">自我介紹</label>
+                        <textarea class="form-textarea" id="setBio" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">地點</label>
+                        <input type="text" class="form-input" id="setLocation">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">儲存變更</button>
+                </form>
+                <div class="mt-4" style="border-top:1px solid var(--border); padding-top:1.5rem;">
+                    <button class="btn btn-secondary btn-block" onclick="logout()" style="color:var(--danger)">登出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+requireAuth();
+(async () => {
+    try {
+        const user = await api.get('/api/users/me');
+        document.getElementById('setName').value = user.display_name || '';
+        document.getElementById('setHeight').value = user.height || '';
+        document.getElementById('setWeight').value = user.weight || '';
+        document.getElementById('setInterests').value = user.interests || '';
+        document.getElementById('setBio').value = user.bio || '';
+        document.getElementById('setLocation').value = user.location || '';
+    } catch(e) {}
+})();
+document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        await api.put('/api/users/me', {
+            display_name: document.getElementById('setName').value,
+            height: parseFloat(document.getElementById('setHeight').value) || null,
+            weight: parseFloat(document.getElementById('setWeight').value) || null,
+            interests: document.getElementById('setInterests').value,
+            bio: document.getElementById('setBio').value,
+            location: document.getElementById('setLocation').value,
+        });
+        showToast('已儲存！', 'success');
+    } catch(e) {
+        showToast('儲存失敗', 'error');
+    }
+});
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
+</script>
+{% endblock %}

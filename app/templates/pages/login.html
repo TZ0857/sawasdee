@@ -1,0 +1,44 @@
+{% extends "components/base.html" %}
+{% block title %}登入{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <h1 class="auth-title">Sawasdee</h1>
+        <p class="auth-subtitle">歡迎回來，登入你的帳號</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">密碼</label>
+                <input type="password" class="form-input" id="loginPassword" placeholder="輸入密碼" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">登入</button>
+        </form>
+        <p class="auth-footer">還沒有帳號？ <a href="/register">立即註冊</a></p>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = '登入中...';
+    try {
+        const data = await api.post('/api/auth/login', {
+            email: document.getElementById('loginEmail').value,
+            password: document.getElementById('loginPassword').value,
+        });
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showToast('登入成功！', 'success');
+        setTimeout(() => window.location.href = '/explore', 500);
+    } catch (err) {
+        showToast(err.message || '登入失敗', 'error');
+        btn.disabled = false; btn.textContent = '登入';
+    }
+});
+</script>
+{% endblock %}

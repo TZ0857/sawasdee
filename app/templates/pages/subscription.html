@@ -1,0 +1,65 @@
+{% extends "components/base.html" %}
+{% block title %}會員訂閱{% endblock %}
+{% block navbar %}{% include "components/navbar.html" %}{% endblock %}
+{% block content %}
+<div class="main-content">
+    <div class="container" style="padding-top:2rem;">
+        <div class="text-center mb-3">
+            <h1 style="font-family:var(--font-heading); font-size:2.5rem; background:var(--gradient-rose); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Sawasdee Premium</h1>
+            <p class="text-muted mt-1">解鎖所有功能，找到你的真愛</p>
+        </div>
+
+        <div class="pricing-card" id="pricingCard">
+            <div class="pricing-amount">$100</div>
+            <div class="pricing-period">USD / 月</div>
+            <ul class="pricing-features">
+                <li>無限瀏覽異性會員</li>
+                <li>站內即時訊息</li>
+                <li>AI 中泰即時翻譯</li>
+                <li>發布動態與 Story</li>
+                <li>公開相簿 + 私密相簿</li>
+                <li>申請查看私密相簿</li>
+                <li>優先客服支援</li>
+            </ul>
+            <button class="btn btn-primary btn-lg btn-block" id="subscribeBtn" onclick="subscribe()">
+                立即訂閱
+            </button>
+            <p class="text-muted mt-2" style="font-size:0.8rem">透過 Stripe 安全付款，可隨時取消</p>
+        </div>
+
+        <div class="text-center hidden" id="subscribedBadge" style="padding:2rem;">
+            <div style="font-size:3rem; margin-bottom:1rem">✨</div>
+            <h2 style="font-family:var(--font-heading); color:var(--rose-light)">你已是 Premium 會員</h2>
+            <p class="text-muted mt-1">享受所有高級功能</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+requireAuth();
+async function subscribe() {
+    const btn = document.getElementById('subscribeBtn');
+    btn.disabled = true; btn.textContent = '處理中...';
+    try {
+        const data = await api.post('/api/subscriptions/create-checkout');
+        if (data.checkout_url) window.location.href = data.checkout_url;
+        else showToast('Stripe 尚未設定', 'error');
+    } catch (err) {
+        showToast(err.message || '發生錯誤', 'error');
+    }
+    btn.disabled = false; btn.textContent = '立即訂閱';
+}
+(async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.is_subscribed) {
+        document.getElementById('pricingCard').classList.add('hidden');
+        document.getElementById('subscribedBadge').classList.remove('hidden');
+    }
+    // Check URL params
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('status') === 'success') showToast('訂閱成功！', 'success');
+    if (params.get('status') === 'cancel') showToast('訂閱已取消', 'error');
+})();
+</script>
+{% endblock %}

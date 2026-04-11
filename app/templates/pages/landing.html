@@ -1,0 +1,28 @@
+{% extends "components/base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<div class="landing-hero">
+    <div>
+        <h1>Sawasdee</h1>
+        <p>跨越國界的真愛，從這裡開始。台灣男生與泰國女生的高端交友平台。</p>
+        <div class="flex-center gap-2">
+            <a href="/register" class="btn btn-primary btn-lg">立即加入</a>
+            <a href="/login" class="btn btn-secondary btn-lg">登入</a>
+        </div>
+        <div class="mt-4" style="display:flex; justify-content:center; gap:3rem;">
+            <div class="text-center">
+                <div style="font-size:2rem; font-family:var(--font-heading); font-weight:700; color:var(--rose-light)">1000+</div>
+                <div class="text-muted" style="font-size:0.85rem">活躍會員</div>
+            </div>
+            <div class="text-center">
+                <div style="font-size:2rem; font-family:var(--font-heading); font-weight:700; color:var(--rose-light)">500+</div>
+                <div class="text-muted" style="font-size:0.85rem">成功配對</div>
+            </div>
+            <div class="text-center">
+                <div style="font-size:2rem; font-family:var(--font-heading); font-weight:700; color:var(--rose-light)">24/7</div>
+                <div class="text-muted" style="font-size:0.85rem">AI 即時翻譯</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
