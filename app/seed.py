@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from app.models.user import User, Gender, Nationality
 from app.models.post import Post, Story
 from app.models.album import Album, Photo, AlbumType
+from app.models.gathering import Gathering, GatheringMember
 from app.services.auth import get_password_hash
 
 # ============================================================
@@ -486,3 +487,64 @@ def generate_seed_stories(users):
         ))
 
     return stories
+
+
+# ============================================================
+# Seed Gatherings
+# ============================================================
+SEED_GATHERINGS = [
+    {"type": "meal", "title": "週六一起吃泰式火鍋！", "location": "台北信義區", "max_slots": 4, "hours": 12},
+    {"type": "karaoke", "title": "KTV 唱歌之夜 🎤", "location": "台北東區", "max_slots": 6, "hours": 6},
+    {"type": "drinks", "title": "週五下班喝一杯 🍺", "location": "台北大安區", "max_slots": 4, "hours": 24},
+    {"type": "movie", "title": "週末一起看新片 🎬", "location": "台北西門町", "max_slots": 4, "hours": 12},
+    {"type": "meal", "title": "道地泰北菜推薦！一起去", "location": "台北中山區", "max_slots": 6, "hours": 6},
+    {"type": "karaoke", "title": "泰語歌教唱大會", "location": "台中", "max_slots": 8, "hours": 24},
+    {"type": "drinks", "title": "精釀啤酒品鑑局", "location": "高雄", "max_slots": 4, "hours": 12},
+    {"type": "meal", "title": "曼谷回來的想吃台菜", "location": "台南", "max_slots": 4, "hours": 6},
+]
+
+
+def generate_seed_gatherings(users):
+    """Generate demo gatherings with members."""
+    gatherings = []
+    members = []
+    now = datetime.utcnow()
+    subscribed = [u for u in users if u.is_subscribed]
+
+    for i, g_data in enumerate(SEED_GATHERINGS):
+        host = subscribed[i % len(subscribed)]
+        gathering = Gathering(
+            id=uuid.uuid4(),
+            host_id=host.id,
+            type=g_data["type"],
+            title=g_data["title"],
+            location=g_data["location"],
+            max_slots=g_data["max_slots"],
+            current_slots=1,
+            expires_at=now + timedelta(hours=g_data["hours"]),
+            is_active=True,
+            created_at=now - timedelta(hours=random.randint(0, 3)),
+        )
+        gatherings.append(gathering)
+
+        # Host as member
+        members.append(GatheringMember(
+            id=uuid.uuid4(),
+            gathering_id=gathering.id,
+            user_id=host.id,
+            joined_at=gathering.created_at,
+        ))
+
+        # Add 1-2 random extra members
+        others = [u for u in subscribed if u.id != host.id]
+        extra = random.sample(others, min(random.randint(1, 2), len(others)))
+        for joiner in extra:
+            gathering.current_slots += 1
+            members.append(GatheringMember(
+                id=uuid.uuid4(),
+                gathering_id=gathering.id,
+                user_id=joiner.id,
+                joined_at=now - timedelta(minutes=random.randint(5, 120)),
+            ))
+
+    return gatherings, members

@@ -66,6 +66,21 @@ function goToProfile() {
     if (user.username) window.location.href = `/profile/${user.username}`;
 }
 
+function goToSettings() {
+    window.location.href = '/settings';
+}
+
+function toggleAvatarMenu() {
+    const dd = document.getElementById('avatarDropdown');
+    if (dd) dd.classList.toggle('hidden');
+}
+
+function doLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
+
 // Init navbar avatar
 document.addEventListener('DOMContentLoaded', () => {
     const user = getUser();
@@ -81,5 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-link').forEach(link => {
         const page = link.dataset.page;
         if (page && path.startsWith('/' + page)) link.classList.add('active');
+    });
+
+    // Close avatar dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const wrap = document.getElementById('navAvatarWrap');
+        const dd = document.getElementById('avatarDropdown');
+        if (dd && wrap && !wrap.contains(e.target)) {
+            dd.classList.add('hidden');
+        }
     });
 });

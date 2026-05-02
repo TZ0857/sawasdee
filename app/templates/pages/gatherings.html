@@ -1,0 +1,91 @@
+{% extends "components/base.html" %}
+{% block title %}組局{% endblock %}
+{% block navbar %}{% include "components/navbar.html" %}{% endblock %}
+{% block content %}
+<div class="main-content">
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h2 style="font-family:var(--font-heading)">組局</h2>
+            <button class="btn btn-primary btn-sm" onclick="openCreateModal()">+ 發起新局</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="g-tabs">
+            <button class="g-tab active" data-tab="explore" onclick="switchTab('explore')">探索局</button>
+            <button class="g-tab" data-tab="mine" onclick="switchTab('mine')">我的局</button>
+        </div>
+
+        <!-- Type Filters -->
+        <div class="g-filters">
+            <button class="g-filter active" data-type="" onclick="filterType('')">全部</button>
+            <button class="g-filter" data-type="meal" onclick="filterType('meal')">🍜 飯局</button>
+            <button class="g-filter" data-type="karaoke" onclick="filterType('karaoke')">🎤 唱歌</button>
+            <button class="g-filter" data-type="drinks" onclick="filterType('drinks')">🍺 喝酒</button>
+            <button class="g-filter" data-type="movie" onclick="filterType('movie')">🎬 電影</button>
+        </div>
+
+        <!-- Gathering Grid -->
+        <div class="g-grid" id="gatheringGrid">
+            <div class="flex-center" style="grid-column:1/-1; padding:4rem;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="g-empty hidden" id="gatheringEmpty">
+            <p>目前沒有局，快來發起第一個吧！</p>
+        </div>
+    </div>
+</div>
+
+<!-- Create Gathering Modal -->
+<div class="modal-overlay hidden" id="createModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>發起新局</h3>
+            <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+        </div>
+        <form id="createForm">
+            <div class="form-group">
+                <label class="form-label">類型</label>
+                <select class="form-input" id="gType" required>
+                    <option value="meal">🍜 飯局</option>
+                    <option value="karaoke">🎤 唱歌</option>
+                    <option value="drinks">🍺 喝酒</option>
+                    <option value="movie">🎬 電影</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">標題</label>
+                <input type="text" class="form-input" id="gTitle" placeholder="例：週末一起吃泰式火鍋" required maxlength="200">
+            </div>
+            <div class="form-group">
+                <label class="form-label">地點</label>
+                <input type="text" class="form-input" id="gLocation" placeholder="例：台北信義區" required maxlength="200">
+            </div>
+            <div class="form-group">
+                <label class="form-label">人數上限</label>
+                <select class="form-input" id="gSlots" required>
+                    <option value="2">2 人</option>
+                    <option value="4" selected>4 人</option>
+                    <option value="6">6 人</option>
+                    <option value="8">8 人</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">時效</label>
+                <select class="form-input" id="gDuration" required>
+                    <option value="2">2 小時</option>
+                    <option value="6">6 小時</option>
+                    <option value="12" selected>12 小時</option>
+                    <option value="24">24 小時</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">發起！</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/gatherings.js"></script>
+{% endblock %}

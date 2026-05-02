@@ -11,8 +11,9 @@ from app.models.user import User
 from app.seed import (
     generate_seed_users, generate_seed_posts,
     generate_seed_albums, generate_seed_stories,
+    generate_seed_gatherings,
 )
-from app.routers import auth, users, posts, messages, albums, subscriptions
+from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings
 
 
 async def seed_demo_data():
@@ -43,8 +44,15 @@ async def seed_demo_data():
         for s in seed_stories:
             session.add(s)
 
+        seed_g, seed_gm = generate_seed_gatherings(seed_users)
+        for g in seed_g:
+            session.add(g)
+        await session.flush()
+        for gm in seed_gm:
+            session.add(gm)
+
         await session.commit()
-        print(f"✅ Seeded {len(seed_users)} users, {len(seed_posts)} posts, {len(seed_albums)} albums, {len(seed_stories)} stories")
+        print(f"✅ Seeded {len(seed_users)} users, {len(seed_posts)} posts, {len(seed_albums)} albums, {len(seed_stories)} stories, {len(seed_g)} gatherings")
 
 
 @asynccontextmanager
@@ -74,6 +82,7 @@ app.include_router(posts.router)
 app.include_router(messages.router)
 app.include_router(albums.router)
 app.include_router(subscriptions.router)
+app.include_router(gatherings.router)
 
 
 # Page routes
@@ -115,6 +124,11 @@ async def messages_page(request: Request):
 @app.get("/chat/{user_id}", response_class=HTMLResponse)
 async def chat_page(request: Request, user_id: str):
     return templates.TemplateResponse("pages/chat.html", {"request": request, "user_id": user_id})
+
+
+@app.get("/gatherings", response_class=HTMLResponse)
+async def gatherings_page(request: Request):
+    return templates.TemplateResponse("pages/gatherings.html", {"request": request})
 
 
 @app.get("/subscription", response_class=HTMLResponse)
