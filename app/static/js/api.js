@@ -48,8 +48,11 @@ function showToast(msg, type = 'success') {
 
 function timeAgo(dateStr) {
     const now = new Date();
-    const date = new Date(dateStr);
+    // Ensure UTC interpretation if no timezone specified
+    const ts = dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : dateStr + 'Z';
+    const date = new Date(ts);
     const diff = Math.floor((now - date) / 1000);
+    if (diff < 0) return '剛剛';
     if (diff < 60) return '剛剛';
     if (diff < 3600) return `${Math.floor(diff / 60)} 分鐘前`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} 小時前`;

@@ -1,36 +1,119 @@
 {% extends "components/base.html" %}
-{% block title %}會員訂閱{% endblock %}
+{% block title %}Premium 會員{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
 <div class="main-content">
     <div class="container" style="padding-top:2rem;">
+        <!-- Hero -->
         <div class="text-center mb-3">
-            <h1 style="font-family:var(--font-heading); font-size:2.5rem; background:var(--gradient-rose); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Sawasdee Premium</h1>
-            <p class="text-muted mt-1">解鎖所有功能，找到你的真愛</p>
+            <div style="font-size:3rem; margin-bottom:0.5rem;">👑</div>
+            <h1 style="font-family:var(--font-heading); font-size:2.5rem; background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Sawasdee Premium</h1>
+            <p style="color:var(--text-secondary); margin-top:0.75rem; font-size:1.05rem;">解鎖更高品質的跨國社交體驗</p>
+            <p style="color:var(--text-muted); margin-top:0.25rem; font-size:0.9rem;">適合重視隱私、效率與高品質相處的會員。</p>
         </div>
 
+        <!-- Pricing Card -->
         <div class="pricing-card" id="pricingCard">
             <div class="pricing-amount">$100</div>
             <div class="pricing-period">USD / 月</div>
             <ul class="pricing-features">
-                <li>無限瀏覽異性會員</li>
-                <li>站內即時訊息</li>
-                <li>AI 中泰即時翻譯</li>
-                <li>發布動態與 Story</li>
-                <li>公開相簿 + 私密相簿</li>
-                <li>申請查看私密相簿</li>
-                <li>優先客服支援</li>
+                <li>💎 無限瀏覽高質感會員</li>
+                <li>👀 查看誰喜歡你</li>
+                <li>💬 無限次訊息</li>
+                <li>🌐 AI 中泰即時翻譯</li>
+                <li>📸 公開相簿與私密相簿</li>
+                <li>🔒 申請查看私密相簿</li>
+                <li>📝 發布生活動態與限時邀約</li>
+                <li>🔍 進階篩選</li>
+                <li>⭐ 優先曝光</li>
+                <li>🎯 優先客服支援</li>
             </ul>
             <button class="btn btn-primary btn-lg btn-block" id="subscribeBtn" onclick="subscribe()">
-                立即訂閱
+                升級 Premium
             </button>
-            <p class="text-muted mt-2" style="font-size:0.8rem">透過 Stripe 安全付款，可隨時取消</p>
+            <p class="text-muted mt-2" style="font-size:0.8rem; text-align:center;">🔒 安全付款，可隨時取消。</p>
         </div>
 
+        <!-- Already Subscribed -->
         <div class="text-center hidden" id="subscribedBadge" style="padding:2rem;">
-            <div style="font-size:3rem; margin-bottom:1rem">✨</div>
-            <h2 style="font-family:var(--font-heading); color:var(--rose-light)">你已是 Premium 會員</h2>
-            <p class="text-muted mt-1">享受所有高級功能</p>
+            <div style="font-size:3rem; margin-bottom:1rem">👑</div>
+            <h2 style="font-family:var(--font-heading); color:var(--gold);">你已是 Premium 會員</h2>
+            <p style="color:var(--text-muted); margin-top:0.5rem;">享受所有高級功能</p>
+        </div>
+
+        <!-- Feature Comparison -->
+        <div class="card mt-4" style="overflow:hidden;">
+            <div class="card-body" style="padding:0;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <th style="padding:1rem; text-align:left; color:var(--text-secondary);">功能</th>
+                            <th style="padding:1rem; text-align:center; color:var(--text-muted);">免費</th>
+                            <th style="padding:1rem; text-align:center; color:var(--gold);">Premium</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.75rem 1rem;">瀏覽會員</td>
+                            <td style="padding:0.75rem 1rem; text-align:center;">有限</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">無限</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.75rem 1rem;">傳送訊息</td>
+                            <td style="padding:0.75rem 1rem; text-align:center;">有限</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">無限</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.75rem 1rem;">AI 翻譯</td>
+                            <td style="padding:0.75rem 1rem; text-align:center;">✓</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">✓</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.75rem 1rem;">查看誰喜歡你</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">✗</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">✓</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.75rem 1rem;">私密相簿</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">✗</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">✓</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.75rem 1rem;">進階篩選</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">✗</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">✓</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:0.75rem 1rem;">優先曝光</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--text-muted);">✗</td>
+                            <td style="padding:0.75rem 1rem; text-align:center; color:var(--gold);">✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div style="margin-top:3rem; margin-bottom:3rem;">
+            <h3 style="font-family:var(--font-heading); text-align:center; margin-bottom:2rem;">常見問題</h3>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h4 style="color:var(--gold); margin-bottom:0.5rem;">如何取消訂閱？</h4>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">你可以隨時在設定頁面取消訂閱，取消後仍可使用 Premium 功能直到當期結束。</p>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h4 style="color:var(--gold); margin-bottom:0.5rem;">付款方式有哪些？</h4>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">我們透過 Stripe 支援信用卡、簽帳金融卡等多種安全付款方式。</p>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h4 style="color:var(--gold); margin-bottom:0.5rem;">Premium 會員有什麼獨家功能？</h4>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">Premium 會員可享無限瀏覽、查看誰喜歡你、進階篩選、優先曝光與專屬客服支援。</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -48,7 +131,7 @@ async function subscribe() {
     } catch (err) {
         showToast(err.message || '發生錯誤', 'error');
     }
-    btn.disabled = false; btn.textContent = '立即訂閱';
+    btn.disabled = false; btn.textContent = '升級 Premium';
 }
 (async () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -56,7 +139,6 @@ async function subscribe() {
         document.getElementById('pricingCard').classList.add('hidden');
         document.getElementById('subscribedBadge').classList.remove('hidden');
     }
-    // Check URL params
     const params = new URLSearchParams(window.location.search);
     if (params.get('status') === 'success') showToast('訂閱成功！', 'success');
     if (params.get('status') === 'cancel') showToast('訂閱已取消', 'error');

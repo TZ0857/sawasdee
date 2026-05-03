@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from typing import Optional, List
 from pydantic import BaseModel
 import uuid
@@ -93,14 +93,14 @@ async def explore_users(
     min_height: Optional[float] = None,
     max_height: Optional[float] = None,
     location: Optional[str] = None,
+    search: Optional[str] = None,
+    is_online: Optional[bool] = None,
+    sort_by: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Show opposite gender users: males see Thai females, females see Taiwanese males."""
-    if current_user.gender == Gender.male:
-        query = select(User).where(User.gender == Gender.female, User.is_active == True)
-    else:
-        query = select(User).where(User.gender == Gender.male, User.is_active == True)
+    """Show all active users (excluding self)."""
+    query = select(User).where(User.is_active == True)
 
     # Exclude self
     query = query.where(User.id != current_user.id)
@@ -116,14 +116,32 @@ async def explore_users(
         query = query.where(User.height <= max_height)
     if location:
         query = query.where(User.location.ilike(f"%{location}%"))
+    if search:
+        search_term = f"%{search}%"
+        query = query.where(
+            or_(
+                User.display_name.ilike(search_term),
+                User.location.ilike(search_term),
+                User.interests.ilike(search_term),
+                User.bio.ilike(search_term),
+            )
+        )
+    if is_online:
+        query = query.where(User.is_online == True)
 
     # Count total
     count_query = select(func.count()).select_from(query.subquery())
     total_result = await db.execute(count_query)
     total = total_result.scalar()
 
+    # Sort
+    if sort_by == "newest":
+        query = query.order_by(User.created_at.desc())
+    else:
+        query = query.order_by(User.is_online.desc(), User.created_at.desc())
+
     # Paginate
-    query = query.order_by(User.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+    query = query.offset((page - 1) * per_page).limit(per_page)
     result = await db.execute(query)
     users = result.scalars().all()
 

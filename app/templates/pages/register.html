@@ -1,10 +1,11 @@
 {% extends "components/base.html" %}
 {% block title %}註冊{% endblock %}
+{% block mobile_nav %}{% endblock %}
 {% block content %}
 <div class="auth-page">
     <div class="auth-card" style="max-width:520px">
         <h1 class="auth-title">加入 Sawasdee</h1>
-        <p class="auth-subtitle">開啟你的跨國交友之旅</p>
+        <p class="auth-subtitle">建立你的會員檔案，開始遇見更有質感的連結。</p>
         <form id="registerForm">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <div class="form-group">
@@ -68,7 +69,7 @@
                 <label class="form-label">自我介紹</label>
                 <textarea class="form-textarea" id="regBio" placeholder="說說你自己..." rows="3"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">註冊</button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">建立帳號</button>
         </form>
         <p class="auth-footer">已有帳號？ <a href="/login">登入</a></p>
     </div>
@@ -82,7 +83,7 @@ document.getElementById('regGender').addEventListener('change', (e) => {
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type=submit]');
-    btn.disabled = true; btn.textContent = '註冊中...';
+    btn.disabled = true; btn.textContent = '建立中...';
     const gender = document.getElementById('regGender').value;
     try {
         const data = await api.post('/api/auth/register', {
@@ -105,7 +106,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         setTimeout(() => window.location.href = '/explore', 500);
     } catch (err) {
         showToast(err.message || '註冊失敗', 'error');
-        btn.disabled = false; btn.textContent = '註冊';
+        btn.disabled = false; btn.textContent = '建立帳號';
     }
 });
 </script>

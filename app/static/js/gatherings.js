@@ -3,9 +3,12 @@ requireAuth();
 
 const TYPE_LABELS = {
     meal: '🍜 飯局',
-    karaoke: '🎤 唱歌',
-    drinks: '🍺 喝酒',
+    karaoke: '🎤 KTV',
+    drinks: '🥂 小酌',
+    coffee: '☕ 咖啡',
     movie: '🎬 電影',
+    nightlife: '🌙 夜生活',
+    travel: '✈️ 旅行',
 };
 
 let currentTab = 'explore';
@@ -234,6 +237,14 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
 document.getElementById('createModal').addEventListener('click', (e) => {
     if (e.target.id === 'createModal') closeCreateModal();
 });
+
+// Quick create from inspiration cards
+function quickCreate(type, title) {
+    openCreateModal();
+    document.getElementById('gType').value = type;
+    document.getElementById('gTitle').value = title;
+    document.getElementById('gTitle').focus();
+}
 
 // Init
 loadGatherings();

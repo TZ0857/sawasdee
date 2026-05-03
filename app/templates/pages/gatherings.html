@@ -4,9 +4,16 @@
 {% block content %}
 <div class="main-content">
     <div class="container">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h2 style="font-family:var(--font-heading)">組局</h2>
-            <button class="btn btn-primary btn-sm" onclick="openCreateModal()">+ 發起新局</button>
+        <!-- Page Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.8rem;">
+            <div>
+                <h2 class="page-title" style="margin-bottom:0.15rem;">組局</h2>
+                <p class="page-subtitle" style="margin-bottom:0;">發起一個輕鬆局，找到今天剛好有空的人</p>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                發起新局
+            </button>
         </div>
 
         <!-- Tabs -->
@@ -19,9 +26,11 @@
         <div class="g-filters">
             <button class="g-filter active" data-type="" onclick="filterType('')">全部</button>
             <button class="g-filter" data-type="meal" onclick="filterType('meal')">🍜 飯局</button>
-            <button class="g-filter" data-type="karaoke" onclick="filterType('karaoke')">🎤 唱歌</button>
-            <button class="g-filter" data-type="drinks" onclick="filterType('drinks')">🍺 喝酒</button>
+            <button class="g-filter" data-type="drinks" onclick="filterType('drinks')">🥂 小酌</button>
+            <button class="g-filter" data-type="coffee" onclick="filterType('coffee')">☕ 咖啡</button>
+            <button class="g-filter" data-type="karaoke" onclick="filterType('karaoke')">🎤 KTV</button>
             <button class="g-filter" data-type="movie" onclick="filterType('movie')">🎬 電影</button>
+            <button class="g-filter" data-type="nightlife" onclick="filterType('nightlife')">🌙 夜生活</button>
         </div>
 
         <!-- Gathering Grid -->
@@ -32,8 +41,36 @@
         </div>
 
         <!-- Empty state -->
-        <div class="g-empty hidden" id="gatheringEmpty">
-            <p>目前沒有局，快來發起第一個吧！</p>
+        <div class="hidden" id="gatheringEmpty">
+            <div class="empty-state-card" style="max-width:420px;">
+                <div class="empty-icon">🎯</div>
+                <div class="empty-title">目前還沒有局</div>
+                <div class="empty-desc">發起第一個局，讓剛好有空的人遇見你。</div>
+                <button class="btn btn-primary" onclick="openCreateModal()">發起組局</button>
+            </div>
+        </div>
+
+        <!-- 熱門組局靈感 -->
+        <div style="margin-top:2.5rem;" id="inspirationSection">
+            <div class="section-title">熱門組局靈感</div>
+            <div class="inspiration-grid">
+                <div class="inspiration-card" onclick="quickCreate('meal', '週末晚餐局')">
+                    <div class="insp-emoji">🍽️</div>
+                    <div class="insp-label">晚餐局</div>
+                </div>
+                <div class="inspiration-card" onclick="quickCreate('drinks', '微醺小酌')">
+                    <div class="insp-emoji">🥂</div>
+                    <div class="insp-label">微醺小酌</div>
+                </div>
+                <div class="inspiration-card" onclick="quickCreate('coffee', '咖啡慢聊')">
+                    <div class="insp-emoji">☕</div>
+                    <div class="insp-label">咖啡慢聊</div>
+                </div>
+                <div class="inspiration-card" onclick="quickCreate('travel', '週末出遊')">
+                    <div class="insp-emoji">🏞️</div>
+                    <div class="insp-label">週末出遊</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -42,7 +79,7 @@
 <div class="modal-overlay hidden" id="createModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3>發起新局</h3>
+            <h3 style="font-family:var(--font-heading);">發起組局</h3>
             <button class="modal-close" onclick="closeCreateModal()">&times;</button>
         </div>
         <form id="createForm">
@@ -50,9 +87,12 @@
                 <label class="form-label">類型</label>
                 <select class="form-input" id="gType" required>
                     <option value="meal">🍜 飯局</option>
-                    <option value="karaoke">🎤 唱歌</option>
-                    <option value="drinks">🍺 喝酒</option>
+                    <option value="drinks">🥂 小酌</option>
+                    <option value="coffee">☕ 咖啡</option>
+                    <option value="karaoke">🎤 KTV</option>
                     <option value="movie">🎬 電影</option>
+                    <option value="nightlife">🌙 夜生活</option>
+                    <option value="travel">✈️ 旅行</option>
                 </select>
             </div>
             <div class="form-group">
@@ -87,5 +127,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/gatherings.js"></script>
+<script src="/static/js/gatherings.js?v=2"></script>
 {% endblock %}

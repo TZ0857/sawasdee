@@ -4,15 +4,31 @@
 {% block content %}
 <div class="main-content">
     <div class="container">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h2 style="font-family:var(--font-heading)">探索會員</h2>
-            <button class="btn btn-secondary btn-sm" onclick="toggleFilters()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">探索會員</h2>
+            <p class="page-subtitle">遇見懂生活的人，開啟高品質的跨國緣分</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrap" style="margin-bottom:1rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="搜尋姓名、城市或興趣...">
+        </div>
+
+        <!-- Quick Filter Chips -->
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:1.2rem; align-items:center;" id="filterChips">
+            <button class="chip active" data-filter="" onclick="quickFilter('')">全部</button>
+            <button class="chip" data-filter="online" onclick="quickFilter('online')">在線中</button>
+            <button class="chip" data-filter="new" onclick="quickFilter('new')">新會員</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-ghost btn-sm" onclick="toggleFilters()" style="color:var(--text-muted);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
                 篩選
             </button>
         </div>
 
-        <div class="filter-bar hidden" id="filterBar">
+        <div class="filter-bar hidden" id="filterBar" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.2rem; margin-bottom:1.2rem;">
             <div class="form-group" style="margin-bottom:0">
                 <input type="number" class="form-input" id="filterMinAge" placeholder="最小年齡" min="18">
             </div>
@@ -29,6 +45,7 @@
             <button class="btn btn-ghost btn-sm" onclick="resetFilters()">重設</button>
         </div>
 
+        <!-- User Grid -->
         <div class="user-grid" id="userGrid">
             <div class="flex-center" style="grid-column:1/-1; padding:4rem;">
                 <div class="spinner"></div>
@@ -36,9 +53,17 @@
         </div>
 
         <div class="flex-center mt-4 mb-3 gap-2" id="pagination"></div>
+
+        <!-- Premium Banner -->
+        <div class="premium-promo">
+            <div style="font-size:1.8rem; margin-bottom:0.5rem;">👑</div>
+            <h3 style="font-family:var(--font-heading); margin-bottom:0.4rem; font-size:1.15rem;">升級 Premium，解鎖無限可能</h3>
+            <p style="color:var(--text-muted); margin-bottom:1.2rem; font-size:0.85rem; max-width:400px; margin-left:auto; margin-right:auto;">查看誰喜歡你、無限次訊息、進階篩選、優先曝光</p>
+            <a href="/subscription" class="btn btn-primary">立即升級</a>
+        </div>
     </div>
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/explore.js"></script>
+<script src="/static/js/explore.js?v=3"></script>
 {% endblock %}
