@@ -154,14 +154,31 @@ async def explore_users(
     }
 
 
+async def _resolve_user(db: AsyncSession, identifier: str) -> Optional[User]:
+    """Look up a user by UUID or username. Returns None if not found."""
+    if not identifier:
+        return None
+    # Try UUID first
+    try:
+        uuid.UUID(identifier)
+        result = await db.execute(select(User).where(User.id == identifier))
+        user = result.scalar_one_or_none()
+        if user:
+            return user
+    except (ValueError, TypeError):
+        pass
+    # Fall back to username
+    result = await db.execute(select(User).where(User.username == identifier))
+    return result.scalar_one_or_none()
+
+
 @router.get("/{user_id}")
 async def get_user(
     user_id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalar_one_or_none()
+    user = await _resolve_user(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user_to_dict(user)

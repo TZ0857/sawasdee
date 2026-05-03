@@ -101,6 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (page && path.startsWith('/' + page)) link.classList.add('active');
     });
 
+    // Hide "升級 Premium" CTA when the user is already a Premium member
+    if (user && user.is_subscribed) {
+        document.querySelectorAll('.nav-premium-btn').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+
     // Close avatar dropdown when clicking outside
     document.addEventListener('click', (e) => {
         const wrap = document.getElementById('navAvatarWrap');

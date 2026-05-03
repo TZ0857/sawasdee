@@ -1,3 +1,5 @@
+import uuid as _uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_, func, update
@@ -13,6 +15,24 @@ from app.services.translate import translate_message
 router = APIRouter(prefix="/api/messages", tags=["messages"])
 
 
+async def _resolve_user_id(db: AsyncSession, identifier: str) -> Optional[str]:
+    """Accept either a UUID or username, return user UUID string. None if not found."""
+    if not identifier:
+        return None
+    try:
+        _uuid.UUID(identifier)
+        # Verify the UUID actually maps to a user
+        result = await db.execute(select(User.id).where(User.id == identifier))
+        uid = result.scalar_one_or_none()
+        if uid:
+            return str(uid)
+    except (ValueError, TypeError):
+        pass
+    result = await db.execute(select(User.id).where(User.username == identifier))
+    uid = result.scalar_one_or_none()
+    return str(uid) if uid else None
+
+
 class SendMessageRequest(BaseModel):
     receiver_id: str
     content: str
@@ -24,8 +44,11 @@ async def send_message(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    # Verify receiver exists
-    result = await db.execute(select(User).where(User.id == req.receiver_id))
+    # Verify receiver exists (accept UUID or username)
+    receiver_uuid = await _resolve_user_id(db, req.receiver_id)
+    if not receiver_uuid:
+        raise HTTPException(status_code=404, detail="User not found")
+    result = await db.execute(select(User).where(User.id == receiver_uuid))
     receiver = result.scalar_one_or_none()
     if not receiver:
         raise HTTPException(status_code=404, detail="User not found")
@@ -127,12 +150,17 @@ async def get_chat_messages(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # Accept UUID or username — resolve to UUID before querying
+    target_uuid = await _resolve_user_id(db, user_id)
+    if not target_uuid:
+        raise HTTPException(status_code=404, detail="User not found")
+
     query = (
         select(Message)
         .where(
             or_(
-                and_(Message.sender_id == current_user.id, Message.receiver_id == user_id),
-                and_(Message.sender_id == user_id, Message.receiver_id == current_user.id),
+                and_(Message.sender_id == current_user.id, Message.receiver_id == target_uuid),
+                and_(Message.sender_id == target_uuid, Message.receiver_id == current_user.id),
             )
         )
         .order_by(Message.created_at.desc())
@@ -145,7 +173,7 @@ async def get_chat_messages(
     # Mark as read
     await db.execute(
         update(Message)
-        .where(Message.sender_id == user_id, Message.receiver_id == current_user.id, Message.is_read == False)
+        .where(Message.sender_id == target_uuid, Message.receiver_id == current_user.id, Message.is_read == False)
         .values(is_read=True)
     )
 

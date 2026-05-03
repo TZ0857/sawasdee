@@ -16,27 +16,13 @@ function switchTab(tab) {
 
 async function loadProfile() {
     try {
-        // Find user by username — use explore endpoint and filter
-        const data = await api.get('/api/users/me');
-        if (data.username === profileUsername) {
-            profileData = data;
-        } else {
-            // Search in explore or use direct lookup
-            // We'll try the explore endpoint with a workaround
-            const res = await fetch(`/api/users/explore?page=1&per_page=50`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const exploreData = await res.json();
-            profileData = exploreData.users?.find(u => u.username === profileUsername);
-            if (!profileData) {
-                // It might be the current user
-                profileData = data;
-            }
-        }
-
+        // /api/users/{id_or_username} now accepts both — single round trip.
+        profileData = await api.get(`/api/users/${encodeURIComponent(profileUsername)}`);
         renderProfile();
     } catch (err) {
-        showToast('載入個人資料失敗', 'error');
+        showToast('找不到這位會員', 'error');
+        document.getElementById('profileName').textContent = '找不到此會員';
+        document.getElementById('profileMeta').textContent = '請回探索頁尋找其他會員。';
     }
 }
 

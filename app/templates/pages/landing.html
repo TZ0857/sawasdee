@@ -1,6 +1,15 @@
 {% extends "components/base.html" %}
 {% block title %}Welcome{% endblock %}
 {% block mobile_nav %}{% endblock %}
+{% block navbar %}
+<nav class="navbar landing-navbar">
+    <a href="/" class="nav-brand">Sawasdee</a>
+    <div class="nav-links" style="gap:0.5rem;">
+        <a href="/login" class="btn btn-secondary btn-sm">登入</a>
+        <a href="/register" class="btn btn-primary btn-sm">免費註冊</a>
+    </div>
+</nav>
+{% endblock %}
 {% block content %}
 <div class="landing-hero">
     <div>
@@ -151,6 +160,6 @@
 
 <!-- Footer -->
 <div style="padding:2rem 1rem; text-align:center;">
-    <p style="color:var(--text-muted); font-size:0.85rem;">&copy; 2025 Sawasdee. All rights reserved.</p>
+    <p style="color:var(--text-muted); font-size:0.85rem;">&copy; 2026 Sawasdee. All rights reserved.</p>
 </div>
 {% endblock %}

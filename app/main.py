@@ -111,6 +111,25 @@ async def feed_page(request: Request):
     return templates.TemplateResponse("pages/feed.html", {"request": request})
 
 
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_redirect(request: Request):
+    """Redirect /profile to the logged-in user's own profile via JS (token lives in localStorage)."""
+    return HTMLResponse("""<!DOCTYPE html>
+<html lang="zh-TW"><head>
+<meta charset="UTF-8"><title>Sawasdee</title>
+<style>body{background:#0a0a0a;color:#B8B0A0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}</style>
+</head><body>
+<p>跳轉中…</p>
+<script>
+  try {
+    const u = JSON.parse(localStorage.getItem('user') || '{}');
+    if (u && u.username) location.replace('/profile/' + u.username);
+    else location.replace('/login');
+  } catch (e) { location.replace('/login'); }
+</script>
+</body></html>""")
+
+
 @app.get("/profile/{username}", response_class=HTMLResponse)
 async def profile_page(request: Request, username: str):
     return templates.TemplateResponse("pages/profile.html", {"request": request, "username": username})
