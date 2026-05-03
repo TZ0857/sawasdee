@@ -537,6 +537,32 @@ h3 { font-size: 1.3rem; }
     font-style: italic;
 }
 .message-time { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+/* Read-receipt indicators — keep them readable against the gold bubble.
+   Sent bubble has dark text (#1a1a1a) on a gold background, so dark indicators win. */
+.message-sent .message-time { color: rgba(26, 26, 26, 0.55); }
+.msg-status {
+    display: inline-block;
+    margin-left: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    vertical-align: baseline;
+}
+.message-sent .msg-status-pending {
+    color: rgba(26, 26, 26, 0.55);
+    font-weight: 500;
+}
+.message-sent .msg-status-sent {
+    color: rgba(26, 26, 26, 0.7);
+}
+.message-sent .msg-status-read {
+    color: #1a1a1a;
+    background: rgba(26, 26, 26, 0.08);
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 700;
+}
 .chat-input-area {
     padding: 0.8rem 1.2rem; border-top: 1px solid var(--border);
     display: flex; gap: 0.7rem; align-items: center;

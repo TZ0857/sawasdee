@@ -1,18 +1,40 @@
 import uuid as _uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_, func, update
 from pydantic import BaseModel
 from typing import Optional
 
-from app.database import get_db
+from app.database import get_db, async_session
 from app.models.message import Message, Conversation
 from app.models.user import User
 from app.services.auth import get_current_user
 from app.services.translate import translate_message
 
 router = APIRouter(prefix="/api/messages", tags=["messages"])
+
+
+async def _translate_in_background(message_id: str, content: str) -> None:
+    """Run translation off the request path and write the result back to the message row.
+
+    Failures are intentionally swallowed — translation is best-effort and must never
+    bring down sending. The client polls /chat/{user_id} so the translation will
+    appear automatically once it lands.
+    """
+    try:
+        translated = await translate_message(content)
+        if not translated or translated == content:
+            return
+        async with async_session() as session:
+            await session.execute(
+                update(Message)
+                .where(Message.id == message_id)
+                .values(translated_content=translated)
+            )
+            await session.commit()
+    except Exception:
+        pass
 
 
 async def _resolve_user_id(db: AsyncSession, identifier: str) -> Optional[str]:
@@ -41,6 +63,7 @@ class SendMessageRequest(BaseModel):
 @router.post("/send")
 async def send_message(
     req: SendMessageRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -53,14 +76,14 @@ async def send_message(
     if not receiver:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Translate
-    translated = await translate_message(req.content)
-
+    # Persist the message first so the client gets an instant response.
+    # Translation is dispatched as a background task — DeepL/Google round-trips
+    # used to block /send for up to ~5s, locking the UI between sends.
     msg = Message(
         sender_id=current_user.id,
         receiver_id=receiver.id,
         content=req.content,
-        translated_content=translated,
+        translated_content=None,
     )
     db.add(msg)
 
@@ -87,10 +110,17 @@ async def send_message(
         db.add(conv)
 
     await db.flush()
+    msg_id_str = str(msg.id)
+    # Commit before kicking off the background task — the task opens its own session
+    # and would race against an in-flight transaction otherwise.
+    await db.commit()
+
+    background_tasks.add_task(_translate_in_background, msg_id_str, req.content)
+
     return {
-        "id": str(msg.id),
+        "id": msg_id_str,
         "content": msg.content,
-        "translated_content": msg.translated_content,
+        "translated_content": "",
         "sender_id": str(msg.sender_id),
         "receiver_id": str(msg.receiver_id),
         "created_at": msg.created_at.isoformat(),
