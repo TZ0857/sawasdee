@@ -1586,6 +1586,69 @@ h3 { font-size: 1.3rem; }
 }
 .g-msg-system-time { color: var(--text-muted); margin-left: 0.4rem; font-weight: 400; }
 
+/* Members panel — slides down under the gathering chat header */
+.g-members-panel {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    max-height: 240px;
+    overflow-y: auto;
+}
+.g-members-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+}
+.g-member-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+.g-member-row:hover { background: var(--bg-elevated); }
+.g-member-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.g-member-name {
+    flex: 1;
+    font-size: 0.86rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+}
+.g-member-host-badge {
+    background: var(--gold);
+    color: #1a1a1a;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+}
+.g-member-kick {
+    background: transparent;
+    border: 1px solid var(--danger, #d94f4f);
+    color: var(--danger, #d94f4f);
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    flex-shrink: 0;
+}
+.g-member-kick:hover {
+    background: var(--danger, #d94f4f);
+    color: #fff;
+}
+
 @media (max-width: 640px) {
     .g-chat-layout {
         grid-template-columns: 1fr;

@@ -47,14 +47,19 @@ function getUser() {
     try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
 }
 
-function showToast(msg, type = 'success') {
+function showToast(msg, type = 'success', opts = {}) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = msg;
+    if (opts.html) {
+        toast.innerHTML = msg;     // caller is responsible for safety
+    } else {
+        toast.textContent = msg;
+    }
     container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    const ttl = opts.duration || 3500;
+    setTimeout(() => toast.remove(), ttl);
 }
 
 function timeAgo(dateStr) {

@@ -23,10 +23,22 @@
                     <div class="g-chat-title" id="gChatTitle">載入中...</div>
                     <div class="g-chat-subtitle" id="gChatSubtitle"></div>
                 </div>
+                <button class="btn btn-ghost btn-sm" onclick="toggleMembersPanel()" title="成員清單">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </button>
                 <button class="btn btn-ghost btn-sm" onclick="loadMessages(true)" title="重新整理">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
                 </button>
             </header>
+
+            <!-- Members panel (hidden by default, slides down from header) -->
+            <div class="g-members-panel hidden" id="gMembersPanel">
+                <div class="g-members-panel-header">
+                    <strong>成員 (<span id="gMemberCount">0</span>)</strong>
+                    <button class="btn btn-ghost btn-sm" onclick="toggleMembersPanel()" type="button">×</button>
+                </div>
+                <div id="gMembersList"></div>
+            </div>
             <div class="g-chat-messages" id="gChatMessages">
                 <div class="flex-center" style="flex:1"><div class="spinner"></div></div>
             </div>
@@ -42,5 +54,5 @@
 {% endblock %}
 {% block scripts %}
 <script>const gatheringId = "{{ gathering_id }}";</script>
-<script src="/static/js/gathering_chat.js?v=20260504b"></script>
+<script src="/static/js/gathering_chat.js?v=20260504c"></script>
 {% endblock %}

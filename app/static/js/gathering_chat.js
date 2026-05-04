@@ -228,5 +228,61 @@ document.getElementById('gChatInput').addEventListener('keypress', (e) => {
 // Auto-poll (kept on window so we can clear it when the chat is closed)
 window._chatPollIntervalId = setInterval(loadMessages, 3000);
 
+/* ---------- Members panel: list + kick (host only) ---------- */
+let membersPanelOpen = false;
+let cachedIsHost = false;
+
+async function loadMembers() {
+    try {
+        const data = await api.get(`/api/gatherings/${gatheringId}/members`);
+        cachedIsHost = !!data.is_host;
+        const members = data.members || [];
+        document.getElementById('gMemberCount').textContent = members.length;
+        document.getElementById('gMembersList').innerHTML = members.map(m => {
+            const profilePath = `/profile/${encodeURIComponent(m.username)}`;
+            const isMe = m.id === currentUser.id;
+            const kickBtn = (cachedIsHost && !m.is_host && !isMe)
+                ? `<button class="g-member-kick" onclick="kickMember('${m.id}', '${escapeHtml(m.display_name)}'); event.stopPropagation();" title="移出">移出</button>`
+                : '';
+            const hostBadge = m.is_host ? '<span class="g-member-host-badge">主揪</span>' : '';
+            return `
+                <a href="${profilePath}" class="g-member-row" title="查看 ${escapeHtml(m.display_name)} 的個人頁">
+                    <img src="${escapeHtml(m.avatar_url || '')}" alt="" class="g-member-avatar"
+                         onerror="this.style.background='var(--gradient-gold)'; this.removeAttribute('src');">
+                    <div class="g-member-name">
+                        ${escapeHtml(m.display_name)}${isMe ? ' (你)' : ''}
+                        ${hostBadge}
+                    </div>
+                    ${kickBtn}
+                </a>
+            `;
+        }).join('');
+    } catch (err) {
+        document.getElementById('gMembersList').innerHTML =
+            '<div class="text-muted" style="padding:1rem;">無法載入成員</div>';
+    }
+}
+
+function toggleMembersPanel() {
+    const panel = document.getElementById('gMembersPanel');
+    if (!panel) return;
+    membersPanelOpen = !membersPanelOpen;
+    panel.classList.toggle('hidden', !membersPanelOpen);
+    if (membersPanelOpen) loadMembers();
+}
+
+async function kickMember(userId, displayName) {
+    if (!confirm(`確定把「${displayName}」移出局?`)) return;
+    try {
+        await api.post(`/api/gatherings/${gatheringId}/kick/${userId}`);
+        showToast(`已將 ${displayName} 移出`, 'success');
+        loadMembers();
+        lastRenderHash = '';
+        loadMessages(true);   // refresh to show the system "X 已被移出局" message
+    } catch (err) {
+        showToast(err.message || '移出失敗', 'error');
+    }
+}
+
 loadMyChats();
 loadMessages(true);

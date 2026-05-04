@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title>{% block title %}Sawasdee{% endblock %} — Sawasdee</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260504l">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260504m">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
     {% block head %}{% endblock %}
 </head>
@@ -57,17 +57,23 @@
         }
     })();
 
-    // Pending-gathering-request badge (top + mobile nav).
-    // Only runs when we have a token and we're not on a public page.
+    // Pending-gathering-request badge (top + mobile nav) AND realtime notice
+    // toasts for both the host (someone applied) and the applicant (request
+    // approved / rejected). Polls /pending-count + /requests/mine every 25s.
     (function(){
         const path = window.location.pathname;
         if(['/', '/login', '/register'].includes(path)) return;
         if(!localStorage.getItem('token')) return;
+
+        function authedFetch(url){
+            return fetch(url, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+        }
+
+        // --- Host: pending requests count + new-request toast ---
+        let lastPendingCount = parseInt(sessionStorage.getItem('sw_pending_count') || '0', 10) || 0;
         async function refreshGatheringBadge(){
             try {
-                const r = await fetch('/api/gatherings/requests/pending-count', {
-                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-                });
+                const r = await authedFetch('/api/gatherings/requests/pending-count');
                 if (!r.ok) return;
                 const data = await r.json();
                 const n = data.count || 0;
@@ -80,10 +86,61 @@
                             el.classList.add('hidden');
                         }
                     });
+                if (n > lastPendingCount) {
+                    const delta = n - lastPendingCount;
+                    if (window.showToast) showToast(`🔔 你有 ${delta} 個新的入局申請`, 'success');
+                }
+                lastPendingCount = n;
+                sessionStorage.setItem('sw_pending_count', String(n));
             } catch (e) { /* ignore */ }
         }
-        refreshGatheringBadge();
-        setInterval(refreshGatheringBadge, 30000);  // 30s poll
+
+        // --- Applicant: detect approve/reject of my own pending requests ---
+        function readSeenStatus(){
+            try { return JSON.parse(sessionStorage.getItem('sw_my_req_status') || '{}'); }
+            catch (_) { return {}; }
+        }
+        function writeSeenStatus(map){
+            sessionStorage.setItem('sw_my_req_status', JSON.stringify(map));
+        }
+        async function refreshMyRequests(){
+            try {
+                const r = await authedFetch('/api/gatherings/requests/mine');
+                if (!r.ok) return;
+                const data = await r.json();
+                const reqs = data.requests || [];
+                const seen = readSeenStatus();
+                const next = {};
+                for (const req of reqs) {
+                    next[req.id] = req.status;
+                    const prev = seen[req.id];
+                    if (prev && prev !== req.status) {
+                        // status changed since last poll
+                        if (req.status === 'approved') {
+                            const goChat = `<a href="/gatherings/${req.gathering.id}/chat" style="color:inherit; text-decoration:underline; font-weight:700;">進入聊天 →</a>`;
+                            if (window.showToast) showToast(
+                                `🎉 「${req.gathering.title}」核准你的申請! · ${goChat}`,
+                                'success', { html: true, duration: 6000 }
+                            );
+                            // Auto-jump if user is currently on /gatherings or /messages
+                            const here = window.location.pathname;
+                            if (here.startsWith('/gatherings') && !here.endsWith('/chat')) {
+                                setTimeout(() => { window.location.href = `/gatherings/${req.gathering.id}/chat`; }, 1500);
+                            }
+                        } else if (req.status === 'rejected') {
+                            if (window.showToast) showToast(`「${req.gathering.title}」未通過你的申請`, 'error');
+                        }
+                    }
+                }
+                writeSeenStatus(next);
+            } catch (e) { /* ignore */ }
+        }
+
+        async function tick(){
+            await Promise.all([refreshGatheringBadge(), refreshMyRequests()]);
+        }
+        tick();
+        setInterval(tick, 25000);
     })();
     </script>
     {% block scripts %}{% endblock %}

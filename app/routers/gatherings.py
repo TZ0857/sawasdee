@@ -345,6 +345,38 @@ async def get_pending_count(
     return {"count": result.scalar() or 0}
 
 
+@router.get("/requests/mine")
+async def list_my_requests(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """My own gathering applications — used by the global poller to detect
+    when one of my pending requests was approved or rejected so the UI can
+    show a toast / auto-jump into the chat."""
+    result = await db.execute(
+        select(GatheringRequest)
+        .where(GatheringRequest.applicant_id == current_user.id)
+        .options(selectinload(GatheringRequest.gathering))
+        .order_by(GatheringRequest.updated_at.desc())
+    )
+    requests = result.scalars().all()
+    return {
+        "requests": [
+            {
+                "id": str(r.id),
+                "status": r.status.value,
+                "gathering": {
+                    "id": str(r.gathering.id),
+                    "title": r.gathering.title,
+                    "type": r.gathering.type,
+                },
+                "updated_at": r.updated_at.isoformat() if r.updated_at else r.created_at.isoformat(),
+            }
+            for r in requests
+        ]
+    }
+
+
 @router.post("/requests/{request_id}/approve")
 async def approve_request(
     request_id: str,
@@ -576,6 +608,127 @@ async def list_my_chats(
             for g in gatherings
         ]
     }
+
+
+@router.get("/{gathering_id}/members")
+async def list_members(
+    gathering_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Member list for the gathering chat sidebar / kick UI.
+    Returns host + every member with avatar / display_name / username."""
+    result = await db.execute(
+        select(Gathering)
+        .where(Gathering.id == gathering_id)
+        .options(
+            selectinload(Gathering.host),
+            selectinload(Gathering.members).selectinload(GatheringMember.user),
+        )
+    )
+    gathering = result.scalar_one_or_none()
+    if not gathering:
+        raise HTTPException(status_code=404, detail="找不到這個局")
+
+    is_member = (
+        str(gathering.host_id) == str(current_user.id)
+        or any(str(m.user_id) == str(current_user.id) for m in gathering.members)
+    )
+    if not is_member:
+        raise HTTPException(status_code=403, detail="只有局成員才能看")
+
+    # Build list — host first, then approved members (skip duplicate if host
+    # is in members table)
+    members_out = []
+    seen = set()
+    members_out.append({
+        "id": str(gathering.host.id),
+        "username": gathering.host.username,
+        "display_name": gathering.host.display_name,
+        "avatar_url": gathering.host.avatar_url or "",
+        "is_host": True,
+    })
+    seen.add(str(gathering.host.id))
+    for m in gathering.members:
+        if str(m.user_id) in seen:
+            continue
+        members_out.append({
+            "id": str(m.user.id),
+            "username": m.user.username,
+            "display_name": m.user.display_name,
+            "avatar_url": m.user.avatar_url or "",
+            "is_host": False,
+        })
+        seen.add(str(m.user.id))
+    return {
+        "members": members_out,
+        "is_host": str(gathering.host_id) == str(current_user.id),
+    }
+
+
+@router.post("/{gathering_id}/kick/{user_id}")
+async def kick_member(
+    gathering_id: str,
+    user_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Host-only: remove a member from a gathering and post a system
+    message in the chat ("X 被移出局")."""
+    result = await db.execute(
+        select(Gathering)
+        .where(Gathering.id == gathering_id)
+        .options(selectinload(Gathering.host))
+    )
+    gathering = result.scalar_one_or_none()
+    if not gathering:
+        raise HTTPException(status_code=404, detail="找不到這個局")
+    if str(gathering.host_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="只有主揪可以踢人")
+    if str(user_id) == str(gathering.host_id):
+        raise HTTPException(status_code=400, detail="主揪不能把自己踢出")
+
+    # Find the membership row
+    mres = await db.execute(
+        select(GatheringMember).where(
+            GatheringMember.gathering_id == gathering.id,
+            GatheringMember.user_id == user_id,
+        )
+    )
+    member = mres.scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="這個人不在局裡")
+
+    # Get target's display name for the system message
+    ures = await db.execute(select(User).where(User.id == user_id))
+    target = ures.scalar_one_or_none()
+    target_name = (target.display_name if target else "成員")
+
+    await db.delete(member)
+    gathering.current_slots = max(1, gathering.current_slots - 1)
+    db.add(gathering)
+
+    # Also reset their request to "rejected" so they can't immediately re-apply
+    rreq = await db.execute(
+        select(GatheringRequest).where(
+            GatheringRequest.gathering_id == gathering.id,
+            GatheringRequest.applicant_id == user_id,
+        )
+    )
+    req = rreq.scalar_one_or_none()
+    if req:
+        req.status = GatheringRequestStatus.rejected
+        db.add(req)
+
+    sys_msg = GatheringMessage(
+        gathering_id=gathering.id,
+        sender_id=user_id,    # tag who left even though it's a system msg
+        content=f"{target_name} 已被移出局",
+        is_system=True,
+    )
+    db.add(sys_msg)
+    await db.flush()
+    return {"kicked": True}
 
 
 @router.delete("/{gathering_id}/leave")
