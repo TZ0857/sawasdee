@@ -107,7 +107,7 @@ function renderCard(g) {
             <button class="btn btn-ghost btn-sm g-action-btn" onclick="leaveGathering('${g.id}')">退出</button>
         `;
     } else if (g.my_request_status === 'pending') {
-        actionBtn = '<button class="btn btn-pending btn-sm g-action-btn" disabled>審核中…</button>';
+        actionBtn = '<button class="btn btn-pending btn-sm g-action-btn" disabled>已申請</button>';
     } else if (g.my_request_status === 'rejected') {
         actionBtn = `<button class="btn btn-secondary btn-sm g-action-btn" onclick="openApplyModal('${g.id}', \`${escapeAttr(g.title)}\`)">重新申請</button>`;
     } else if (isFull) {
