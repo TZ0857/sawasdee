@@ -86,21 +86,21 @@
                                 <div style="font-weight:500;">顯示在線狀態</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">讓其他會員看到你是否在線</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="show_online"><span class="toggle-slider"></span></label>
                         </div>
                         <div class="settings-row">
                             <div>
                                 <div style="font-weight:500;">顯示最後上線時間</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">其他人可以看到你上次活躍的時間</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="show_last_seen"><span class="toggle-slider"></span></label>
                         </div>
                         <div class="settings-row">
                             <div>
                                 <div style="font-weight:500;">允許非 Premium 會員傳訊息</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">關閉後只有 Premium 會員可以傳送訊息給你</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="allow_msg_from_non_premium"><span class="toggle-slider"></span></label>
                         </div>
                     </div>
                 </div>
@@ -114,21 +114,21 @@
                                 <div style="font-weight:500;">新訊息通知</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">收到新訊息時通知你</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="notify_new_message"><span class="toggle-slider"></span></label>
                         </div>
                         <div class="settings-row">
                             <div>
                                 <div style="font-weight:500;">有人喜歡你</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">當有人對你的檔案按讚時通知你</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="notify_likes"><span class="toggle-slider"></span></label>
                         </div>
                         <div class="settings-row">
                             <div>
                                 <div style="font-weight:500;">組局提醒</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">你參加的組局有更新時通知你</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="notify_gatherings"><span class="toggle-slider"></span></label>
                         </div>
                     </div>
                 </div>
@@ -139,8 +139,8 @@
                         <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">語言設定</h3>
                         <div class="form-group">
                             <label class="form-label">介面語言</label>
-                            <select class="form-input">
-                                <option value="zh-TW" selected>繁體中文</option>
+                            <select class="form-input" id="setUiLanguage" data-setting="ui_language">
+                                <option value="zh-TW">繁體中文</option>
                                 <option value="th">ภาษาไทย</option>
                                 <option value="en">English</option>
                             </select>
@@ -150,7 +150,7 @@
                                 <div style="font-weight:500;">自動翻譯訊息</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted);">使用 AI 自動翻譯收到的訊息</div>
                             </div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            <label class="toggle"><input type="checkbox" data-setting="auto_translate_msgs"><span class="toggle-slider"></span></label>
                         </div>
                     </div>
                 </div>
@@ -248,8 +248,37 @@ function switchSettings(panel, el) {
         if(user.is_subscribed) {
             document.getElementById('subStatus').textContent = 'Premium 會員';
         }
+        // Hydrate setting toggles + selects from server values
+        document.querySelectorAll('[data-setting]').forEach(el => {
+            const key = el.getAttribute('data-setting');
+            const v = user[key];
+            if (el.type === 'checkbox') {
+                el.checked = v === undefined ? true : !!v;
+            } else {
+                el.value = v ?? '';
+            }
+        });
     } catch(e) {}
 })();
+
+// Auto-save settings on change (debounced per field)
+const _settingTimers = {};
+async function saveSetting(key, value) {
+    try {
+        await api.put('/api/users/me/settings', { [key]: value });
+        showToast('已儲存', 'success');
+    } catch(e) {
+        showToast('儲存失敗', 'error');
+    }
+}
+document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (!t.matches('[data-setting]')) return;
+    const key = t.getAttribute('data-setting');
+    const value = t.type === 'checkbox' ? t.checked : t.value;
+    clearTimeout(_settingTimers[key]);
+    _settingTimers[key] = setTimeout(() => saveSetting(key, value), 250);
+});
 document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {

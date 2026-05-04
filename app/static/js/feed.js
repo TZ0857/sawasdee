@@ -360,22 +360,72 @@ async function submitComment(postId) {
 
 /* ---------- Stories ---------- */
 async function loadStories() {
+    const bar = document.getElementById('storiesBar');
+    bar.style.display = '';
+    let storyGroups = [];
     try {
         const data = await api.get('/api/posts/stories/active');
-        const bar = document.getElementById('storiesBar');
-        if (!data.story_groups || data.story_groups.length === 0) {
-            bar.style.display = 'none';
-            return;
-        }
-        bar.innerHTML = data.story_groups.map(g => `
-            <div class="story-circle" onclick="viewStory('${escapeHtml(g.stories[0].image_url)}')">
-                <div class="story-avatar-ring">
-                    <img src="${escapeHtml(g.author.avatar_url || '')}" alt="${escapeHtml(g.author.display_name)}" style="${g.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
-                </div>
-                <div class="story-name">${escapeHtml(g.author.display_name)}</div>
-            </div>
-        `).join('');
+        storyGroups = data.story_groups || [];
     } catch (e) { /* ignore */ }
+
+    // Always show the user's own "add story" circle first
+    const myAvatar = user.avatar_url ? escapeHtml(user.avatar_url) : '';
+    const myStoryCircle = `
+        <div class="story-circle story-mine" onclick="document.getElementById('storyUploadInput').click()">
+            <div class="story-avatar-ring story-add-ring">
+                <img src="${myAvatar}" alt="${escapeHtml(user.display_name || '我')}" style="${myAvatar ? '' : 'background:var(--gradient-gold)'}">
+                <div class="story-add-plus">+</div>
+            </div>
+            <div class="story-name">你的限動</div>
+        </div>
+    `;
+
+    // Filter out my own group from "others" so we don't render twice
+    const myId = String(user.id);
+    const others = storyGroups.filter(g => String(g.author.id) !== myId);
+
+    bar.innerHTML = myStoryCircle + others.map(g => `
+        <div class="story-circle" onclick="viewStory('${escapeHtml(g.stories[0].image_url)}')">
+            <div class="story-avatar-ring">
+                <img src="${escapeHtml(g.author.avatar_url || '')}" alt="${escapeHtml(g.author.display_name)}" style="${g.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+            </div>
+            <div class="story-name">${escapeHtml(g.author.display_name)}</div>
+        </div>
+    `).join('');
+
+    // Hidden file input (created once)
+    if (!document.getElementById('storyUploadInput')) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.id = 'storyUploadInput';
+        input.style.display = 'none';
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) uploadStory(file);
+            e.target.value = '';
+        });
+        document.body.appendChild(input);
+    }
+}
+
+async function uploadStory(file) {
+    const MAX = 20 * 1024 * 1024;
+    if (file.size > MAX) {
+        showToast('圖片超過 20MB', 'error');
+        return;
+    }
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('caption', '');
+    showToast('上傳中…', 'success');
+    try {
+        await api.post('/api/posts/stories', fd, true);
+        showToast('限動已發布,24 小時內可見', 'success');
+        loadStories();
+    } catch (err) {
+        showToast('上傳失敗', 'error');
+    }
 }
 
 function viewStory(imageUrl) {

@@ -26,6 +26,20 @@ class UpdateProfileRequest(BaseModel):
     cup_size: Optional[str] = None
 
 
+class UpdateSettingsRequest(BaseModel):
+    # Privacy
+    show_online: Optional[bool] = None
+    show_last_seen: Optional[bool] = None
+    allow_msg_from_non_premium: Optional[bool] = None
+    # Notifications
+    notify_new_message: Optional[bool] = None
+    notify_likes: Optional[bool] = None
+    notify_gatherings: Optional[bool] = None
+    # Language
+    ui_language: Optional[str] = None
+    auto_translate_msgs: Optional[bool] = None
+
+
 def user_to_dict(user: User) -> dict:
     return {
         "id": str(user.id),
@@ -45,6 +59,15 @@ def user_to_dict(user: User) -> dict:
         "is_subscribed": user.is_subscribed,
         "is_verified": bool(getattr(user, "is_verified", False)),
         "is_online": user.is_online,
+        # Settings (privacy / notifications / language)
+        "show_online": bool(getattr(user, "show_online", True)),
+        "show_last_seen": bool(getattr(user, "show_last_seen", True)),
+        "allow_msg_from_non_premium": bool(getattr(user, "allow_msg_from_non_premium", True)),
+        "notify_new_message": bool(getattr(user, "notify_new_message", True)),
+        "notify_likes": bool(getattr(user, "notify_likes", True)),
+        "notify_gatherings": bool(getattr(user, "notify_gatherings", True)),
+        "ui_language": getattr(user, "ui_language", "zh-TW") or "zh-TW",
+        "auto_translate_msgs": bool(getattr(user, "auto_translate_msgs", True)),
         "created_at": user.created_at.isoformat() if user.created_at else "",
     }
 
@@ -60,6 +83,20 @@ async def update_me(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    for field, value in req.dict(exclude_none=True).items():
+        setattr(current_user, field, value)
+    db.add(current_user)
+    return user_to_dict(current_user)
+
+
+@router.put("/me/settings")
+async def update_settings(
+    req: UpdateSettingsRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update privacy / notification / language settings.
+    Only fields that are explicitly provided are updated."""
     for field, value in req.dict(exclude_none=True).items():
         setattr(current_user, field, value)
     db.add(current_user)

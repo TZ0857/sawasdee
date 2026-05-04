@@ -401,6 +401,17 @@ h3 { font-size: 1.3rem; }
     object-fit: cover; border: 2.5px solid var(--bg-primary);
 }
 .story-name { font-size: 0.7rem; color: var(--text-muted); max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.story-mine .story-avatar-ring { position: relative; background: var(--bg-elevated); border: 2px dashed var(--gold, #C4566F); padding: 0; }
+.story-mine .story-avatar-ring img { border: none; opacity: 0.6; }
+.story-mine .story-add-plus {
+    position: absolute; right: -2px; bottom: -2px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gradient-gold); color: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1rem; line-height: 1;
+    border: 2px solid var(--bg-primary);
+}
+.story-mine:hover .story-avatar-ring img { opacity: 0.85; }
 
 /* ============================================================
    POST FEED
