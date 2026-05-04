@@ -279,6 +279,23 @@ async def apply_to_gathering(
     )
     db.add(new_req)
     await db.flush()
+
+    # Notify host (respects their preference)
+    try:
+        host = (await db.execute(select(User).where(User.id == gathering.host_id))).scalar_one_or_none()
+        if host and host.id != current_user.id and getattr(host, "notify_gatherings", True):
+            from app.routers.notifications import create_notification
+            await create_notification(
+                db,
+                user_id=host.id,
+                n_type="gathering_request",
+                title=f"{current_user.display_name} 想加入「{gathering.title}」",
+                link="/gatherings",
+                actor_id=current_user.id,
+            )
+    except Exception:
+        pass
+
     return {"status": "pending", "message": "已送出申請,等對方審核"}
 
 
@@ -430,6 +447,23 @@ async def approve_request(
     )
     db.add(sys_msg)
     await db.flush()
+
+    # Notify the applicant
+    try:
+        applicant = (await db.execute(select(User).where(User.id == req.applicant_id))).scalar_one_or_none()
+        if applicant and getattr(applicant, "notify_gatherings", True):
+            from app.routers.notifications import create_notification
+            await create_notification(
+                db,
+                user_id=req.applicant_id,
+                n_type="gathering_approved",
+                title=f"主揪通過了你的申請:「{gathering.title}」",
+                link="/gatherings",
+                actor_id=current_user.id,
+            )
+    except Exception:
+        pass
+
     return {"status": "approved"}
 
 
@@ -454,6 +488,24 @@ async def reject_request(
 
     req.status = GatheringRequestStatus.rejected
     db.add(req)
+
+    # Notify the applicant (soft tone — host can still re-apply later)
+    try:
+        applicant = (await db.execute(select(User).where(User.id == req.applicant_id))).scalar_one_or_none()
+        gathering = req.gathering
+        if applicant and getattr(applicant, "notify_gatherings", True):
+            from app.routers.notifications import create_notification
+            await create_notification(
+                db,
+                user_id=req.applicant_id,
+                n_type="gathering_rejected",
+                title=f"「{gathering.title}」未通過審核,下次再試試 ✨",
+                link="/gatherings",
+                actor_id=current_user.id,
+            )
+    except Exception:
+        pass
+
     return {"status": "rejected"}
 
 

@@ -170,6 +170,24 @@ async def toggle_like(
         db.add(new_like)
         post.likes_count += 1
         liked = True
+        # Notify the post author (skip self-likes + skip if author opted out)
+        if post.author_id != current_user.id and getattr(current_user, "is_active", True):
+            try:
+                from app.routers.notifications import create_notification
+                # Check author preference
+                from app.models.user import User as _U
+                author = (await db.execute(select(_U).where(_U.id == post.author_id))).scalar_one_or_none()
+                if author and getattr(author, "notify_likes", True):
+                    await create_notification(
+                        db,
+                        user_id=post.author_id,
+                        n_type="like",
+                        title=f"{current_user.display_name} 喜歡了你的動態",
+                        link="/feed",
+                        actor_id=current_user.id,
+                    )
+            except Exception:
+                pass
 
     db.add(post)
     return {"liked": liked, "likes_count": post.likes_count}
@@ -192,6 +210,21 @@ async def add_comment(
     post.comments_count += 1
     db.add(post)
     await db.flush()
+
+    # Notify the post author (skip self-comments)
+    if post.author_id != current_user.id:
+        try:
+            from app.routers.notifications import create_notification
+            await create_notification(
+                db,
+                user_id=post.author_id,
+                n_type="comment",
+                title=f"{current_user.display_name} 留言:{(content or '')[:60]}",
+                link="/feed",
+                actor_id=current_user.id,
+            )
+        except Exception:
+            pass
 
     return {
         "id": str(comment.id),

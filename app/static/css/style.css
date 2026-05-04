@@ -1914,3 +1914,57 @@ h3 { font-size: 1.3rem; }
     .user-card .card-overlay { padding: 2rem 0.8rem 0.8rem; }
     .user-card .card-name { font-size: 1rem; }
 }
+
+/* ============================================================
+   NOTIFICATION BELL & DRAWER
+   ============================================================ */
+.nav-bell {
+    position: relative; background: transparent; border: none;
+    color: var(--text-secondary); cursor: pointer; padding: 0.4rem;
+    border-radius: 8px; transition: color 0.15s, background 0.15s;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.nav-bell:hover { color: var(--text-primary); background: var(--bg-elevated); }
+.nav-bell .nav-badge {
+    position: absolute; top: -2px; right: -2px;
+    background: var(--danger, #C4566F); color: #fff;
+    font-size: 0.62rem; font-weight: 700;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    padding: 0 4px; display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--bg-primary);
+}
+.notif-drawer {
+    position: absolute; top: 100%; right: 1rem; margin-top: 0.5rem;
+    width: 360px; max-width: calc(100vw - 2rem);
+    background: var(--bg-card, #0E0E1A); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    z-index: 1000; overflow: hidden;
+}
+.notif-drawer-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.85rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+}
+.notif-drawer-head .btn-link {
+    background: none; border: none; color: var(--gold, #C4566F);
+    cursor: pointer; font-size: 0.78rem; padding: 0;
+}
+.notif-drawer-list { max-height: 60vh; overflow-y: auto; }
+.notif-row {
+    display: flex; gap: 0.7rem; align-items: center;
+    padding: 0.7rem 1rem; border-bottom: 1px solid var(--border);
+    color: var(--text-primary); text-decoration: none;
+    transition: background 0.15s;
+}
+.notif-row:last-child { border-bottom: none; }
+.notif-row:hover { background: var(--bg-elevated); }
+.notif-row.unread { background: rgba(196, 86, 111, 0.06); }
+.notif-row.unread::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--danger, #C4566F); flex-shrink: 0;
+}
+.notif-title { font-size: 0.85rem; line-height: 1.35; }
+.notif-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+@media (max-width: 768px) {
+    .notif-drawer { right: 0.5rem; width: calc(100vw - 1rem); }
+}

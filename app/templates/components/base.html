@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title>{% block title %}Sawasdee{% endblock %} — Sawasdee</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260504n">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260504o">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
     {% block head %}{% endblock %}
 </head>
@@ -156,6 +156,103 @@
         // when it becomes visible again so the user sees what they missed.
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') tick();
+        });
+    })();
+
+    // Notification bell — polls /api/notifications/unread-count alongside the
+    // gathering poller. Drawer fetches the actual rows on open so the badge
+    // call stays cheap.
+    (function(){
+        const path = window.location.pathname;
+        if(['/', '/login', '/register'].includes(path)) return;
+        if(!localStorage.getItem('token')) return;
+
+        function authedFetch(url, opts={}){
+            return fetch(url, { ...opts, headers: { ...(opts.headers || {}), 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+        }
+
+        async function refreshNotifBadge(){
+            try {
+                const r = await authedFetch('/api/notifications/unread-count');
+                if (!r.ok) return;
+                const data = await r.json();
+                const n = data.count || 0;
+                document.querySelectorAll('#notifBadge').forEach(el => {
+                    if (n > 0) {
+                        el.textContent = n > 99 ? '99+' : String(n);
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+            } catch (e) {}
+        }
+        refreshNotifBadge();
+        setInterval(refreshNotifBadge, 1500);
+
+        async function loadNotifList(){
+            const list = document.getElementById('notifDrawerList');
+            if (!list) return;
+            try {
+                const r = await authedFetch('/api/notifications');
+                if (!r.ok) throw 0;
+                const data = await r.json();
+                const rows = data.notifications || [];
+                if (rows.length === 0) {
+                    list.innerHTML = '<div class="text-muted" style="padding:1.5rem; text-align:center;">尚無通知</div>';
+                    return;
+                }
+                list.innerHTML = rows.map(n => {
+                    const ts = window.timeAgo ? window.timeAgo(n.created_at) : '';
+                    const av = n.actor && n.actor.avatar_url
+                        ? `<img src="${n.actor.avatar_url}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+                        : `<div style="width:34px;height:34px;border-radius:50%;background:var(--gradient-gold);flex-shrink:0;"></div>`;
+                    const safeTitle = (n.title || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'})[c]);
+                    return `
+                        <a class="notif-row${n.is_read ? '' : ' unread'}" href="${n.link || '#'}" data-nid="${n.id}">
+                            ${av}
+                            <div style="flex:1; min-width:0;">
+                                <div class="notif-title">${safeTitle}</div>
+                                <div class="notif-time">${ts}</div>
+                            </div>
+                        </a>`;
+                }).join('');
+                list.querySelectorAll('.notif-row').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const id = el.getAttribute('data-nid');
+                        if (id) authedFetch(`/api/notifications/${id}/read`, { method: 'POST' });
+                    });
+                });
+            } catch (e) {
+                list.innerHTML = '<div class="text-muted" style="padding:1.5rem; text-align:center;">載入失敗</div>';
+            }
+        }
+
+        window.toggleNotifDrawer = function(ev){
+            if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+            const d = document.getElementById('notifDrawer');
+            if (!d) return;
+            const wasHidden = d.classList.contains('hidden');
+            d.classList.toggle('hidden');
+            if (wasHidden) loadNotifList();
+        };
+
+        window.markAllNotifsRead = async function(){
+            try {
+                await authedFetch('/api/notifications/mark-all-read', { method: 'POST' });
+                refreshNotifBadge();
+                loadNotifList();
+            } catch (e) {}
+        };
+
+        // Click-outside closes drawer
+        document.addEventListener('click', (e) => {
+            const d = document.getElementById('notifDrawer');
+            const b = document.getElementById('navBellBtn');
+            if (d && b && !d.classList.contains('hidden')
+                && !d.contains(e.target) && !b.contains(e.target)) {
+                d.classList.add('hidden');
+            }
         });
     })();
     </script>

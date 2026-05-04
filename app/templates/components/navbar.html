@@ -24,6 +24,19 @@
             <span>Premium</span>
         </a>
         <a href="/subscription" class="btn btn-secondary btn-sm nav-premium-btn">升級 Premium</a>
+        <button class="nav-bell" id="navBellBtn" onclick="toggleNotifDrawer(event)" aria-label="通知">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="nav-badge hidden" id="notifBadge">0</span>
+        </button>
+        <div class="notif-drawer hidden" id="notifDrawer">
+            <div class="notif-drawer-head">
+                <span style="font-weight:600;">通知</span>
+                <button class="btn-link" onclick="markAllNotifsRead()">全部標為已讀</button>
+            </div>
+            <div id="notifDrawerList" class="notif-drawer-list">
+                <div class="text-muted" style="padding:1.5rem; text-align:center;">尚無通知</div>
+            </div>
+        </div>
         <div class="nav-avatar-wrap" id="navAvatarWrap">
             <img src="" alt="" class="nav-avatar" id="navAvatar" onclick="toggleAvatarMenu()">
             <div class="avatar-dropdown hidden" id="avatarDropdown">

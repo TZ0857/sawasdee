@@ -197,6 +197,23 @@ async def send_message(
 
     await db.flush()
     msg_id_str = str(msg.id)
+
+    # Persist a notification for the receiver (respects their setting)
+    try:
+        if getattr(receiver, "notify_new_message", True):
+            from app.routers.notifications import create_notification
+            preview = (req.content or "")[:80]
+            await create_notification(
+                db,
+                user_id=receiver.id,
+                n_type="message",
+                title=f"{current_user.display_name}:{preview}",
+                link=f"/chat/{current_user.id}",
+                actor_id=current_user.id,
+            )
+    except Exception:
+        pass
+
     # Commit before kicking off the background task — the task opens its own session
     # and would race against an in-flight transaction otherwise.
     await db.commit()
