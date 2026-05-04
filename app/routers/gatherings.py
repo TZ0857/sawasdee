@@ -424,6 +424,20 @@ async def reject_request(
 
 # ----------------------- Gathering chat (group chat per gathering) -----------------------
 
+
+async def _purge_expired_chats(db: AsyncSession) -> None:
+    """Delete chat messages of any gathering whose event_at has passed.
+    Cheap, runs lazily on common chat endpoints. Doesn't delete the
+    Gathering row itself — hosts can still see it in their history,
+    just the chat content is gone."""
+    from sqlalchemy import delete
+    now = datetime.utcnow()
+    expired_ids = select(Gathering.id).where(Gathering.expires_at <= now)
+    await db.execute(
+        delete(GatheringMessage).where(GatheringMessage.gathering_id.in_(expired_ids))
+    )
+
+
 async def _ensure_member(db, gathering_id: str, user_id: str) -> Gathering:
     result = await db.execute(
         select(Gathering)
@@ -437,6 +451,10 @@ async def _ensure_member(db, gathering_id: str, user_id: str) -> Gathering:
     is_member = is_host or any(str(m.user_id) == str(user_id) for m in gathering.members)
     if not is_member:
         raise HTTPException(status_code=403, detail="只有局成員才能進入聊天室")
+    # Once event_at passes, the chat room is closed and its messages purged.
+    if gathering.expires_at <= datetime.utcnow():
+        await _purge_expired_chats(db)
+        raise HTTPException(status_code=410, detail="局已開始,聊天室已關閉")
     return gathering
 
 
@@ -518,20 +536,27 @@ async def list_my_chats(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Sidebar list: every gathering I'm a member of (or host of)."""
+    """Sidebar list: every gathering I'm a member of (or host of) whose
+    event_at hasn't passed yet. Expired gatherings drop out automatically
+    and their chat messages are purged."""
+    # Lazy cleanup of expired chat rooms
+    await _purge_expired_chats(db)
+
+    now = datetime.utcnow()
     my_member_ids = select(GatheringMember.gathering_id).where(
         GatheringMember.user_id == current_user.id
     )
     result = await db.execute(
         select(Gathering)
         .where(
-            (Gathering.host_id == current_user.id) | (Gathering.id.in_(my_member_ids))
+            ((Gathering.host_id == current_user.id) | (Gathering.id.in_(my_member_ids)))
+            & (Gathering.expires_at > now)
         )
         .options(
             selectinload(Gathering.host),
             selectinload(Gathering.members),
         )
-        .order_by(Gathering.expires_at.desc())
+        .order_by(Gathering.expires_at.asc())
     )
     gatherings = result.scalars().all()
     return {

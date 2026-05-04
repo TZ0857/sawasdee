@@ -21,9 +21,14 @@ function renderConversations(conversations) {
         return;
     }
 
-    list.innerHTML = conversations.map(c => `
+    list.innerHTML = conversations.map(c => {
+        const profilePath = `/profile/${encodeURIComponent(c.other_user.username)}`;
+        return `
         <div class="conversation-item" onclick="window.location.href='/chat/${c.other_user.id}'" data-unread="${c.unread_count || 0}">
-            <img src="${c.other_user.avatar_url || ''}" class="conversation-avatar" alt="" style="${c.other_user.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+            <img src="${c.other_user.avatar_url || ''}" class="conversation-avatar" alt=""
+                 title="點擊查看個人頁"
+                 onclick="event.stopPropagation(); window.location.href='${profilePath}'; return false;"
+                 style="${c.other_user.avatar_url ? '' : 'background:var(--gradient-gold)'}; cursor:pointer;">
             <div class="conversation-info">
                 <div class="conversation-name">
                     ${c.other_user.display_name}
@@ -33,7 +38,8 @@ function renderConversations(conversations) {
             </div>
             ${c.unread_count > 0 ? `<div class="conversation-unread">${c.unread_count}</div>` : ''}
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function filterConv(type) {

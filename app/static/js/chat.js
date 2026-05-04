@@ -20,6 +20,15 @@ async function loadChatUser() {
         const avatar = document.getElementById('chatAvatar');
         if (user.avatar_url) avatar.src = user.avatar_url;
         else avatar.style.background = 'var(--gradient-gold)';
+        // Tap avatar / name to open the partner's profile
+        const goProfile = () => { window.location.href = `/profile/${encodeURIComponent(user.username)}`; };
+        avatar.style.cursor = 'pointer';
+        avatar.onclick = goProfile;
+        const nameEl = document.getElementById('chatName');
+        if (nameEl) {
+            nameEl.style.cursor = 'pointer';
+            nameEl.onclick = goProfile;
+        }
     } catch (err) {
         showToast('無法載入用戶資料', 'error');
     }
@@ -278,9 +287,12 @@ function renderConvSidebar(convs) {
     }
     list.innerHTML = convs.map(c => {
         const isActive = c.other_user.id === chatUserId || c.other_user.username === chatUserId;
+        const profilePath = `/profile/${encodeURIComponent(c.other_user.username)}`;
         return `
             <a href="/chat/${c.other_user.id}" class="chat-conv-item ${isActive ? 'active' : ''}">
                 <img src="${c.other_user.avatar_url || ''}" alt="" class="chat-conv-avatar"
+                     title="點擊查看個人頁"
+                     onclick="event.stopPropagation(); event.preventDefault(); window.location.href='${profilePath}'; return false;"
                      onerror="this.style.background='var(--gradient-gold)'; this.removeAttribute('src');">
                 <div class="chat-conv-body">
                     <div class="chat-conv-name">

@@ -61,11 +61,16 @@ function renderMessage(m, isMine) {
 
     const tempAttr = m.is_pending ? ` data-pending-id="${m.pending_id}"` : '';
     const opacity = m.is_pending ? ' opacity:0.78;' : '';
+    const profilePath = m.sender && m.sender.username
+        ? `/profile/${encodeURIComponent(m.sender.username)}`
+        : '#';
     const senderInfo = isMine ? '' : `
         <div class="g-msg-sender">
-            <img src="${escapeHtml(m.sender.avatar_url || '')}" alt="" class="g-msg-avatar"
-                 style="${m.sender.avatar_url ? '' : 'background:var(--gradient-gold)'}">
-            <span class="g-msg-name">${escapeHtml(m.sender.display_name)}</span>
+            <a href="${profilePath}" title="查看 ${escapeHtml(m.sender.display_name)} 的個人頁" style="display:inline-flex; align-items:center; gap:0.3rem; color:inherit; text-decoration:none;">
+                <img src="${escapeHtml(m.sender.avatar_url || '')}" alt="" class="g-msg-avatar"
+                     style="${m.sender.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                <span class="g-msg-name">${escapeHtml(m.sender.display_name)}</span>
+            </a>
         </div>
     `;
     return `
@@ -131,8 +136,25 @@ async function loadMessages(scrollToBottom = false) {
         }
         isInitialLoad = false;
     } catch (err) {
-        if (err.message && err.message.includes('成員')) {
-            // Not a member — kick back
+        const m = (err && err.message) || '';
+        if (m.includes('關閉') || m.includes('已開始')) {
+            // 410: gathering has started, chat room closed
+            document.getElementById('gChatMessages').innerHTML = `
+                <div class="text-center" style="padding:2.5rem 1rem; color:var(--text-muted);">
+                    <div style="font-size:2rem; margin-bottom:0.5rem;">🌙</div>
+                    <div style="color:var(--text-primary); font-weight:600; margin-bottom:0.4rem;">局已開始,聊天室已關閉</div>
+                    <div style="font-size:0.85rem; line-height:1.6;">時間到了之後,所有訊息都自動刪除了。<br>祝你們玩得開心!</div>
+                    <a href="/gatherings" class="btn btn-primary btn-sm" style="margin-top:1.2rem;">回到組局</a>
+                </div>
+            `;
+            document.getElementById('gChatTitle').textContent = '聊天室已關閉';
+            // Also stop the polling loop
+            if (window._chatPollIntervalId) clearInterval(window._chatPollIntervalId);
+            // Hide the input area
+            const inputArea = document.querySelector('.g-chat-input-area');
+            if (inputArea) inputArea.style.display = 'none';
+        } else if (m.includes('成員')) {
+            // 403: not a member
             document.getElementById('gChatMessages').innerHTML =
                 '<div class="text-center text-muted" style="padding:2rem;">你不是這個局的成員,無法進入聊天室</div>';
             document.getElementById('gChatTitle').textContent = '無權進入';
@@ -203,8 +225,8 @@ document.getElementById('gChatInput').addEventListener('keypress', (e) => {
     }
 });
 
-// Auto-poll
-setInterval(loadMessages, 3000);
+// Auto-poll (kept on window so we can clear it when the chat is closed)
+window._chatPollIntervalId = setInterval(loadMessages, 3000);
 
 loadMyChats();
 loadMessages(true);
