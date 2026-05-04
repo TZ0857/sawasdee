@@ -264,59 +264,79 @@ document.getElementById('messageInput').addEventListener('keypress', (e) => {
 // Auto refresh
 setInterval(loadMessages, 3000);
 
-/* ---------- Desktop sidebar: list of all my conversations ---------- */
+/* ---------- Desktop sidebar: list of all my conversations ----------
+   Renders with the SAME HTML structure as /messages page (.conversation-item)
+   so both pages look identical. */
 let allSidebarConvs = [];
+let convSidebarFilter = 'all';
+
 async function loadConvSidebar() {
     const list = document.getElementById('chatConvList');
-    if (!list) return;     // not present on mobile / older HTML
+    if (!list) return;
     try {
         const data = await api.get('/api/messages/conversations');
         allSidebarConvs = data.conversations || [];
-        renderConvSidebar(allSidebarConvs);
+        renderConvSidebar(filteredSidebarConvs());
     } catch (e) {
         list.innerHTML = '<div class="text-muted text-center" style="padding:1.2rem; font-size:0.85rem;">載入失敗</div>';
     }
+}
+
+function filteredSidebarConvs() {
+    const q = (document.getElementById('chatConvSearch') || { value: '' }).value.trim().toLowerCase();
+    return allSidebarConvs.filter(c => {
+        if (convSidebarFilter === 'unread' && !(c.unread_count > 0)) return false;
+        if (q) {
+            const name = (c.other_user.display_name || '').toLowerCase();
+            const msg = (c.last_message || '').toLowerCase();
+            if (!name.includes(q) && !msg.includes(q)) return false;
+        }
+        return true;
+    });
 }
 
 function renderConvSidebar(convs) {
     const list = document.getElementById('chatConvList');
     if (!list) return;
     if (!convs.length) {
-        list.innerHTML = '<div class="text-muted text-center" style="padding:1.2rem; font-size:0.85rem;">還沒有對話</div>';
+        list.innerHTML = '<div class="text-muted text-center" style="padding:1.2rem; font-size:0.85rem;">沒有符合的對話</div>';
         return;
     }
     list.innerHTML = convs.map(c => {
         const isActive = c.other_user.id === chatUserId || c.other_user.username === chatUserId;
         const profilePath = `/profile/${encodeURIComponent(c.other_user.username)}`;
         return `
-            <a href="/chat/${c.other_user.id}" class="chat-conv-item ${isActive ? 'active' : ''}">
-                <img src="${c.other_user.avatar_url || ''}" alt="" class="chat-conv-avatar"
+            <div class="conversation-item ${isActive ? 'active' : ''}"
+                 onclick="window.location.href='/chat/${c.other_user.id}'"
+                 data-unread="${c.unread_count || 0}">
+                <img src="${c.other_user.avatar_url || ''}" alt="" class="conversation-avatar"
                      title="點擊查看個人頁"
-                     onclick="event.stopPropagation(); event.preventDefault(); window.location.href='${profilePath}'; return false;"
-                     onerror="this.style.background='var(--gradient-gold)'; this.removeAttribute('src');">
-                <div class="chat-conv-body">
-                    <div class="chat-conv-name">
+                     onclick="event.stopPropagation(); window.location.href='${profilePath}'; return false;"
+                     style="${c.other_user.avatar_url ? '' : 'background:var(--gradient-gold)'}; cursor:pointer;">
+                <div class="conversation-info">
+                    <div class="conversation-name">
                         ${escapeHtml(c.other_user.display_name)}
-                        ${c.other_user.is_online ? '<span class="chat-conv-online"></span>' : ''}
+                        ${c.other_user.is_online ? '<span style="display:inline-block;width:8px;height:8px;background:var(--success);border-radius:50%;margin-left:4px;"></span>' : ''}
                     </div>
-                    <div class="chat-conv-preview">${escapeHtml(c.last_message || '')}</div>
+                    <div class="conversation-preview">${escapeHtml(c.last_message || '')}</div>
                 </div>
-                ${c.unread_count > 0 ? `<div class="chat-conv-unread">${c.unread_count}</div>` : ''}
-            </a>
+                ${c.unread_count > 0 ? `<div class="conversation-unread">${c.unread_count}</div>` : ''}
+            </div>
         `;
     }).join('');
 }
 
+function filterConvSidebar(type) {
+    convSidebarFilter = type;
+    document.querySelectorAll('[data-conv-filter]').forEach(el => {
+        el.classList.toggle('active', el.dataset.convFilter === type);
+    });
+    renderConvSidebar(filteredSidebarConvs());
+}
+
 const _convSearch = document.getElementById('chatConvSearch');
 if (_convSearch) {
-    _convSearch.addEventListener('input', function() {
-        const q = this.value.trim().toLowerCase();
-        if (!q) { renderConvSidebar(allSidebarConvs); return; }
-        renderConvSidebar(allSidebarConvs.filter(c =>
-            c.other_user.display_name.toLowerCase().includes(q) ||
-            (c.last_message || '').toLowerCase().includes(q)
-        ));
-    });
+    _convSearch.addEventListener('input', () => renderConvSidebar(filteredSidebarConvs()));
 }
 
 loadChatUser();

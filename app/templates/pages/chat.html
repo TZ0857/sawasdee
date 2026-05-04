@@ -3,15 +3,20 @@
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
 <div class="main-content">
-    <!-- Desktop wrap: sidebar (conversations) + chat. On mobile this collapses
-         and the chat-container's existing position:fixed rules take over. -->
+    <!-- Mirrors the /messages page layout but with the chat panel filled in.
+         Same wrap class so visual styling is shared, but a different parent
+         class than .messages-layout to avoid the mobile "hide chat-area" rule. -->
     <div class="chat-desktop-wrap">
-        <aside class="chat-conv-sidebar" id="chatConvSidebar">
-            <div class="chat-sidebar-header">
-                <h3 class="chat-sidebar-title">訊息</h3>
-                <input type="text" class="form-input chat-conv-search" id="chatConvSearch" placeholder="搜尋對話…">
+        <aside class="conversations-list chat-conv-sidebar" id="chatConvSidebar">
+            <h3 style="padding:0.5rem; margin-bottom:0.5rem; font-family:var(--font-heading)">訊息</h3>
+            <div style="padding:0 0.5rem 0.75rem;">
+                <input type="text" class="form-input" id="chatConvSearch" placeholder="搜尋對話..." style="font-size:0.85rem; padding:0.5rem 0.75rem;">
             </div>
-            <div id="chatConvList">
+            <div style="display:flex; gap:0.25rem; padding:0 0.5rem 0.75rem;">
+                <button class="chip active" data-conv-filter="all" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConvSidebar('all')">全部</button>
+                <button class="chip" data-conv-filter="unread" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConvSidebar('unread')">未讀</button>
+            </div>
+            <div id="chatConvList" style="padding:0 0.3rem;">
                 <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
             </div>
         </aside>
@@ -47,5 +52,5 @@
 {% endblock %}
 {% block scripts %}
 <script>const chatUserId = "{{ user_id }}";</script>
-<script src="/static/js/chat.js?v=20260504b"></script>
+<script src="/static/js/chat.js?v=20260504c"></script>
 {% endblock %}
