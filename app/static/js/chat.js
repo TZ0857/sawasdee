@@ -23,30 +23,33 @@ async function loadChatUser() {
     }
 }
 
-function renderReadStatus(isSent, isRead, isPending) {
+function renderReceiptBelow(m, isSent) {
     if (!isSent) return '';
-    if (isPending) {
-        return ' <span class="msg-status msg-status-pending" title="傳送中">⏳</span>';
+    if (m.is_pending) {
+        return '<div class="msg-receipt msg-receipt-pending" title="傳送中">⏳ 傳送中…</div>';
     }
-    if (isRead) {
-        return ' <span class="msg-status msg-status-read" title="已讀">✓✓ 已讀</span>';
+    if (m.is_read) {
+        return '<div class="msg-receipt msg-receipt-read" title="對方已讀">已讀</div>';
     }
-    return ' <span class="msg-status msg-status-sent" title="已送達">✓</span>';
+    return '<div class="msg-receipt msg-receipt-sent" title="已送達">已送達</div>';
 }
 
 function renderMessage(m, isSent) {
     const ts = (m.created_at || '').endsWith('Z') ? m.created_at : (m.created_at || '') + 'Z';
     const showTranslation = autoTranslate && m.translated_content && m.translated_content !== m.content;
-    const readStatus = renderReadStatus(isSent, m.is_read, !!m.is_pending);
     const tempAttr = m.is_pending ? ` data-pending-id="${m.pending_id}"` : '';
     const opacity = m.is_pending ? ' opacity:0.78;' : '';
+    const receipt = renderReceiptBelow(m, isSent);
     return `
-        <div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}"${tempAttr} style="${opacity}">
-            <div>${escapeHtml(m.content)}</div>
-            ${showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(m.translated_content)}</div>` : ''}
-            <div class="message-time" style="text-align:${isSent ? 'right' : 'left'};">
-                <span class="msg-time-text">${timeAgo(ts)}</span>${readStatus}
+        <div class="message-row ${isSent ? 'message-row-sent' : 'message-row-received'}"${tempAttr}>
+            <div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}" style="${opacity}">
+                <div>${escapeHtml(m.content)}</div>
+                ${showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(m.translated_content)}</div>` : ''}
+                <div class="message-time" style="text-align:${isSent ? 'right' : 'left'};">
+                    ${timeAgo(ts)}
+                </div>
             </div>
+            ${receipt}
         </div>
     `;
 }
@@ -155,18 +158,19 @@ async function sendMessage() {
     // Fire-and-forget the network call. Failures roll back the optimistic UI.
     api.post('/api/messages/send', { receiver_id: chatUserId, content })
         .then((result) => {
-            // Mark optimistic as confirmed — keep it visible until the next
-            // poll merges in the canonical server row.
-            const bubble = container.querySelector(`[data-pending-id="${pendingId}"]`);
-            if (bubble) {
-                bubble.style.opacity = '1';
-                const status = bubble.querySelector('.msg-status');
-                if (status) {
-                    status.className = 'msg-status msg-status-sent';
-                    status.textContent = '✓';
-                    status.title = '已送達';
+            // Promote the optimistic row from "傳送中" to "已送達" in place;
+            // the next poll will merge the canonical server row in.
+            const row = container.querySelector(`[data-pending-id="${pendingId}"]`);
+            if (row) {
+                const bubble = row.querySelector('.message-bubble');
+                if (bubble) bubble.style.opacity = '1';
+                const receipt = row.querySelector('.msg-receipt');
+                if (receipt) {
+                    receipt.className = 'msg-receipt msg-receipt-sent';
+                    receipt.textContent = '已送達';
+                    receipt.title = '已送達';
                 }
-                bubble.removeAttribute('data-pending-id');
+                row.removeAttribute('data-pending-id');
             }
             // Update the corresponding pending entry so subsequent polls don't strip it prematurely
             const p = pendingMessages.find(x => x.pending_id === pendingId);
@@ -179,8 +183,8 @@ async function sendMessage() {
             pollPausedUntil = Date.now() + 800;
         })
         .catch((err) => {
-            const bubble = container.querySelector(`[data-pending-id="${pendingId}"]`);
-            if (bubble) bubble.remove();
+            const row = container.querySelector(`[data-pending-id="${pendingId}"]`);
+            if (row) row.remove();
             pendingMessages = pendingMessages.filter(x => x.pending_id !== pendingId);
             showToast('傳送失敗,請再試一次', 'error');
             // Restore the user's text only if they haven't typed something else
