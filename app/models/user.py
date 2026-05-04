@@ -47,6 +47,23 @@ class User(Base):
     stripe_subscription_id = Column(String(255), default="")
     subscription_expires_at = Column(DateTime, nullable=True)
 
+    # Verification (✓ badge on profiles)
+    is_verified = Column(Boolean, default=False)
+
+    # --- Privacy settings (settings page → 隱私設定) ---
+    show_online = Column(Boolean, default=True)
+    show_last_seen = Column(Boolean, default=True)
+    allow_msg_from_non_premium = Column(Boolean, default=True)
+
+    # --- Notification settings (settings page → 通知設定) ---
+    notify_new_message = Column(Boolean, default=True)
+    notify_likes = Column(Boolean, default=True)
+    notify_gatherings = Column(Boolean, default=True)
+
+    # --- Language settings (settings page → 語言設定) ---
+    ui_language = Column(String(10), default="zh-TW")
+    auto_translate_msgs = Column(Boolean, default=True)
+
     # Status
     is_active = Column(Boolean, default=True)
     is_online = Column(Boolean, default=False)

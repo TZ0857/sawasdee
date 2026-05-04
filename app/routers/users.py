@@ -43,6 +43,7 @@ def user_to_dict(user: User) -> dict:
         "location": user.location or "",
         "cup_size": user.cup_size or "",
         "is_subscribed": user.is_subscribed,
+        "is_verified": bool(getattr(user, "is_verified", False)),
         "is_online": user.is_online,
         "created_at": user.created_at.isoformat() if user.created_at else "",
     }

@@ -16,6 +16,53 @@ from app.seed import (
 from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings
 
 
+# --- Demo avatar set ----------------------------------------------------
+# Higher-quality portraits for the seed accounts. Replaces the older
+# randomuser.me URLs that the user described as 「太低俗」. These are stable
+# Unsplash photo URLs cropped to 400×400 face frames.
+DEMO_AVATARS = {
+    "ploy_bkk":     "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=faces&q=80",
+    "mintra_cm":    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=faces&q=80",
+    "fern_sweet":   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=faces&q=80",
+    "namwan_22":    "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?w=400&h=400&fit=crop&crop=faces&q=80",
+    "pim_pattaya":  "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=400&fit=crop&crop=faces&q=80",
+    "opal_nurse":   "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&crop=faces&q=80",
+    "praew_model":  "https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=400&h=400&fit=crop&crop=faces&q=80",
+    "nuch_art":     "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=faces&q=80",
+    "bow_bkk":      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=faces&q=80",
+    "bam_fitness":  "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400&h=400&fit=crop&crop=faces&q=80",
+    "ice_sweet23":  "https://images.unsplash.com/photo-1485217988980-11786ced9454?w=400&h=400&fit=crop&crop=faces&q=80",
+    "kratae_thai":  "https://images.unsplash.com/photo-1557555187-23d685287bc3?w=400&h=400&fit=crop&crop=faces&q=80",
+    "kevin_tw":     "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=faces&q=80",
+    "jason_taipei": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&h=400&fit=crop&crop=faces&q=80",
+    "will_hsinchu": "https://images.unsplash.com/photo-1545167622-3a6ac756afa4?w=400&h=400&fit=crop&crop=faces&q=80",
+    "eric_foodie":  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=faces&q=80",
+    "david_travel": "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&h=400&fit=crop&crop=faces&q=80",
+    "mark_gym":     "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=faces&q=80",
+    "andy_design":  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=faces&q=80",
+    "chris_biz":    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=faces&q=80",
+    "leo_music":    "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&h=400&fit=crop&crop=faces&q=80",
+    "ryan_photo":   "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop&crop=faces&q=80",
+    "tom_doctor":   "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop&crop=faces&q=80",
+    "howard_fin":   "https://images.unsplash.com/photo-1610276198568-eb6d0ff53e48?w=400&h=400&fit=crop&crop=faces&q=80",
+}
+
+# Demo accounts that should display the gold ✓ verified badge.
+DEMO_VERIFIED = {
+    "kevin_tw", "jason_taipei", "will_hsinchu",
+    "ploy_bkk", "mintra_cm", "fern_sweet", "kratae_thai", "praew_model",
+}
+
+# Old broken image URLs left over from before the Railway Volume was
+# mounted — clear them so feed posts don't show 「圖片暫時無法載入」.
+ORPHAN_POST_IMAGES = (
+    "/uploads/post_00a896d4011f.png",
+    "/uploads/post_1683736f19be.png",
+    "/uploads/post_a0623bc633ec.jpg",
+    "/uploads/post_8995e096adba.jpeg",
+)
+
+
 async def run_lightweight_migrations():
     """Idempotent ALTER TABLE statements for schema changes that
     create_all() cannot apply (it only handles new tables).
@@ -35,6 +82,16 @@ async def run_lightweight_migrations():
         "ALTER TABLE messages ADD COLUMN IF NOT EXISTS reply_to_id UUID REFERENCES messages(id) ON DELETE SET NULL",
         "ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_url VARCHAR(500) DEFAULT ''",
         "ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_type VARCHAR(20) DEFAULT ''",
+        # users.* additions for verification + privacy / notification / language settings.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS show_online BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS show_last_seen BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS allow_msg_from_non_premium BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_new_message BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_likes BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_gatherings BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_language VARCHAR(10) DEFAULT 'zh-TW'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS auto_translate_msgs BOOLEAN DEFAULT TRUE",
     ]
     async with engine.begin() as conn:
         for stmt in statements:
@@ -44,6 +101,48 @@ async def run_lightweight_migrations():
                 # Don't crash the app if a migration fails (e.g. column
                 # already in the desired state on a fresh DB).
                 print(f"[migration] skipped: {stmt.split()[2:6]} → {e}")
+
+
+async def upgrade_demo_data():
+    """Refresh the demo seed accounts with curated avatars + verified
+    badges. Also clears 4 orphan post images that 404 because their
+    files were lost in a pre-Volume Railway redeploy.
+
+    Runs every startup but is idempotent (sets URLs that may already
+    be set; user-uploaded avatars that don't match the demo URL set
+    are left alone)."""
+    async with engine.begin() as conn:
+        # Update demo avatars (only ones that haven't been replaced by
+        # a user-uploaded avatar — i.e. still pointing at randomuser.me).
+        for username, url in DEMO_AVATARS.items():
+            try:
+                await conn.execute(text(
+                    "UPDATE users SET avatar_url = :url "
+                    "WHERE username = :u AND (avatar_url IS NULL OR avatar_url = '' "
+                    "OR avatar_url LIKE '%randomuser.me%')"
+                ), {"url": url, "u": username})
+            except Exception as e:
+                print(f"[avatar update] skipped {username}: {e}")
+
+        # Mark a handful of demo accounts as verified
+        if DEMO_VERIFIED:
+            placeholders = ",".join(f":u{i}" for i in range(len(DEMO_VERIFIED)))
+            params = {f"u{i}": u for i, u in enumerate(DEMO_VERIFIED)}
+            try:
+                await conn.execute(text(
+                    f"UPDATE users SET is_verified = TRUE WHERE username IN ({placeholders})"
+                ), params)
+            except Exception as e:
+                print(f"[verify] skipped: {e}")
+
+        # Clear orphan post images so they don't render as broken
+        for url in ORPHAN_POST_IMAGES:
+            try:
+                await conn.execute(text(
+                    "UPDATE posts SET image_url = '' WHERE image_url = :u"
+                ), {"u": url})
+            except Exception as e:
+                print(f"[orphan clear] skipped {url}: {e}")
 
 
 async def seed_demo_data():
@@ -90,6 +189,7 @@ async def lifespan(app: FastAPI):
     await init_db()
     await run_lightweight_migrations()
     await seed_demo_data()
+    await upgrade_demo_data()
     yield
 
 

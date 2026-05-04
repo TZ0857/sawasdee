@@ -53,6 +53,19 @@ function renderProfile() {
     if (profileData.nationality === 'taiwanese') meta.push('🇹🇼 台灣');
     document.getElementById('profileMeta').textContent = meta.join(' · ');
 
+    // Verified badge
+    const verifiedBadge = document.getElementById('verifiedBadge');
+    if (verifiedBadge) {
+        if (profileData.is_verified) verifiedBadge.classList.remove('hidden');
+        else verifiedBadge.classList.add('hidden');
+    }
+    // Premium badge
+    const premiumBadge = document.getElementById('premiumBadge');
+    if (premiumBadge) {
+        if (profileData.is_subscribed) premiumBadge.classList.remove('hidden');
+        else premiumBadge.classList.add('hidden');
+    }
+
     // Actions
     const actions = document.getElementById('profileActions');
     if (isOwner) {
