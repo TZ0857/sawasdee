@@ -1033,14 +1033,25 @@ h3 { font-size: 1.3rem; }
     .features-grid { grid-template-columns: 1fr; }
     .trust-section { gap: 1.2rem; }
     .mobile-nav { display: flex; }
-    .main-content { padding-bottom: 68px; }
+    /* main-content padding-bottom is set further down to account for safe-area too */
     .page-title { font-size: 1.35rem; }
 
-    /* Messages page mobile — same chrome math as chat (top 56 + bottom-nav 68). */
+    /* Mobile chrome accounting:
+         - top navbar:           56px
+         - bottom mobile-nav:    ~60px content + env(safe-area-inset-bottom) (home indicator)
+       The mobile-nav already absorbs safe-area in its OWN padding, so its real
+       on-screen height is 60px + safe-area. Don't double-count it.
+       main-content reserves that exact amount with padding-bottom; chat/messages
+       use the matching height calc. */
+    .main-content {
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Messages page mobile */
     .messages-layout {
         grid-template-columns: 1fr;
-        height: calc(100vh - 124px);
-        height: calc(100dvh - 124px);
+        height: calc(100vh - 56px - 60px - env(safe-area-inset-bottom, 0px));
+        height: calc(100dvh - 56px - 60px - env(safe-area-inset-bottom, 0px));
     }
     .messages-layout .conversations-list {
         height: 100%;
@@ -1050,19 +1061,19 @@ h3 { font-size: 1.3rem; }
     }
     .messages-layout .chat-area { display: none; }
 
-    /* Chat page mobile — top navbar 56px + bottom mobile-nav 68px = 124px chrome.
-       Use dvh so iOS Safari's address-bar show/hide doesn't make the chat
-       suddenly grow or shrink. */
+    /* Chat page mobile — same math. No extra padding-bottom on the container
+       (the height calc already excludes the mobile-nav + home-indicator zone),
+       and no extra safe-area on chat-input-area for the same reason. */
     .container-sm.chat-container {
-        height: calc(100vh - 124px) !important;
-        height: calc(100dvh - 124px) !important;
+        height: calc(100vh - 56px - 60px - env(safe-area-inset-bottom, 0px)) !important;
+        height: calc(100dvh - 56px - 60px - env(safe-area-inset-bottom, 0px)) !important;
         padding-left: 0;
         padding-right: 0;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-bottom: 0;
     }
     .chat-header { padding: 0.5rem 0.7rem; gap: 0.4rem; }
     .chat-messages { padding: 0.7rem; }
-    .chat-input-area { padding: 0.55rem 0.7rem calc(0.55rem + env(safe-area-inset-bottom, 0px)); }
+    .chat-input-area { padding: 0.55rem 0.7rem; }
     /* Prevent iOS Safari from auto-zooming the page on input focus.
        Inputs with font-size < 16px trigger the zoom — keep them at 16px. */
     .chat-input { font-size: 16px; padding: 0.7rem 1rem; }
