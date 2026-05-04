@@ -696,11 +696,7 @@ h3 { font-size: 1.3rem; }
     font-weight: 700;
     box-shadow: 0 0 12px rgba(200, 169, 106, 0.18);
 }
-.msg-receipt-read::before {
-    content: '✓✓';
-    font-weight: 800;
-    letter-spacing: -0.05em;
-}
+/* (Removed the ✓✓ ::before — user prefers just「已讀」) */
 
 /* "未讀訊息" divider — shown above the oldest unread received message on
    the first chat open, then auto-scrolled into view (Telegram-style). */
