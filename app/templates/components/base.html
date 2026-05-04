@@ -48,7 +48,8 @@
                 link.classList.add('active');
             }
         });
-        // Hide mobile nav on landing/login/register
+        // Hide mobile nav on landing/login/register only — keep it on /chat/*
+        // so the chat sits above the nav (not on top of it).
         if(['/', '/login', '/register'].includes(path)) {
             const mn = document.getElementById('mobileNav');
             if(mn) mn.style.display = 'none';

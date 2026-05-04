@@ -185,6 +185,19 @@ async def get_chat_messages(
     if not target_uuid:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Count unread BEFORE we mark them, so the client can draw a "未讀訊息"
+    # divider at the right position on the first open of the chat.
+    unread_result = await db.execute(
+        select(func.count())
+        .select_from(Message)
+        .where(
+            Message.sender_id == target_uuid,
+            Message.receiver_id == current_user.id,
+            Message.is_read == False,
+        )
+    )
+    unread_count = unread_result.scalar() or 0
+
     query = (
         select(Message)
         .where(
@@ -219,5 +232,6 @@ async def get_chat_messages(
                 "created_at": m.created_at.isoformat(),
             }
             for m in reversed(messages)
-        ]
+        ],
+        "unread_count": unread_count,
     }

@@ -4,10 +4,12 @@ requireAuth();
 const currentUser = getUser();
 let chatPartner = null;
 let autoTranslate = false;
-let lastRenderHash = '';      // skip re-render when nothing changed
-let pendingMessages = [];     // optimistic msgs not yet confirmed by server
-let pendingSeq = 0;           // increasing id for optimistic msgs
-let pollPausedUntil = 0;      // timestamp; polling skipped while in this window
+let lastRenderHash = '';        // skip re-render when nothing changed
+let pendingMessages = [];       // optimistic msgs not yet confirmed by server
+let pendingSeq = 0;             // increasing id for optimistic msgs
+let pollPausedUntil = 0;        // timestamp; polling skipped while in this window
+let isInitialLoad = true;       // first /chat fetch — different scroll behavior
+let dividerBeforeMsgId = null;  // msg id to draw the "未讀訊息" divider above
 
 async function loadChatUser() {
     try {
@@ -87,28 +89,65 @@ async function loadMessages(scrollToBottom = false) {
     try {
         const data = await api.get(`/api/messages/chat/${chatUserId}?page=1&per_page=50`);
         const container = document.getElementById('chatMessages');
-        const merged = buildMessagesList(data.messages || []);
+        const serverMessages = data.messages || [];
+        const merged = buildMessagesList(serverMessages);
+
+        // First-load only: place an "未讀訊息" divider above the oldest unread
+        // received message. The server returns unread_count BEFORE marking the
+        // messages as read, so we count back that many received messages.
+        if (isInitialLoad && (data.unread_count || 0) > 0) {
+            let receivedSeen = 0;
+            for (let i = serverMessages.length - 1; i >= 0; i--) {
+                const m = serverMessages[i];
+                if (m.sender_id !== currentUser.id) {
+                    receivedSeen++;
+                    if (receivedSeen === data.unread_count) {
+                        dividerBeforeMsgId = m.id;
+                        break;
+                    }
+                }
+            }
+        }
 
         if (merged.length === 0) {
             container.innerHTML = '<div class="flex-center" style="flex:1;color:var(--text-muted)">開始你們的第一段對話 💌</div>';
             lastRenderHash = '';
+            isInitialLoad = false;
             return;
         }
 
         // Hash check — avoid rebuilding identical DOM every 3s (causes flicker)
-        const hash = merged.map(m => `${m.id || m.pending_id}:${m.is_read ? 1 : 0}:${(m.translated_content || '').length}`).join('|');
+        const hash = merged.map(m => `${m.id || m.pending_id}:${m.is_read ? 1 : 0}:${(m.translated_content || '').length}`).join('|')
+            + '|d:' + (dividerBeforeMsgId || '');
         const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
-        if (hash === lastRenderHash && !scrollToBottom) return;
+        if (hash === lastRenderHash && !scrollToBottom && !isInitialLoad) return;
         lastRenderHash = hash;
 
         container.innerHTML = merged.map(m => {
             const isSent = m.sender_id === currentUser.id;
-            return renderMessage(m, isSent);
+            const dividerHtml = (m.id && m.id === dividerBeforeMsgId)
+                ? '<div class="unread-divider"><span>未讀訊息</span></div>'
+                : '';
+            return dividerHtml + renderMessage(m, isSent);
         }).join('');
 
-        if (scrollToBottom || wasNearBottom) {
+        // Scroll behavior:
+        //   - First load with unread → land on the divider so the user sees
+        //     where they left off (Telegram-style).
+        //   - Otherwise, stay anchored at the bottom on initial load and on
+        //     subsequent polls if the user was already near the bottom.
+        if (isInitialLoad && dividerBeforeMsgId) {
+            const divider = container.querySelector('.unread-divider');
+            if (divider) {
+                divider.scrollIntoView({ block: 'start' });
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
+        } else if (scrollToBottom || wasNearBottom) {
             container.scrollTop = container.scrollHeight;
         }
+
+        isInitialLoad = false;
     } catch (err) {
         // Don't overwrite messages on transient refresh error
         const container = document.getElementById('chatMessages');

@@ -608,6 +608,40 @@ h3 { font-size: 1.3rem; }
     font-weight: 800;
     letter-spacing: -0.05em;
 }
+
+/* "未讀訊息" divider — shown above the oldest unread received message on
+   the first chat open, then auto-scrolled into view (Telegram-style). */
+.unread-divider {
+    position: relative;
+    text-align: center;
+    margin: 0.6rem 0 0.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--gold-light);
+    font-weight: 600;
+    text-transform: none;
+    align-self: stretch;
+}
+.unread-divider::before,
+.unread-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 60px);
+    height: 1px;
+    background: rgba(200, 169, 106, 0.32);
+}
+.unread-divider::before { left: 0; }
+.unread-divider::after { right: 0; }
+.unread-divider span {
+    display: inline-block;
+    padding: 0.15rem 0.7rem;
+    background: var(--bg-primary);
+    border-radius: 999px;
+    border: 1px solid rgba(200, 169, 106, 0.35);
+    position: relative;
+    z-index: 1;
+}
 .chat-input-area {
     padding: 0.8rem 1.2rem; border-top: 1px solid var(--border);
     display: flex; gap: 0.7rem; align-items: center;
@@ -1037,16 +1071,13 @@ h3 { font-size: 1.3rem; }
     .page-title { font-size: 1.35rem; }
 
     /* Mobile chrome accounting:
-         - top navbar:           56px
-         - bottom mobile-nav:    ~60px content + env(safe-area-inset-bottom) (home indicator)
-       The mobile-nav already absorbs safe-area in its OWN padding, so its real
-       on-screen height is 60px + safe-area. Don't double-count it.
-       main-content reserves that exact amount with padding-bottom; chat/messages
-       use the matching height calc. */
+         - top navbar:        56px
+         - bottom mobile-nav: ~60px + env(safe-area-inset-bottom)  (its own padding)
+       The mobile-nav already absorbs safe-area in its OWN padding so its real
+       on-screen height is 60px + safe-area. We use that everywhere via env(). */
     .main-content {
         padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     }
-
     /* Messages page mobile */
     .messages-layout {
         grid-template-columns: 1fr;
@@ -1061,9 +1092,8 @@ h3 { font-size: 1.3rem; }
     }
     .messages-layout .chat-area { display: none; }
 
-    /* Chat page mobile — same math. No extra padding-bottom on the container
-       (the height calc already excludes the mobile-nav + home-indicator zone),
-       and no extra safe-area on chat-input-area for the same reason. */
+    /* Chat page mobile — chat sits ABOVE the bottom mobile-nav (not on top of it).
+       Mobile-nav real height = 60px content + env(safe-area-inset-bottom). */
     .container-sm.chat-container {
         height: calc(100vh - 56px - 60px - env(safe-area-inset-bottom, 0px)) !important;
         height: calc(100dvh - 56px - 60px - env(safe-area-inset-bottom, 0px)) !important;
@@ -1073,7 +1103,10 @@ h3 { font-size: 1.3rem; }
     }
     .chat-header { padding: 0.5rem 0.7rem; gap: 0.4rem; }
     .chat-messages { padding: 0.7rem; }
-    .chat-input-area { padding: 0.55rem 0.7rem; }
+    .chat-input-area {
+        padding: 0.55rem 0.7rem;
+        background: var(--bg-primary);
+    }
     /* Prevent iOS Safari from auto-zooming the page on input focus.
        Inputs with font-size < 16px trigger the zoom — keep them at 16px. */
     .chat-input { font-size: 16px; padding: 0.7rem 1rem; }
