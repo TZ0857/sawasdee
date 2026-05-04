@@ -132,6 +132,19 @@ async def send_message(
     if not receiver:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Block guard: refuse if either side has blocked the other
+    from app.models.block import BlockedUser
+    block_q = await db.execute(
+        select(BlockedUser.id).where(
+            or_(
+                and_(BlockedUser.blocker_id == current_user.id, BlockedUser.blocked_id == receiver.id),
+                and_(BlockedUser.blocker_id == receiver.id, BlockedUser.blocked_id == current_user.id),
+            )
+        )
+    )
+    if block_q.scalar_one_or_none():
+        raise HTTPException(status_code=403, detail="無法傳送訊息給此用戶")
+
     # Resolve reply_to_id if provided; must point at a real message in this
     # conversation otherwise we ignore it silently.
     reply_to_id = None
@@ -224,6 +237,19 @@ async def send_media_message(
     receiver = result.scalar_one_or_none()
     if not receiver:
         raise HTTPException(status_code=404, detail="User not found")
+
+    # Block guard
+    from app.models.block import BlockedUser
+    block_q = await db.execute(
+        select(BlockedUser.id).where(
+            or_(
+                and_(BlockedUser.blocker_id == current_user.id, BlockedUser.blocked_id == receiver.id),
+                and_(BlockedUser.blocker_id == receiver.id, BlockedUser.blocked_id == current_user.id),
+            )
+        )
+    )
+    if block_q.scalar_one_or_none():
+        raise HTTPException(status_code=403, detail="無法傳送訊息給此用戶")
 
     media_type = (media_type or "").lower()
     if media_type not in {"audio", "video", "image"}:

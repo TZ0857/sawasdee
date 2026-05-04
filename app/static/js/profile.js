@@ -80,7 +80,15 @@ function renderProfile() {
     } else {
         actions.innerHTML = `
             <a href="/chat/${profileData.id}" class="btn btn-primary btn-sm">傳訊息</a>
+            <button class="btn btn-ghost btn-sm" id="blockBtn" onclick="toggleBlock()" style="opacity:0.7;">
+                <span id="blockBtnLabel">封鎖</span>
+            </button>
         `;
+        // Hydrate block status
+        api.get(`/api/blocks/check/${profileData.id}`).then(r => {
+            const lbl = document.getElementById('blockBtnLabel');
+            if (lbl) lbl.textContent = r.is_blocked ? '解除封鎖' : '封鎖';
+        }).catch(() => {});
     }
 
     // Details
@@ -105,6 +113,27 @@ function renderProfile() {
         detailHtml += `<div class="mt-3"><div class="text-muted" style="font-size:0.8rem; margin-bottom:0.5rem">自我介紹</div><p style="line-height:1.6">${profileData.bio}</p></div>`;
     }
     details.innerHTML = detailHtml;
+}
+
+async function toggleBlock() {
+    const id = profileData && profileData.id;
+    if (!id) return;
+    const lbl = document.getElementById('blockBtnLabel');
+    const isBlocked = lbl && lbl.textContent.includes('解除');
+    try {
+        if (isBlocked) {
+            await api.delete(`/api/blocks/${id}`);
+            showToast('已解除封鎖', 'success');
+            if (lbl) lbl.textContent = '封鎖';
+        } else {
+            if (!confirm('封鎖後對方將無法傳訊息給你,你也不會在探索頁看到這個人。確定?')) return;
+            await api.post(`/api/blocks/${id}`);
+            showToast('已封鎖', 'success');
+            if (lbl) lbl.textContent = '解除封鎖';
+        }
+    } catch (e) {
+        showToast('操作失敗:' + (e.message || ''), 'error');
+    }
 }
 
 async function uploadAvatar(input) {

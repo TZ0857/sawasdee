@@ -143,6 +143,11 @@ async def explore_users(
     # Exclude self
     query = query.where(User.id != current_user.id)
 
+    # Exclude anyone the current user has blocked
+    from app.models.block import BlockedUser
+    blocked_ids_subq = select(BlockedUser.blocked_id).where(BlockedUser.blocker_id == current_user.id)
+    query = query.where(~User.id.in_(blocked_ids_subq))
+
     # Hetero matching — Kevin (male) sees females, Ploy (female) sees males.
     # Falls back to "all users" if the current user has no gender set.
     if current_user.gender is not None:
