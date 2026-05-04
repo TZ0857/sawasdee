@@ -652,6 +652,35 @@ h3 { font-size: 1.3rem; }
     position: relative;
     z-index: 1;
 }
+
+/* Voice-message audio player in posts */
+.post-audio-wrap {
+    margin: 0 0 0.6rem;
+    padding: 0.55rem 0.7rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+}
+.post-audio {
+    width: 100%;
+    height: 36px;
+    accent-color: var(--gold);
+}
+
+/* Graceful fallback when an image fails to load (e.g. Railway wiped
+   the ephemeral filesystem on a redeploy). */
+.post-image-missing {
+    margin: 0 0 0.6rem;
+    padding: 1rem;
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius-md);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
 .chat-input-area {
     padding: 0.8rem 1.2rem; border-top: 1px solid var(--border);
     display: flex; gap: 0.7rem; align-items: center;

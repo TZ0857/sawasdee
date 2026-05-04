@@ -11,8 +11,10 @@ class Post(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     author_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    content = Column(Text, nullable=False)
+    # content is now optional — a post can be image-only or audio-only.
+    content = Column(Text, nullable=True, default="")
     image_url = Column(String(500), default="")
+    audio_url = Column(String(500), default="")
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)

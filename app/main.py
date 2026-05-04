@@ -5,8 +5,8 @@ from fastapi.responses import HTMLResponse
 from contextlib import asynccontextmanager
 import os
 
-from sqlalchemy import select
-from app.database import init_db, async_session
+from sqlalchemy import select, text
+from app.database import init_db, async_session, engine
 from app.models.user import User
 from app.seed import (
     generate_seed_users, generate_seed_posts,
@@ -14,6 +14,28 @@ from app.seed import (
     generate_seed_gatherings,
 )
 from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings
+
+
+async def run_lightweight_migrations():
+    """Idempotent ALTER TABLE statements for schema changes that
+    create_all() cannot apply (it only handles new tables).
+    Each statement is wrapped in IF NOT EXISTS / DROP NOT NULL semantics
+    so re-running on an already-migrated DB is a no-op."""
+    statements = [
+        # posts.content was NOT NULL — make it optional so a post can be
+        # image-only or audio-only.
+        "ALTER TABLE posts ALTER COLUMN content DROP NOT NULL",
+        # posts.audio_url is a new column for the voice-message feature.
+        "ALTER TABLE posts ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500) DEFAULT ''",
+    ]
+    async with engine.begin() as conn:
+        for stmt in statements:
+            try:
+                await conn.execute(text(stmt))
+            except Exception as e:
+                # Don't crash the app if a migration fails (e.g. column
+                # already in the desired state on a fresh DB).
+                print(f"[migration] skipped: {stmt.split()[2:6]} → {e}")
 
 
 async def seed_demo_data():
@@ -58,6 +80,7 @@ async def seed_demo_data():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await run_lightweight_migrations()
     await seed_demo_data()
     yield
 

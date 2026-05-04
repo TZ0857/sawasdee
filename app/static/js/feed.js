@@ -1,43 +1,25 @@
 // === Feed Page ===
 requireAuth();
 
+let currentFilter = '';            // '' = all, 'liked' = only posts I've liked
 let currentCommentPostId = null;
-let currentCategory = '';
 const user = getUser();
 
-// Category filter
-function filterFeed(category) {
-    currentCategory = category;
-    document.querySelectorAll('.chip').forEach(c => {
-        const isAll = !c.textContent.trim() || c.onclick?.toString().includes("''");
-        if (category === '') {
-            c.classList.toggle('active', c.onclick?.toString().includes("''"));
-        } else {
-            c.classList.toggle('active', c.textContent.trim() === getCategoryLabel(category));
-        }
-    });
-    // Re-select chips properly
-    document.querySelectorAll('.chip').forEach(c => {
-        const handler = c.getAttribute('onclick') || '';
-        const match = handler.match(/filterFeed\('([^']*)'\)/);
-        if (match) {
-            c.classList.toggle('active', match[1] === category);
-        }
+/* ---------- Filter chips: All / Liked ---------- */
+function filterFeed(f) {
+    currentFilter = f || '';
+    document.querySelectorAll('[data-feed-filter]').forEach(c => {
+        c.classList.toggle('active', (c.dataset.feedFilter || '') === currentFilter);
     });
     loadFeed();
 }
 
-function getCategoryLabel(cat) {
-    const map = { daily: '日常', food: '美食', travel: '旅行', nightlife: '夜生活', mood: '心情' };
-    return map[cat] || '全部';
-}
-
-// Set avatar
+/* ---------- Avatar in composer ---------- */
 const feedAvatar = document.getElementById('feedAvatar');
 if (user.avatar_url) feedAvatar.src = user.avatar_url;
 else feedAvatar.style.background = 'var(--gradient-gold)';
 
-// Image preview
+/* ---------- Image preview ---------- */
 document.getElementById('postImage').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -55,19 +37,115 @@ function clearImage() {
     document.getElementById('imagePreview').classList.add('hidden');
 }
 
+/* ---------- Audio recording (MediaRecorder API) ---------- */
+let mediaRecorder = null;
+let audioChunks = [];
+let audioBlob = null;
+let recordTimer = null;
+let recordStartedAt = 0;
+const MAX_RECORD_MS = 60_000;
+
+function pickMimeType() {
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/mpeg'];
+    for (const t of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported(t)) return t;
+    }
+    return '';
+}
+
+async function toggleRecording() {
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+        return showToast('此瀏覽器不支援錄音', 'error');
+    }
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        stopRecording();
+        return;
+    }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mime = pickMimeType();
+        mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+            stream.getTracks().forEach(t => t.stop());
+            audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+            const url = URL.createObjectURL(audioBlob);
+            document.getElementById('previewAudio').src = url;
+            document.getElementById('audioPreview').classList.remove('hidden');
+            updateAudioButton(false);
+        };
+        mediaRecorder.start();
+        recordStartedAt = Date.now();
+        updateAudioButton(true);
+        // Auto-stop after MAX_RECORD_MS
+        recordTimer = setInterval(() => {
+            const elapsed = Date.now() - recordStartedAt;
+            if (elapsed >= MAX_RECORD_MS) {
+                stopRecording();
+                showToast('已達 60 秒上限', 'success');
+            } else {
+                document.getElementById('audioBtnLabel').textContent = `停止 (${Math.ceil((MAX_RECORD_MS - elapsed) / 1000)}s)`;
+            }
+        }, 250);
+    } catch (err) {
+        showToast('無法存取麥克風: ' + (err.message || '請允許錄音權限'), 'error');
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+    if (recordTimer) { clearInterval(recordTimer); recordTimer = null; }
+}
+
+function updateAudioButton(isRecording) {
+    const btn = document.getElementById('audioBtn');
+    const label = document.getElementById('audioBtnLabel');
+    if (isRecording) {
+        btn.style.color = 'var(--danger, #ef4444)';
+        btn.title = '點擊停止錄音';
+        label.textContent = '錄音中…';
+    } else {
+        btn.style.color = 'var(--text-muted)';
+        btn.title = '錄製語音 (最多 60 秒)';
+        label.textContent = '語音';
+    }
+}
+
+function clearAudio() {
+    audioBlob = null;
+    audioChunks = [];
+    const a = document.getElementById('previewAudio');
+    if (a.src) URL.revokeObjectURL(a.src);
+    a.removeAttribute('src');
+    document.getElementById('audioPreview').classList.add('hidden');
+}
+
+/* ---------- Create post ---------- */
 async function createPost() {
     const content = document.getElementById('postContent').value.trim();
-    if (!content) return showToast('請輸入內容', 'error');
+    const imageFile = document.getElementById('postImage').files[0];
+    const hasAudio = !!audioBlob;
+
+    if (!content && !imageFile && !hasAudio) {
+        return showToast('請輸入文字、加入照片或錄製語音', 'error');
+    }
 
     const formData = new FormData();
     formData.append('content', content);
-    const imageFile = document.getElementById('postImage').files[0];
     if (imageFile) formData.append('image', imageFile);
+    if (hasAudio) {
+        const ext = (audioBlob.type.includes('webm')) ? 'webm'
+                  : (audioBlob.type.includes('mp4')) ? 'm4a'
+                  : 'audio';
+        formData.append('audio', audioBlob, `voice.${ext}`);
+    }
 
     try {
         await api.post('/api/posts', formData, true);
         document.getElementById('postContent').value = '';
         clearImage();
+        clearAudio();
         showToast('發布成功！', 'success');
         loadFeed();
     } catch (err) {
@@ -75,29 +153,58 @@ async function createPost() {
     }
 }
 
+/* ---------- Feed rendering ---------- */
+function escapeHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderImage(url) {
+    if (!url) return '';
+    // onerror hides the broken image gracefully if the upload was lost
+    // (Railway containers have ephemeral filesystem — files in /uploads
+    //  vanish on every redeploy unless a Volume is mounted there).
+    const safe = escapeHtml(url);
+    return `<img src="${safe}" class="post-image" alt="" onerror="this.outerHTML='<div class=&quot;post-image-missing&quot;>📷 圖片暫時無法載入</div>'">`;
+}
+
+function renderAudio(url) {
+    if (!url) return '';
+    const safe = escapeHtml(url);
+    return `<div class="post-audio-wrap"><audio class="post-audio" controls preload="metadata" src="${safe}"></audio></div>`;
+}
+
 async function loadFeed() {
     try {
         let feedUrl = '/api/posts/feed?page=1&per_page=20';
-        if (currentCategory) feedUrl += `&category=${currentCategory}`;
+        if (currentFilter) feedUrl += `&filter=${currentFilter}`;
         const data = await api.get(feedUrl);
         const feed = document.getElementById('postsFeed');
 
-        if (data.posts.length === 0) {
-            feed.innerHTML = '<div class="text-center text-muted" style="padding:4rem;">還沒有動態，成為第一個發文的人！</div>';
+        if (!data.posts || data.posts.length === 0) {
+            const msg = currentFilter === 'liked'
+                ? '還沒有按過喜歡的動態。'
+                : '還沒有動態，成為第一個發文的人！';
+            feed.innerHTML = `<div class="text-center text-muted" style="padding:4rem;">${msg}</div>`;
             return;
         }
 
         feed.innerHTML = data.posts.map(p => `
             <div class="card post-card" data-post-id="${p.id}">
                 <div class="post-header">
-                    <img src="${p.author.avatar_url || ''}" class="post-avatar" alt="" style="${p.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                    <img src="${escapeHtml(p.author.avatar_url || '')}" class="post-avatar" alt="" style="${p.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
                     <div>
-                        <a href="/profile/${p.author.username}" class="post-author" style="color:var(--text-primary)">${p.author.display_name}</a>
+                        <a href="/profile/${escapeHtml(p.author.username)}" class="post-author" style="color:var(--text-primary)">${escapeHtml(p.author.display_name)}</a>
                         <div class="post-time">${timeAgo(p.created_at)}</div>
                     </div>
                 </div>
-                ${p.image_url ? `<img src="${p.image_url}" class="post-image" alt="">` : ''}
-                <div class="post-content">${p.content}</div>
+                ${renderImage(p.image_url)}
+                ${renderAudio(p.audio_url)}
+                ${p.content ? `<div class="post-content">${escapeHtml(p.content)}</div>` : ''}
                 <div class="post-likes">${p.likes_count > 0 ? p.likes_count + ' 個讚' : ''}</div>
                 <div class="post-actions">
                     <div class="post-action ${p.is_liked ? 'liked' : ''}" onclick="toggleLike('${p.id}', this)">
@@ -109,7 +216,6 @@ async function loadFeed() {
                         <span>${p.comments_count}</span>
                     </div>
                 </div>
-                <!-- Inline comments section (hidden by default) -->
                 <div class="comments-section hidden" id="comments-${p.id}">
                     <div class="comments-list" id="commentsList-${p.id}"></div>
                     <div class="comment-input-row">
@@ -130,20 +236,23 @@ async function toggleLike(postId, el) {
         el.querySelector('span').textContent = data.likes_count;
         el.classList.toggle('liked', data.liked);
         el.querySelector('svg').setAttribute('fill', data.liked ? 'currentColor' : 'none');
+        // If we're on the "liked" filter and the user just unliked, drop the post
+        if (currentFilter === 'liked' && !data.liked) {
+            const card = el.closest('.post-card');
+            if (card) card.remove();
+        }
     } catch (err) {
         showToast('操作失敗', 'error');
     }
 }
 
-// Toggle inline comments (IG style)
+/* ---------- Inline comments (IG style) ---------- */
 async function toggleComments(postId) {
     const section = document.getElementById(`comments-${postId}`);
     if (!section) return;
-
     if (section.classList.contains('hidden')) {
         section.classList.remove('hidden');
         await loadComments(postId);
-        // Focus the input
         const input = document.getElementById(`commentInput-${postId}`);
         if (input) input.focus();
     } else {
@@ -155,7 +264,6 @@ async function loadComments(postId) {
     const list = document.getElementById(`commentsList-${postId}`);
     if (!list) return;
     list.innerHTML = '<div class="text-center text-muted" style="padding:0.5rem"><div class="spinner" style="width:20px;height:20px"></div></div>';
-
     try {
         const data = await api.get(`/api/posts/${postId}/comments`);
         if (data.comments.length === 0) {
@@ -163,10 +271,10 @@ async function loadComments(postId) {
         } else {
             list.innerHTML = data.comments.map(c => `
                 <div class="comment-item">
-                    <img src="${c.author.avatar_url || ''}" class="comment-avatar" alt="" style="${c.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                    <img src="${escapeHtml(c.author.avatar_url || '')}" class="comment-avatar" alt="" style="${c.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
                     <div class="comment-body">
-                        <span class="comment-author">${c.author.display_name}</span>
-                        <span class="comment-text">${c.content}</span>
+                        <span class="comment-author">${escapeHtml(c.author.display_name)}</span>
+                        <span class="comment-text">${escapeHtml(c.content)}</span>
                         <span class="comment-time">${timeAgo(c.created_at)}</span>
                     </div>
                 </div>
@@ -182,15 +290,12 @@ async function submitComment(postId) {
     if (!input) return;
     const content = input.value.trim();
     if (!content) return;
-
     const formData = new FormData();
     formData.append('content', content);
-
     try {
         await api.post(`/api/posts/${postId}/comments`, formData, true);
         input.value = '';
         await loadComments(postId);
-        // Update comment count in actions
         const card = document.querySelector(`[data-post-id="${postId}"]`);
         if (card) {
             const countSpan = card.querySelectorAll('.post-action span')[1];
@@ -201,21 +306,21 @@ async function submitComment(postId) {
     }
 }
 
-// Load stories
+/* ---------- Stories ---------- */
 async function loadStories() {
     try {
         const data = await api.get('/api/posts/stories/active');
         const bar = document.getElementById('storiesBar');
-        if (data.story_groups.length === 0) {
+        if (!data.story_groups || data.story_groups.length === 0) {
             bar.style.display = 'none';
             return;
         }
         bar.innerHTML = data.story_groups.map(g => `
-            <div class="story-circle" onclick="viewStory('${g.stories[0].image_url}')">
+            <div class="story-circle" onclick="viewStory('${escapeHtml(g.stories[0].image_url)}')">
                 <div class="story-avatar-ring">
-                    <img src="${g.author.avatar_url || ''}" alt="${g.author.display_name}" style="${g.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                    <img src="${escapeHtml(g.author.avatar_url || '')}" alt="${escapeHtml(g.author.display_name)}" style="${g.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
                 </div>
-                <div class="story-name">${g.author.display_name}</div>
+                <div class="story-name">${escapeHtml(g.author.display_name)}</div>
             </div>
         `).join('');
     } catch (e) { /* ignore */ }

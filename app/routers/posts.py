@@ -29,8 +29,9 @@ def post_to_dict(post: Post, current_user_id=None) -> dict:
             "display_name": post.author.display_name,
             "avatar_url": post.author.avatar_url or "",
         },
-        "content": post.content,
+        "content": post.content or "",
         "image_url": post.image_url or "",
+        "audio_url": getattr(post, "audio_url", "") or "",
         "likes_count": post.likes_count,
         "comments_count": post.comments_count,
         "is_liked": liked,
@@ -40,21 +41,42 @@ def post_to_dict(post: Post, current_user_id=None) -> dict:
 
 @router.post("")
 async def create_post(
-    content: str = Form(...),
+    content: str = Form(""),
     image: Optional[UploadFile] = File(None),
+    audio: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    content = (content or "").strip()
     image_url = ""
-    if image:
-        ext = os.path.splitext(image.filename)[1] or ".jpg"
+    audio_url = ""
+
+    if image and image.filename:
+        ext = os.path.splitext(image.filename)[1].lower() or ".jpg"
         filename = f"post_{uuid.uuid4().hex[:12]}{ext}"
         filepath = os.path.join(UPLOAD_DIR, filename)
         async with aiofiles.open(filepath, "wb") as f:
             await f.write(await image.read())
         image_url = f"/uploads/{filename}"
 
-    post = Post(author_id=current_user.id, content=content, image_url=image_url)
+    if audio and audio.filename:
+        ext = os.path.splitext(audio.filename)[1].lower() or ".webm"
+        filename = f"audio_{uuid.uuid4().hex[:12]}{ext}"
+        filepath = os.path.join(UPLOAD_DIR, filename)
+        async with aiofiles.open(filepath, "wb") as f:
+            await f.write(await audio.read())
+        audio_url = f"/uploads/{filename}"
+
+    # A post must contain at least one of: text, image, audio.
+    if not content and not image_url and not audio_url:
+        raise HTTPException(status_code=400, detail="貼文需要文字、照片或語音其中一項")
+
+    post = Post(
+        author_id=current_user.id,
+        content=content,
+        image_url=image_url,
+        audio_url=audio_url,
+    )
     db.add(post)
     await db.flush()
 
@@ -69,6 +91,7 @@ async def create_post(
 async def get_feed(
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=50),
+    filter: Optional[str] = Query(None, description="'liked' to only show posts the current user has liked"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -76,11 +99,18 @@ async def get_feed(
         select(Post)
         .options(selectinload(Post.author), selectinload(Post.likes))
         .order_by(Post.created_at.desc())
-        .offset((page - 1) * per_page)
-        .limit(per_page)
     )
+
+    if filter == "liked":
+        # Inner-join PostLike to keep only posts the current user has liked
+        query = query.join(PostLike, PostLike.post_id == Post.id).where(
+            PostLike.user_id == current_user.id
+        )
+
+    query = query.offset((page - 1) * per_page).limit(per_page)
+
     result = await db.execute(query)
-    posts = result.scalars().all()
+    posts = result.scalars().unique().all()
     return {"posts": [post_to_dict(p, str(current_user.id)) for p in posts]}
 
 
