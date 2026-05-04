@@ -1,14 +1,13 @@
 // === Gatherings Page ===
 requireAuth();
 
+// Keep this in sync with backend GATHERING_TYPES (app/routers/gatherings.py).
 const TYPE_LABELS = {
     meal: '🍜 飯局',
-    karaoke: '🎤 KTV',
     drinks: '🥂 小酌',
-    coffee: '☕ 咖啡',
+    karaoke: '🎤 KTV',
     movie: '🎬 電影',
     nightlife: '🌙 夜生活',
-    travel: '✈️ 旅行',
 };
 
 let currentTab = 'explore';

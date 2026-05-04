@@ -11,7 +11,7 @@ class Gathering(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     host_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    type = Column(String(20), nullable=False)  # meal, karaoke, drinks, movie
+    type = Column(String(20), nullable=False)  # meal, drinks, karaoke, movie, nightlife
     title = Column(String(200), nullable=False)
     location = Column(String(200), nullable=False)
     max_slots = Column(Integer, nullable=False)

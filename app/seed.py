@@ -497,9 +497,12 @@ SEED_GATHERINGS = [
     {"type": "karaoke", "title": "KTV 唱歌之夜 🎤", "location": "台北東區", "max_slots": 6, "hours": 6},
     {"type": "drinks", "title": "週五下班喝一杯 🍺", "location": "台北大安區", "max_slots": 4, "hours": 24},
     {"type": "movie", "title": "週末一起看新片 🎬", "location": "台北西門町", "max_slots": 4, "hours": 12},
+    {"type": "nightlife", "title": "信義區夜店一起 🌙", "location": "台北信義 ATT 4 FUN", "max_slots": 6, "hours": 12},
     {"type": "meal", "title": "道地泰北菜推薦！一起去", "location": "台北中山區", "max_slots": 6, "hours": 6},
     {"type": "karaoke", "title": "泰語歌教唱大會", "location": "台中", "max_slots": 8, "hours": 24},
     {"type": "drinks", "title": "精釀啤酒品鑑局", "location": "高雄", "max_slots": 4, "hours": 12},
+    {"type": "movie", "title": "夜場恐怖片揪人 👻", "location": "高雄夢時代", "max_slots": 4, "hours": 6},
+    {"type": "nightlife", "title": "Lounge Bar 慢慢喝", "location": "台中七期", "max_slots": 4, "hours": 24},
     {"type": "meal", "title": "曼谷回來的想吃台菜", "location": "台南", "max_slots": 4, "hours": 6},
 ]
 

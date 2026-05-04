@@ -13,7 +13,7 @@ from app.services.auth import get_current_user
 
 router = APIRouter(prefix="/api/gatherings", tags=["gatherings"])
 
-GATHERING_TYPES = {"meal", "karaoke", "drinks", "movie"}
+GATHERING_TYPES = {"meal", "drinks", "karaoke", "movie", "nightlife"}
 VALID_SLOTS = {2, 4, 6, 8}
 VALID_HOURS = {2, 6, 12, 24}
 

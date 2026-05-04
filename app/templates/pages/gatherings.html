@@ -22,12 +22,11 @@
             <button class="g-tab" data-tab="mine" onclick="switchTab('mine')">我的局</button>
         </div>
 
-        <!-- Type Filters -->
+        <!-- Type Filters — keep aligned with backend GATHERING_TYPES -->
         <div class="g-filters">
             <button class="g-filter active" data-type="" onclick="filterType('')">全部</button>
             <button class="g-filter" data-type="meal" onclick="filterType('meal')">🍜 飯局</button>
             <button class="g-filter" data-type="drinks" onclick="filterType('drinks')">🥂 小酌</button>
-            <button class="g-filter" data-type="coffee" onclick="filterType('coffee')">☕ 咖啡</button>
             <button class="g-filter" data-type="karaoke" onclick="filterType('karaoke')">🎤 KTV</button>
             <button class="g-filter" data-type="movie" onclick="filterType('movie')">🎬 電影</button>
             <button class="g-filter" data-type="nightlife" onclick="filterType('nightlife')">🌙 夜生活</button>
@@ -50,7 +49,7 @@
             </div>
         </div>
 
-        <!-- 熱門組局靈感 -->
+        <!-- 熱門組局靈感 — kept aligned with the 5 valid backend types -->
         <div style="margin-top:2.5rem;" id="inspirationSection">
             <div class="section-title">熱門組局靈感</div>
             <div class="inspiration-grid">
@@ -62,13 +61,17 @@
                     <div class="insp-emoji">🥂</div>
                     <div class="insp-label">微醺小酌</div>
                 </div>
-                <div class="inspiration-card" onclick="quickCreate('coffee', '咖啡慢聊')">
-                    <div class="insp-emoji">☕</div>
-                    <div class="insp-label">咖啡慢聊</div>
+                <div class="inspiration-card" onclick="quickCreate('karaoke', 'KTV 唱通宵')">
+                    <div class="insp-emoji">🎤</div>
+                    <div class="insp-label">KTV 唱通宵</div>
                 </div>
-                <div class="inspiration-card" onclick="quickCreate('travel', '週末出遊')">
-                    <div class="insp-emoji">🏞️</div>
-                    <div class="insp-label">週末出遊</div>
+                <div class="inspiration-card" onclick="quickCreate('movie', '一起看新片')">
+                    <div class="insp-emoji">🎬</div>
+                    <div class="insp-label">看新片</div>
+                </div>
+                <div class="inspiration-card" onclick="quickCreate('nightlife', '夜生活探險')">
+                    <div class="insp-emoji">🌙</div>
+                    <div class="insp-label">夜生活</div>
                 </div>
             </div>
         </div>
@@ -88,11 +91,9 @@
                 <select class="form-input" id="gType" required>
                     <option value="meal">🍜 飯局</option>
                     <option value="drinks">🥂 小酌</option>
-                    <option value="coffee">☕ 咖啡</option>
                     <option value="karaoke">🎤 KTV</option>
                     <option value="movie">🎬 電影</option>
                     <option value="nightlife">🌙 夜生活</option>
-                    <option value="travel">✈️ 旅行</option>
                 </select>
             </div>
             <div class="form-group">
@@ -127,5 +128,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/gatherings.js?v=2"></script>
+<script src="/static/js/gatherings.js?v=20260504a"></script>
 {% endblock %}
