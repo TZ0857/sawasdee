@@ -111,71 +111,376 @@ async function uploadAvatar(input) {
     }
 }
 
+/* ============================================================
+   ALBUMS
+   ============================================================ */
+
+let openAlbum = null;   // currently-open album object in the viewer
+const MAX_PHOTOS = 20;
+
 async function loadAlbums() {
     if (!profileData) return;
+    const isOwner = profileData.username === currentUser.username;
+
+    // For owners, also load pending access requests
+    if (isOwner) {
+        renderPendingRequestsPanel();
+    }
+
     try {
         const data = await api.get(`/api/albums/user/${profileData.id}`);
         const grid = document.getElementById('albumGrid');
-        if (data.albums.length === 0) {
-            grid.innerHTML = '<div class="text-muted" style="padding:2rem;">還沒有相簿</div>';
+        if (!data.albums || data.albums.length === 0) {
+            grid.innerHTML = `<div class="text-muted" style="padding:2rem; text-align:center;">${isOwner ? '還沒有相簿,點右上角「建立相簿」開始收集你的時刻 ✨' : '這位會員還沒有相簿'}</div>`;
             return;
         }
-        grid.innerHTML = data.albums.map(a => `
-            <div class="album-card" onclick="viewAlbum('${a.id}', ${a.has_access}, '${a.album_type}')">
-                <div style="width:100%;height:100%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;">
-                    ${a.cover_url ? `<img src="${a.cover_url}" alt="">` : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`}
-                </div>
-                ${a.album_type === 'private' ? '<div class="album-private-badge">🔒 私密</div>' : ''}
-                <div class="album-overlay">
-                    <div class="album-title">${a.title}</div>
-                    <div class="album-count">${a.photo_count} 張照片</div>
-                </div>
-            </div>
-        `).join('');
+        grid.innerHTML = data.albums.map(a => renderAlbumCard(a)).join('');
     } catch (err) {
         document.getElementById('albumGrid').innerHTML = '<div class="text-muted">載入失敗</div>';
     }
 }
 
-async function viewAlbum(albumId, hasAccess, albumType) {
-    if (albumType === 'private' && !hasAccess) {
-        if (confirm('這是私密相簿，要申請觀看權限嗎？')) {
-            try {
-                await api.post(`/api/albums/${albumId}/request-access`);
-                showToast('已送出申請！', 'success');
-            } catch (err) {
-                showToast(err.message || '申請失敗', 'error');
-            }
-        }
-        return;
+function renderAlbumCard(a) {
+    const cover = a.cover_url
+        ? `<img src="${escapeAttr(a.cover_url)}" alt="" onerror="this.outerHTML='<div class=&quot;album-cover-fallback&quot;>📷</div>'">`
+        : `<div class="album-cover-fallback">📷</div>`;
+
+    let badge = '';
+    if (a.album_type === 'private') {
+        if (a.is_owner) badge = '<div class="album-private-badge">🔒 私密</div>';
+        else if (a.has_access) badge = '<div class="album-private-badge" style="background:rgba(48,160,90,0.85);">✓ 已通過</div>';
+        else if (a.request_status === 'pending') badge = '<div class="album-private-badge" style="background:rgba(160,140,90,0.85);">⏳ 審核中</div>';
+        else if (a.request_status === 'rejected') badge = '<div class="album-private-badge" style="background:rgba(160,90,90,0.85);">✗ 未通過</div>';
+        else badge = '<div class="album-private-badge">🔒 私密</div>';
     }
 
-    try {
-        const data = await api.get(`/api/albums/${albumId}/photos`);
-        const modal = document.getElementById('photoViewerModal');
-        const modalContent = modal.querySelector('.modal');
-        modalContent.style.maxWidth = '800px';
-        modalContent.innerHTML = `
-            <button class="modal-close" onclick="closeModal('photoViewerModal')" style="position:absolute;top:1rem;right:1rem;z-index:1">×</button>
-            <div class="photo-grid" style="padding:1rem;">
-                ${data.photos.map(p => `<img src="${p.image_url}" alt="${p.caption}" onclick="viewPhoto('${p.image_url}')">`).join('')}
+    return `
+        <div class="album-card" onclick='openAlbumViewer(${JSON.stringify(a)})'>
+            <div class="album-cover-wrap">${cover}</div>
+            ${badge}
+            <div class="album-overlay">
+                <div class="album-title">${escapeHtmlA(a.title)}</div>
+                <div class="album-count">${a.photo_count} 張照片</div>
             </div>
-        `;
-        if (data.photos.length === 0) {
-            modalContent.innerHTML += '<p class="text-muted text-center" style="padding:2rem">相簿是空的</p>';
-        }
-        modal.classList.add('active');
+        </div>
+    `;
+}
+
+function escapeHtmlA(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function escapeAttr(s) { return escapeHtmlA(s); }
+
+async function openAlbumViewer(album) {
+    openAlbum = album;
+    const isOwner = !!album.is_owner;
+    const isPrivate = album.album_type === 'private';
+
+    // Private albums the viewer doesn't have access to → show request UI instead
+    if (!isOwner && isPrivate && !album.has_access) {
+        return openPrivateAccessGate(album);
+    }
+
+    // Open viewer with photos
+    let photos = [];
+    try {
+        const data = await api.get(`/api/albums/${album.id}/photos`);
+        photos = data.photos || [];
     } catch (err) {
-        showToast('無法開啟相簿', 'error');
+        return showToast('無法開啟相簿', 'error');
+    }
+
+    const modal = document.getElementById('photoViewerModal');
+    const modalContent = modal.querySelector('.modal');
+    modalContent.style.maxWidth = '880px';
+    modalContent.style.background = 'var(--bg-card)';
+    modalContent.style.borderRadius = 'var(--radius-lg)';
+    modalContent.style.padding = '0';
+    modalContent.style.position = 'relative';
+
+    const headerActions = isOwner ? `
+        <button class="btn btn-ghost btn-sm" onclick="renameAlbumPrompt('${album.id}', '${escapeAttr(album.title)}')" title="重新命名">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAlbumType('${album.id}', '${album.album_type}')" title="切換公開/私密">${isPrivate ? '🔓 設為公開' : '🔒 設為私密'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteAlbumConfirm('${album.id}')" title="刪除相簿" style="color:var(--danger);">🗑</button>
+    ` : '';
+
+    const uploadButton = isOwner ? `
+        <label class="btn btn-primary btn-sm" style="cursor:pointer;">
+            ＋ 上傳照片 (${photos.length}/${MAX_PHOTOS})
+            <input type="file" accept="image/*" multiple style="display:none" onchange="uploadAlbumPhotos('${album.id}', this)">
+        </label>
+    ` : '';
+
+    const photoTiles = photos.length === 0
+        ? `<div class="text-muted text-center" style="padding:3rem;">${isOwner ? '相簿是空的,點上方「上傳照片」開始 📷' : '相簿是空的'}</div>`
+        : `<div class="album-photo-grid">${photos.map((p, idx) => renderPhotoTile(p, idx, isOwner, album.id)).join('')}</div>`;
+
+    modalContent.innerHTML = `
+        <div class="album-viewer-header">
+            <div class="album-viewer-title">${escapeHtmlA(album.title)} ${isPrivate ? '<span style="color:var(--gold-light); font-size:0.75rem;">🔒</span>' : ''}</div>
+            <div style="display:flex; gap:0.4rem; align-items:center;">${headerActions}<button class="btn btn-ghost btn-sm" onclick="closeModal('photoViewerModal')" title="關閉">✕</button></div>
+        </div>
+        ${isOwner ? `<div class="album-viewer-toolbar">${uploadButton}</div>` : ''}
+        <div class="album-viewer-body">${photoTiles}</div>
+    `;
+    modal.classList.add('active');
+    // Stash photos for the lightbox to navigate
+    modal._photos = photos;
+}
+
+function renderPhotoTile(p, idx, isOwner, albumId) {
+    const ownerActions = isOwner ? `
+        <div class="photo-tile-actions">
+            <button title="設為封面" onclick="event.stopPropagation(); setAlbumCover('${albumId}', '${p.id}')">⭐</button>
+            <button title="刪除" onclick="event.stopPropagation(); deletePhotoConfirm('${p.id}')">🗑</button>
+        </div>
+    ` : '';
+    return `
+        <div class="photo-tile" onclick="openLightbox(${idx})">
+            <img src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.caption || '')}" loading="lazy" onerror="this.outerHTML='<div class=&quot;photo-tile-missing&quot;>📷</div>'">
+            ${ownerActions}
+        </div>
+    `;
+}
+
+/* ---- Photo lightbox with prev/next ---- */
+function openLightbox(startIdx) {
+    const modal = document.getElementById('photoViewerModal');
+    const photos = modal._photos || [];
+    if (!photos.length) return;
+    let idx = startIdx;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'photo-lightbox';
+    overlay.innerHTML = `
+        <button class="lightbox-btn lightbox-prev" aria-label="上一張">‹</button>
+        <img class="lightbox-img" src="${escapeAttr(photos[idx].image_url)}" alt="">
+        <button class="lightbox-btn lightbox-next" aria-label="下一張">›</button>
+        <button class="lightbox-close" aria-label="關閉">✕</button>
+        <div class="lightbox-caption">${escapeHtmlA(photos[idx].caption || '')}</div>
+    `;
+    document.body.appendChild(overlay);
+
+    const update = () => {
+        overlay.querySelector('.lightbox-img').src = photos[idx].image_url;
+        overlay.querySelector('.lightbox-caption').textContent = photos[idx].caption || '';
+    };
+    const prev = () => { idx = (idx - 1 + photos.length) % photos.length; update(); };
+    const next = () => { idx = (idx + 1) % photos.length; update(); };
+    overlay.querySelector('.lightbox-prev').onclick = (e) => { e.stopPropagation(); prev(); };
+    overlay.querySelector('.lightbox-next').onclick = (e) => { e.stopPropagation(); next(); };
+    overlay.querySelector('.lightbox-close').onclick = (e) => { e.stopPropagation(); cleanup(); };
+    overlay.onclick = cleanup;
+    const onKey = (e) => {
+        if (e.key === 'ArrowLeft') prev();
+        else if (e.key === 'ArrowRight') next();
+        else if (e.key === 'Escape') cleanup();
+    };
+    document.addEventListener('keydown', onKey);
+    function cleanup() {
+        overlay.remove();
+        document.removeEventListener('keydown', onKey);
     }
 }
 
-function viewPhoto(url) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:3001;display:flex;align-items:center;justify-content:center;cursor:pointer;';
-    overlay.innerHTML = `<img src="${url}" style="max-width:90%;max-height:90%;object-fit:contain;border-radius:12px;">`;
-    overlay.onclick = () => overlay.remove();
-    document.body.appendChild(overlay);
+/* ---- Owner album management ---- */
+async function uploadAlbumPhotos(albumId, input) {
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    const formData = new FormData();
+    files.forEach(f => formData.append('images', f));
+    try {
+        const res = await api.post(`/api/albums/${albumId}/photos/batch`, formData, true);
+        let msg = `已上傳 ${res.uploaded.length} 張`;
+        if (res.skipped) msg += `,${res.skipped} 張因超過 ${MAX_PHOTOS} 張上限被略過`;
+        showToast(msg, 'success');
+        // Reload album viewer + grid
+        await loadAlbums();
+        // Re-open with refreshed data
+        const data = await api.get(`/api/albums/user/${profileData.id}`);
+        const updated = (data.albums || []).find(a => a.id === albumId);
+        if (updated) openAlbumViewer(updated);
+    } catch (err) {
+        showToast(err.message || '上傳失敗', 'error');
+    } finally {
+        input.value = '';
+    }
+}
+
+async function deletePhotoConfirm(photoId) {
+    if (!confirm('確定要刪除這張照片?無法還原')) return;
+    try {
+        await api.delete(`/api/albums/photos/${photoId}`);
+        showToast('已刪除', 'success');
+        await loadAlbums();
+        if (openAlbum) {
+            const data = await api.get(`/api/albums/user/${profileData.id}`);
+            const updated = (data.albums || []).find(a => a.id === openAlbum.id);
+            if (updated) openAlbumViewer(updated); else closeModal('photoViewerModal');
+        }
+    } catch (err) {
+        showToast(err.message || '刪除失敗', 'error');
+    }
+}
+
+async function deleteAlbumConfirm(albumId) {
+    if (!confirm('確定要刪除整個相簿?裡面所有照片都會一起消失,無法還原')) return;
+    try {
+        await api.delete(`/api/albums/${albumId}`);
+        showToast('相簿已刪除', 'success');
+        closeModal('photoViewerModal');
+        loadAlbums();
+    } catch (err) {
+        showToast(err.message || '刪除失敗', 'error');
+    }
+}
+
+async function renameAlbumPrompt(albumId, currentTitle) {
+    const newTitle = prompt('相簿新名稱', currentTitle);
+    if (!newTitle || newTitle.trim() === currentTitle) return;
+    try {
+        await api.put(`/api/albums/${albumId}`, { title: newTitle.trim() });
+        showToast('已更名', 'success');
+        await loadAlbums();
+        const data = await api.get(`/api/albums/user/${profileData.id}`);
+        const updated = (data.albums || []).find(a => a.id === albumId);
+        if (updated) openAlbumViewer(updated);
+    } catch (err) {
+        showToast(err.message || '更名失敗', 'error');
+    }
+}
+
+async function toggleAlbumType(albumId, currentType) {
+    const next = currentType === 'private' ? 'public' : 'private';
+    const label = next === 'private' ? '私密(需申請才能看)' : '公開';
+    if (!confirm(`要把這個相簿改成「${label}」嗎?`)) return;
+    try {
+        await api.put(`/api/albums/${albumId}`, { album_type: next });
+        showToast(`已切換為${label}`, 'success');
+        await loadAlbums();
+        const data = await api.get(`/api/albums/user/${profileData.id}`);
+        const updated = (data.albums || []).find(a => a.id === albumId);
+        if (updated) openAlbumViewer(updated);
+    } catch (err) {
+        showToast(err.message || '切換失敗', 'error');
+    }
+}
+
+async function setAlbumCover(albumId, photoId) {
+    try {
+        await api.put(`/api/albums/${albumId}`, { cover_photo_id: photoId });
+        showToast('封面已更新', 'success');
+        loadAlbums();
+    } catch (err) {
+        showToast(err.message || '設定封面失敗', 'error');
+    }
+}
+
+/* ---- Private album request flow (viewer side) ---- */
+function openPrivateAccessGate(album) {
+    const modal = document.getElementById('photoViewerModal');
+    const modalContent = modal.querySelector('.modal');
+    modalContent.style.maxWidth = '440px';
+    modalContent.style.padding = '2rem 1.6rem';
+
+    let body;
+    if (album.request_status === 'pending') {
+        body = '<div class="text-center" style="padding:1rem 0;"><div style="font-size:2.5rem;">⏳</div><h3 style="margin:0.6rem 0;">已送出申請</h3><p class="text-muted">等待對方審核中,通過後就能看到照片</p></div>';
+    } else if (album.request_status === 'rejected') {
+        body = '<div class="text-center" style="padding:1rem 0;"><div style="font-size:2.5rem;">😔</div><h3 style="margin:0.6rem 0;">申請未通過</h3><p class="text-muted">這次對方沒同意,可以先互動建立信任</p></div>';
+    } else {
+        body = `
+            <div class="text-center" style="padding:1rem 0;">
+                <div style="font-size:2.5rem;">🔒</div>
+                <h3 style="margin:0.6rem 0;">這是私密相簿</h3>
+                <p class="text-muted" style="margin-bottom:1.2rem;">需要對方核准才能查看</p>
+                <button class="btn btn-primary btn-block" onclick="requestAccess('${album.id}')">申請查看</button>
+            </div>
+        `;
+    }
+
+    modalContent.innerHTML = `
+        <button class="modal-close" onclick="closeModal('photoViewerModal')" style="position:absolute;top:0.6rem;right:0.6rem;">✕</button>
+        ${body}
+    `;
+    modal.classList.add('active');
+}
+
+async function requestAccess(albumId) {
+    try {
+        await api.post(`/api/albums/${albumId}/request-access`);
+        showToast('已送出申請,等對方審核', 'success');
+        closeModal('photoViewerModal');
+        loadAlbums();
+    } catch (err) {
+        showToast(err.message || '申請失敗', 'error');
+    }
+}
+
+/* ---- Owner: pending requests management ---- */
+async function renderPendingRequestsPanel() {
+    let host = document.getElementById('pendingRequestsPanel');
+    if (!host) {
+        host = document.createElement('div');
+        host.id = 'pendingRequestsPanel';
+        const tabContent = document.getElementById('tabAlbums');
+        if (tabContent) tabContent.insertBefore(host, tabContent.firstChild);
+    }
+
+    try {
+        const data = await api.get('/api/albums/access-requests/pending');
+        const reqs = data.requests || [];
+        if (reqs.length === 0) {
+            host.innerHTML = '';
+            return;
+        }
+        host.innerHTML = `
+            <div class="card mb-2" style="border-color:var(--gold-dark);">
+                <div class="card-body">
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.7rem;">
+                        <span style="font-size:1.1rem;">🔔</span>
+                        <strong>有 ${reqs.length} 位想看你的私密相簿</strong>
+                    </div>
+                    ${reqs.map(r => `
+                        <div class="pending-request-row">
+                            <img src="${escapeAttr(r.requester.avatar_url || '')}" alt="" class="pending-request-avatar">
+                            <div style="flex:1; min-width:0;">
+                                <div><strong>${escapeHtmlA(r.requester.display_name)}</strong> 想看 <span style="color:var(--gold-light)">${escapeHtmlA(r.album.title)}</span></div>
+                                <div class="text-muted" style="font-size:0.78rem;">${timeAgo(r.created_at)}</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="approveRequest('${r.id}')">核准</button>
+                            <button class="btn btn-ghost btn-sm" onclick="rejectRequest('${r.id}')" style="color:var(--danger)">拒絕</button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        host.innerHTML = '';
+    }
+}
+
+async function approveRequest(requestId) {
+    try {
+        await api.post(`/api/albums/access-requests/${requestId}/approve`);
+        showToast('已核准', 'success');
+        renderPendingRequestsPanel();
+    } catch (err) {
+        showToast(err.message || '核准失敗', 'error');
+    }
+}
+
+async function rejectRequest(requestId) {
+    if (!confirm('確定拒絕這個申請?')) return;
+    try {
+        await api.post(`/api/albums/access-requests/${requestId}/reject`);
+        showToast('已拒絕', 'success');
+        renderPendingRequestsPanel();
+    } catch (err) {
+        showToast(err.message || '拒絕失敗', 'error');
+    }
 }
 
 function showCreateAlbum() {
