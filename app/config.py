@@ -14,7 +14,10 @@ SYNC_DATABASE_URL = DATABASE_URL.replace("+asyncpg", "")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "sawasdee-super-secret-key-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+# Shorter session: a stolen / accidentally shared token expires within a day
+# instead of a week. Users who actually use the app re-auth silently because
+# the login form remembers their email; only the password needs typing.
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")

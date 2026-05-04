@@ -87,6 +87,31 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Sawasdee", version="1.0.0", lifespan=lifespan)
 
+
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    """Forbid browsers/proxies from caching authenticated pages and API
+    responses. Without this, a stale HTML or JSON response could be
+    served to a different user (or the original user on a shared device)
+    out of disk cache.
+
+    Static assets under /static/ and /uploads/ are intentionally cacheable
+    (no user data) — the StaticFiles mounts handle them before this
+    middleware runs the response, but we still skip them defensively.
+    """
+    response = await call_next(request)
+    path = request.url.path
+    if not (path.startswith("/static/") or path.startswith("/uploads/")):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        # Lightweight defence-in-depth headers
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    return response
+
+
 # Mount static files and uploads
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 templates_dir = os.path.join(os.path.dirname(__file__), "templates")

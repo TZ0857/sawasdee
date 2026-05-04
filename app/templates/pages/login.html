@@ -6,14 +6,14 @@
     <div class="auth-card">
         <h1 class="auth-title">歡迎回到 Sawasdee</h1>
         <p class="auth-subtitle">繼續你的高品質跨國社交體驗</p>
-        <form id="loginForm">
+        <form id="loginForm" autocomplete="off">
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
+                <input type="email" class="form-input" id="loginEmail" name="sw_email" placeholder="your@email.com" autocomplete="off" required>
             </div>
             <div class="form-group">
                 <label class="form-label">密碼</label>
-                <input type="password" class="form-input" id="loginPassword" placeholder="輸入密碼" required>
+                <input type="password" class="form-input" id="loginPassword" name="sw_pw" placeholder="輸入密碼" autocomplete="new-password" required>
             </div>
             <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">登入</button>
         </form>
