@@ -33,6 +33,11 @@
                                     照片
                                     <input type="file" accept="image/*" id="postImage" style="display:none">
                                 </label>
+                                <label class="btn btn-ghost btn-sm" style="cursor:pointer; color:var(--text-muted);" title="加入短影片 (60 秒 / 100MB 內)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                                    影片
+                                    <input type="file" accept="video/*" id="postVideo" style="display:none">
+                                </label>
                                 <button type="button" class="btn btn-ghost btn-sm" id="audioBtn" onclick="toggleRecording()" style="color:var(--text-muted);" title="錄製語音 (最多 60 秒)">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                                     <span id="audioBtnLabel">語音</span>
@@ -45,6 +50,12 @@
                         <div id="imagePreview" class="hidden mt-1" style="position:relative">
                             <img id="previewImg" style="max-height:180px; border-radius:var(--radius-md)">
                             <button onclick="clearImage()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6); border:none; color:#fff; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:0.85rem;">×</button>
+                        </div>
+
+                        <!-- Video preview -->
+                        <div id="videoPreview" class="hidden mt-1" style="position:relative">
+                            <video id="previewVideo" controls style="max-height:240px; max-width:100%; border-radius:var(--radius-md);"></video>
+                            <button onclick="clearVideo()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6); border:none; color:#fff; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:0.85rem;">×</button>
                         </div>
 
                         <!-- Audio preview -->
@@ -77,5 +88,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/feed.js?v=20260504a"></script>
+<script src="/static/js/feed.js?v=20260504b"></script>
 {% endblock %}

@@ -32,6 +32,7 @@ def post_to_dict(post: Post, current_user_id=None) -> dict:
         "content": post.content or "",
         "image_url": post.image_url or "",
         "audio_url": getattr(post, "audio_url", "") or "",
+        "video_url": getattr(post, "video_url", "") or "",
         "likes_count": post.likes_count,
         "comments_count": post.comments_count,
         "is_liked": liked,
@@ -39,17 +40,24 @@ def post_to_dict(post: Post, current_user_id=None) -> dict:
     }
 
 
+# CLAUDE.md spec: short videos up to 60s, up to 100MB
+MAX_VIDEO_BYTES = 100 * 1024 * 1024
+ALLOWED_VIDEO_EXT = {".mp4", ".mov", ".webm", ".m4v", ".avi"}
+
+
 @router.post("")
 async def create_post(
     content: str = Form(""),
     image: Optional[UploadFile] = File(None),
     audio: Optional[UploadFile] = File(None),
+    video: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     content = (content or "").strip()
     image_url = ""
     audio_url = ""
+    video_url = ""
 
     if image and image.filename:
         ext = os.path.splitext(image.filename)[1].lower() or ".jpg"
@@ -67,15 +75,38 @@ async def create_post(
             await f.write(await audio.read())
         audio_url = f"/uploads/{filename}"
 
-    # A post must contain at least one of: text, image, audio.
-    if not content and not image_url and not audio_url:
-        raise HTTPException(status_code=400, detail="貼文需要文字、照片或語音其中一項")
+    if video and video.filename:
+        ext = os.path.splitext(video.filename)[1].lower() or ".mp4"
+        if ext not in ALLOWED_VIDEO_EXT:
+            raise HTTPException(status_code=400, detail=f"影片格式不支援(允許 {', '.join(sorted(ALLOWED_VIDEO_EXT))})")
+        # Stream-read so we can enforce size without buffering everything in memory.
+        chunks = []
+        total = 0
+        while True:
+            chunk = await video.read(1024 * 256)
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > MAX_VIDEO_BYTES:
+                raise HTTPException(status_code=400, detail="影片檔案超過 100MB 上限")
+            chunks.append(chunk)
+        filename = f"video_{uuid.uuid4().hex[:12]}{ext}"
+        filepath = os.path.join(UPLOAD_DIR, filename)
+        async with aiofiles.open(filepath, "wb") as f:
+            for c in chunks:
+                await f.write(c)
+        video_url = f"/uploads/{filename}"
+
+    # A post must contain at least one of: text, image, audio, video.
+    if not content and not image_url and not audio_url and not video_url:
+        raise HTTPException(status_code=400, detail="貼文需要文字、照片、影片或語音其中一項")
 
     post = Post(
         author_id=current_user.id,
         content=content,
         image_url=image_url,
         audio_url=audio_url,
+        video_url=video_url,
     )
     db.add(post)
     await db.flush()

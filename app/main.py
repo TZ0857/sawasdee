@@ -23,10 +23,12 @@ async def run_lightweight_migrations():
     so re-running on an already-migrated DB is a no-op."""
     statements = [
         # posts.content was NOT NULL — make it optional so a post can be
-        # image-only or audio-only.
+        # image-only, audio-only, or video-only.
         "ALTER TABLE posts ALTER COLUMN content DROP NOT NULL",
-        # posts.audio_url is a new column for the voice-message feature.
+        # posts.audio_url is the voice-message column.
         "ALTER TABLE posts ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500) DEFAULT ''",
+        # posts.video_url is the short-video column.
+        "ALTER TABLE posts ADD COLUMN IF NOT EXISTS video_url VARCHAR(500) DEFAULT ''",
     ]
     async with engine.begin() as conn:
         for stmt in statements:

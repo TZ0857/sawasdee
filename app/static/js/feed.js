@@ -37,6 +37,47 @@ function clearImage() {
     document.getElementById('imagePreview').classList.add('hidden');
 }
 
+/* ---------- Video preview ---------- */
+const MAX_VIDEO_SECONDS = 60;
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+
+document.getElementById('postVideo').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > MAX_VIDEO_BYTES) {
+        showToast('影片檔案超過 100MB,請壓縮後再上傳', 'error');
+        e.target.value = '';
+        return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const video = document.getElementById('previewVideo');
+    video.onloadedmetadata = () => {
+        if (video.duration > MAX_VIDEO_SECONDS + 0.5) {
+            showToast(`影片不能超過 ${MAX_VIDEO_SECONDS} 秒(目前 ${Math.round(video.duration)} 秒)`, 'error');
+            URL.revokeObjectURL(url);
+            video.removeAttribute('src');
+            video.load();
+            document.getElementById('videoPreview').classList.add('hidden');
+            e.target.value = '';
+            return;
+        }
+        document.getElementById('videoPreview').classList.remove('hidden');
+    };
+    video.src = url;
+});
+
+function clearVideo() {
+    const input = document.getElementById('postVideo');
+    const video = document.getElementById('previewVideo');
+    if (video.src) URL.revokeObjectURL(video.src);
+    video.removeAttribute('src');
+    video.load();
+    input.value = '';
+    document.getElementById('videoPreview').classList.add('hidden');
+}
+
 /* ---------- Audio recording (MediaRecorder API) ---------- */
 let mediaRecorder = null;
 let audioChunks = [];
@@ -125,15 +166,17 @@ function clearAudio() {
 async function createPost() {
     const content = document.getElementById('postContent').value.trim();
     const imageFile = document.getElementById('postImage').files[0];
+    const videoFile = document.getElementById('postVideo').files[0];
     const hasAudio = !!audioBlob;
 
-    if (!content && !imageFile && !hasAudio) {
-        return showToast('請輸入文字、加入照片或錄製語音', 'error');
+    if (!content && !imageFile && !videoFile && !hasAudio) {
+        return showToast('請輸入文字、加入照片、影片或錄製語音', 'error');
     }
 
     const formData = new FormData();
     formData.append('content', content);
     if (imageFile) formData.append('image', imageFile);
+    if (videoFile) formData.append('video', videoFile);
     if (hasAudio) {
         const ext = (audioBlob.type.includes('webm')) ? 'webm'
                   : (audioBlob.type.includes('mp4')) ? 'm4a'
@@ -145,6 +188,7 @@ async function createPost() {
         await api.post('/api/posts', formData, true);
         document.getElementById('postContent').value = '';
         clearImage();
+        clearVideo();
         clearAudio();
         showToast('發布成功！', 'success');
         loadFeed();
@@ -170,6 +214,13 @@ function renderImage(url) {
     //  vanish on every redeploy unless a Volume is mounted there).
     const safe = escapeHtml(url);
     return `<img src="${safe}" class="post-image" alt="" onerror="this.outerHTML='<div class=&quot;post-image-missing&quot;>📷 圖片暫時無法載入</div>'">`;
+}
+
+function renderVideo(url) {
+    if (!url) return '';
+    const safe = escapeHtml(url);
+    return `<video class="post-video" controls preload="metadata" playsinline src="${safe}"
+        onerror="this.outerHTML='<div class=&quot;post-image-missing&quot;>🎬 影片暫時無法載入</div>'"></video>`;
 }
 
 function renderAudio(url) {
@@ -203,6 +254,7 @@ async function loadFeed() {
                     </div>
                 </div>
                 ${renderImage(p.image_url)}
+                ${renderVideo(p.video_url)}
                 ${renderAudio(p.audio_url)}
                 ${p.content ? `<div class="post-content">${escapeHtml(p.content)}</div>` : ''}
                 <div class="post-likes">${p.likes_count > 0 ? p.likes_count + ' 個讚' : ''}</div>
