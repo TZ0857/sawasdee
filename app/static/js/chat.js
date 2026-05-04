@@ -255,5 +255,58 @@ document.getElementById('messageInput').addEventListener('keypress', (e) => {
 // Auto refresh
 setInterval(loadMessages, 3000);
 
+/* ---------- Desktop sidebar: list of all my conversations ---------- */
+let allSidebarConvs = [];
+async function loadConvSidebar() {
+    const list = document.getElementById('chatConvList');
+    if (!list) return;     // not present on mobile / older HTML
+    try {
+        const data = await api.get('/api/messages/conversations');
+        allSidebarConvs = data.conversations || [];
+        renderConvSidebar(allSidebarConvs);
+    } catch (e) {
+        list.innerHTML = '<div class="text-muted text-center" style="padding:1.2rem; font-size:0.85rem;">載入失敗</div>';
+    }
+}
+
+function renderConvSidebar(convs) {
+    const list = document.getElementById('chatConvList');
+    if (!list) return;
+    if (!convs.length) {
+        list.innerHTML = '<div class="text-muted text-center" style="padding:1.2rem; font-size:0.85rem;">還沒有對話</div>';
+        return;
+    }
+    list.innerHTML = convs.map(c => {
+        const isActive = c.other_user.id === chatUserId || c.other_user.username === chatUserId;
+        return `
+            <a href="/chat/${c.other_user.id}" class="chat-conv-item ${isActive ? 'active' : ''}">
+                <img src="${c.other_user.avatar_url || ''}" alt="" class="chat-conv-avatar"
+                     onerror="this.style.background='var(--gradient-gold)'; this.removeAttribute('src');">
+                <div class="chat-conv-body">
+                    <div class="chat-conv-name">
+                        ${escapeHtml(c.other_user.display_name)}
+                        ${c.other_user.is_online ? '<span class="chat-conv-online"></span>' : ''}
+                    </div>
+                    <div class="chat-conv-preview">${escapeHtml(c.last_message || '')}</div>
+                </div>
+                ${c.unread_count > 0 ? `<div class="chat-conv-unread">${c.unread_count}</div>` : ''}
+            </a>
+        `;
+    }).join('');
+}
+
+const _convSearch = document.getElementById('chatConvSearch');
+if (_convSearch) {
+    _convSearch.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        if (!q) { renderConvSidebar(allSidebarConvs); return; }
+        renderConvSidebar(allSidebarConvs.filter(c =>
+            c.other_user.display_name.toLowerCase().includes(q) ||
+            (c.last_message || '').toLowerCase().includes(q)
+        ));
+    });
+}
+
 loadChatUser();
 loadMessages(true);
+loadConvSidebar();
