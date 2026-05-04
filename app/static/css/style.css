@@ -1141,6 +1141,241 @@ h3 { font-size: 1.3rem; }
     margin-bottom: 0.6rem;
     letter-spacing: 0.02em;
 }
+
+/* Tab badge — small red dot/number on the 我的局 tab */
+.g-tab { position: relative; }
+.g-tab-badge {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    min-width: 18px; height: 18px;
+    padding: 0 5px;
+    background: #d94f4f;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 999px;
+    margin-left: 0.3rem;
+}
+
+/* "審核中…" pending button */
+.btn-pending {
+    background: #d99644;
+    color: #1a1a1a;
+    cursor: default;
+}
+.btn-pending:disabled { opacity: 1; }
+
+/* Pending incoming-request rows on 我的局 */
+.g-incoming-row {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--border);
+}
+.g-incoming-row:first-of-type { border-top: none; }
+.g-incoming-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--bg-elevated);
+    flex-shrink: 0;
+}
+.g-incoming-msg {
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.83rem;
+    background: var(--bg-elevated);
+    padding: 0.35rem 0.55rem;
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--gold);
+}
+.g-incoming-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+
+/* Navbar pending badge (red dot/number on the 組局 link) */
+.nav-link { position: relative; }
+.nav-badge {
+    position: absolute;
+    top: -2px; right: -4px;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    background: #d94f4f;
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    border: 2px solid var(--bg-primary);
+}
+.mobile-nav-badge {
+    position: absolute;
+    top: 2px; right: 18%;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    background: #d94f4f;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   Gathering group chat — sidebar + main area
+   ============================================================ */
+.g-chat-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: calc(100vh - 76px);
+    height: calc(100dvh - 76px - env(safe-area-inset-top, 0px));
+    background: var(--bg-primary);
+}
+.g-chat-sidebar {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg-card);
+}
+.g-chat-sidebar-header { padding: 0.7rem 0.7rem 0.4rem; }
+.g-chat-sidebar-title {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    padding: 0 0.9rem 0.5rem;
+    letter-spacing: 0.04em;
+}
+.g-chat-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: var(--transition-fast);
+}
+.g-chat-item:hover { background: var(--bg-elevated); }
+.g-chat-item.active {
+    background: var(--bg-elevated);
+    border-left-color: var(--gold);
+}
+.g-chat-item-emoji {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-elevated);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+.g-chat-item-body { flex: 1; min-width: 0; }
+.g-chat-item-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.g-chat-item-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.g-chat-main {
+    display: flex; flex-direction: column;
+    min-width: 0;
+}
+.g-chat-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+}
+.g-chat-title {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.g-chat-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+.g-chat-messages {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.9rem 0.9rem 0.5rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+}
+.g-chat-input-area {
+    padding: 0.55rem 0.7rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    background: var(--bg-card);
+    display: flex; gap: 0.5rem; align-items: center;
+}
+
+.g-msg-row { display: flex; flex-direction: column; max-width: 75%; }
+.g-msg-row-mine { align-self: flex-end; align-items: flex-end; }
+.g-msg-row-other { align-self: flex-start; align-items: flex-start; }
+.g-msg-sender {
+    display: flex; align-items: center; gap: 0.3rem;
+    margin-bottom: 0.2rem; font-size: 0.7rem; color: var(--text-muted);
+}
+.g-msg-avatar { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
+.g-msg-bubble {
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+.g-msg-bubble-mine {
+    background: var(--gradient-gold);
+    color: #1a1a1a;
+    border-bottom-right-radius: 4px;
+}
+.g-msg-bubble-other {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+}
+.g-msg-time {
+    font-size: 0.65rem;
+    margin-top: 0.2rem;
+    text-align: right;
+    color: rgba(26,26,26,0.55);
+}
+.g-msg-row-other .g-msg-time { color: var(--text-muted); text-align: left; }
+
+.g-msg-system {
+    align-self: center;
+    font-size: 0.75rem;
+    color: var(--gold-light);
+    background: rgba(200, 169, 106, 0.10);
+    border: 1px solid rgba(200, 169, 106, 0.30);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    text-align: center;
+    max-width: 80%;
+}
+.g-msg-system-time { color: var(--text-muted); margin-left: 0.4rem; font-weight: 400; }
+
+@media (max-width: 640px) {
+    .g-chat-layout {
+        grid-template-columns: 1fr;
+        height: calc(100vh - 56px - 60px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        height: calc(100dvh - 56px - 60px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    }
+    .g-chat-sidebar { display: none; }   /* hidden on mobile, just show the active chat */
+    .g-msg-row { max-width: 88%; }
+    .g-chat-back { display: inline-flex; }
+}
+.g-chat-back { display: none; }
+@media (max-width: 640px) { .g-chat-back { display: inline-flex; } }
 .g-info { display: flex; gap: 0.8rem; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
 .g-host { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; }
 .g-host-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }

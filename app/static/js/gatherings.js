@@ -97,13 +97,23 @@ function renderCard(g) {
     if (isPast) {
         actionBtn = '<div class="g-expired-label">局已開始 · 自動關閉</div>';
     } else if (g.is_host) {
-        actionBtn = `<button class="btn btn-ghost btn-sm g-action-btn" onclick="deleteGathering('${g.id}')">刪除</button>`;
+        actionBtn = `
+            <a href="/gatherings/${g.id}/chat" class="btn btn-secondary btn-sm g-action-btn">💬 聊天</a>
+            <button class="btn btn-ghost btn-sm g-action-btn" onclick="deleteGathering('${g.id}')">刪除</button>
+        `;
     } else if (g.is_member) {
-        actionBtn = `<button class="btn btn-ghost btn-sm g-action-btn" onclick="leaveGathering('${g.id}')">退出</button>`;
+        actionBtn = `
+            <a href="/gatherings/${g.id}/chat" class="btn btn-secondary btn-sm g-action-btn">💬 聊天</a>
+            <button class="btn btn-ghost btn-sm g-action-btn" onclick="leaveGathering('${g.id}')">退出</button>
+        `;
+    } else if (g.my_request_status === 'pending') {
+        actionBtn = '<button class="btn btn-pending btn-sm g-action-btn" disabled>審核中…</button>';
+    } else if (g.my_request_status === 'rejected') {
+        actionBtn = `<button class="btn btn-secondary btn-sm g-action-btn" onclick="openApplyModal('${g.id}', \`${escapeAttr(g.title)}\`)">重新申請</button>`;
     } else if (isFull) {
         actionBtn = '<button class="btn btn-secondary btn-sm g-action-btn" disabled>已額滿</button>';
     } else {
-        actionBtn = `<button class="btn btn-primary btn-sm g-action-btn" onclick="joinGathering('${g.id}')">加入</button>`;
+        actionBtn = `<button class="btn btn-primary btn-sm g-action-btn" onclick="openApplyModal('${g.id}', \`${escapeAttr(g.title)}\`)">申請加入</button>`;
     }
 
     const eventStr = eventDate ? formatEventTime(eventDate) : '';
@@ -138,6 +148,9 @@ function escapeHtml(text) {
     const d = document.createElement('div');
     d.textContent = text;
     return d.innerHTML;
+}
+function escapeAttr(s) {
+    return String(s == null ? '' : s).replace(/`/g, '\\`').replace(/'/g, "\\'");
 }
 
 // === Countdowns ===
@@ -189,6 +202,109 @@ function switchTab(tab) {
         t.classList.toggle('active', t.dataset.tab === tab);
     });
     loadGatherings();
+    if (tab === 'mine') loadIncomingRequests();
+    else document.getElementById('incomingPanel').classList.add('hidden');
+}
+
+// === Incoming requests (host approval panel, only on 我的局) ===
+async function loadIncomingRequests() {
+    const panel = document.getElementById('incomingPanel');
+    try {
+        const data = await api.get('/api/gatherings/requests/incoming');
+        const reqs = data.requests || [];
+        updateMineBadge(reqs.length);
+        if (reqs.length === 0) {
+            panel.innerHTML = '';
+            panel.classList.add('hidden');
+            return;
+        }
+        panel.classList.remove('hidden');
+        panel.innerHTML = `
+            <div class="card" style="border-color:var(--gold-dark);">
+                <div class="card-body">
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.7rem;">
+                        <span style="font-size:1.1rem;">🔔</span>
+                        <strong>有 ${reqs.length} 個申請等你審核</strong>
+                    </div>
+                    ${reqs.map(r => renderIncomingRow(r)).join('')}
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        panel.innerHTML = '';
+        panel.classList.add('hidden');
+    }
+}
+
+function renderIncomingRow(r) {
+    const ageStr = r.applicant.age ? `${r.applicant.age} 歲` : '';
+    const msg = r.message ? `<div class="g-incoming-msg">「${escapeHtml(r.message)}」</div>` : '';
+    return `
+        <div class="g-incoming-row">
+            <img src="${escapeHtml(r.applicant.avatar_url || '')}" alt="" class="g-incoming-avatar">
+            <div style="flex:1; min-width:0;">
+                <div><strong>${escapeHtml(r.applicant.display_name)}</strong>${ageStr ? ` <span class="text-muted">· ${ageStr}</span>` : ''}</div>
+                <div class="text-muted" style="font-size:0.78rem;">想加入「${escapeHtml(r.gathering.title)}」</div>
+                ${msg}
+            </div>
+            <div class="g-incoming-actions">
+                <button class="btn btn-primary btn-sm" onclick="approveReq('${r.id}')">同意</button>
+                <button class="btn btn-ghost btn-sm" onclick="rejectReq('${r.id}')" style="color:var(--danger);">拒絕</button>
+            </div>
+        </div>
+    `;
+}
+
+async function approveReq(rid) {
+    try {
+        await api.post(`/api/gatherings/requests/${rid}/approve`);
+        showToast('已同意,聊天室已加入對方', 'success');
+        loadIncomingRequests();
+        loadGatherings();
+        updateNavbarBadge();
+    } catch (err) {
+        showToast(err.message || '同意失敗', 'error');
+    }
+}
+
+async function rejectReq(rid) {
+    if (!confirm('確定拒絕這個申請?')) return;
+    try {
+        await api.post(`/api/gatherings/requests/${rid}/reject`);
+        showToast('已拒絕', 'success');
+        loadIncomingRequests();
+        updateNavbarBadge();
+    } catch (err) {
+        showToast(err.message || '拒絕失敗', 'error');
+    }
+}
+
+function updateMineBadge(n) {
+    const badge = document.getElementById('mineTabBadge');
+    if (!badge) return;
+    if (n > 0) {
+        badge.textContent = n > 99 ? '99+' : String(n);
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+async function updateNavbarBadge() {
+    try {
+        const data = await api.get('/api/gatherings/requests/pending-count');
+        const navBadge = document.querySelector('[data-page="gatherings"] .nav-badge')
+                       || document.querySelector('[data-page="gatherings"] .badge');
+        const n = data.count || 0;
+        if (navBadge) {
+            if (n > 0) {
+                navBadge.textContent = n > 9 ? '9+' : String(n);
+                navBadge.classList.remove('hidden');
+            } else {
+                navBadge.classList.add('hidden');
+            }
+        }
+    } catch (e) { /* ignore */ }
 }
 
 function filterType(type) {
@@ -199,16 +315,43 @@ function filterType(type) {
     loadGatherings();
 }
 
-// === Actions ===
-async function joinGathering(id) {
+// === Apply flow ===
+let applyingGatheringId = null;
+
+function openApplyModal(id, title) {
+    applyingGatheringId = id;
+    document.getElementById('applyTargetSummary').textContent = `要申請加入「${title}」`;
+    document.getElementById('applyMessage').value = '';
+    document.getElementById('applyModal').classList.remove('hidden');
+}
+
+function closeApplyModal() {
+    document.getElementById('applyModal').classList.add('hidden');
+    applyingGatheringId = null;
+}
+
+document.getElementById('applyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!applyingGatheringId) return;
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    const message = document.getElementById('applyMessage').value.trim();
     try {
-        await api.post(`/api/gatherings/${id}/join`);
-        showToast('已加入！', 'success');
+        await api.post(`/api/gatherings/${applyingGatheringId}/apply`, { message });
+        showToast('已送出申請,等對方審核', 'success');
+        closeApplyModal();
         loadGatherings();
     } catch (err) {
-        showToast(err.message || '加入失敗', 'error');
+        showToast(err.message || '申請失敗', 'error');
+    } finally {
+        btn.disabled = false;
     }
-}
+});
+
+// Click outside applyModal closes it
+document.getElementById('applyModal').addEventListener('click', (e) => {
+    if (e.target.id === 'applyModal') closeApplyModal();
+});
 
 async function leaveGathering(id) {
     if (!confirm('確定要退出這個局嗎？')) return;
@@ -330,3 +473,12 @@ openCreateModal = function() {
 
 // Init
 loadGatherings();
+// Load pending count quietly so the 我的局 tab badge is up to date even
+// before the user clicks into that tab. The panel itself only renders
+// when on the 我的局 tab.
+(async () => {
+    try {
+        const data = await api.get('/api/gatherings/requests/pending-count');
+        updateMineBadge(data.count || 0);
+    } catch (e) { /* ignore */ }
+})();

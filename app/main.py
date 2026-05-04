@@ -198,6 +198,14 @@ async def gatherings_page(request: Request):
     return templates.TemplateResponse("pages/gatherings.html", {"request": request})
 
 
+@app.get("/gatherings/{gathering_id}/chat", response_class=HTMLResponse)
+async def gathering_chat_page(request: Request, gathering_id: str):
+    return templates.TemplateResponse(
+        "pages/gathering_chat.html",
+        {"request": request, "gathering_id": gathering_id},
+    )
+
+
 @app.get("/subscription", response_class=HTMLResponse)
 async def subscription_page(request: Request):
     return templates.TemplateResponse("pages/subscription.html", {"request": request})

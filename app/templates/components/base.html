@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title>{% block title %}Sawasdee{% endblock %} — Sawasdee</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260504e">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260504f">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
     {% block head %}{% endblock %}
 </head>
@@ -19,9 +19,10 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <span>探索</span>
         </a>
-        <a href="/gatherings" class="mobile-nav-link" data-page="gatherings">
+        <a href="/gatherings" class="mobile-nav-link" data-page="gatherings" style="position:relative;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>組局</span>
+            <span class="mobile-nav-badge hidden">0</span>
         </a>
         <a href="/feed" class="mobile-nav-link" data-page="feed">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -54,6 +55,35 @@
             const mn = document.getElementById('mobileNav');
             if(mn) mn.style.display = 'none';
         }
+    })();
+
+    // Pending-gathering-request badge (top + mobile nav).
+    // Only runs when we have a token and we're not on a public page.
+    (function(){
+        const path = window.location.pathname;
+        if(['/', '/login', '/register'].includes(path)) return;
+        if(!localStorage.getItem('token')) return;
+        async function refreshGatheringBadge(){
+            try {
+                const r = await fetch('/api/gatherings/requests/pending-count', {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                });
+                if (!r.ok) return;
+                const data = await r.json();
+                const n = data.count || 0;
+                document.querySelectorAll('[data-page="gatherings"] .nav-badge, [data-page="gatherings"] .mobile-nav-badge')
+                    .forEach(el => {
+                        if (n > 0) {
+                            el.textContent = n > 9 ? '9+' : String(n);
+                            el.classList.remove('hidden');
+                        } else {
+                            el.classList.add('hidden');
+                        }
+                    });
+            } catch (e) { /* ignore */ }
+        }
+        refreshGatheringBadge();
+        setInterval(refreshGatheringBadge, 30000);  // 30s poll
     })();
     </script>
     {% block scripts %}{% endblock %}

@@ -19,8 +19,14 @@
         <!-- Tabs -->
         <div class="g-tabs">
             <button class="g-tab active" data-tab="explore" onclick="switchTab('explore')">探索局</button>
-            <button class="g-tab" data-tab="mine" onclick="switchTab('mine')">我的局</button>
+            <button class="g-tab" data-tab="mine" onclick="switchTab('mine')">
+                我的局
+                <span class="g-tab-badge hidden" id="mineTabBadge">0</span>
+            </button>
         </div>
+
+        <!-- Pending incoming requests panel (only shown on 我的局 when there are requests) -->
+        <div id="incomingPanel" class="hidden" style="margin-bottom:1rem;"></div>
 
         <!-- Type Filters — keep aligned with backend GATHERING_TYPES -->
         <div class="g-filters">
@@ -78,6 +84,24 @@
     </div>
 </div>
 
+<!-- Apply-to-join Modal -->
+<div class="modal-overlay hidden" id="applyModal">
+    <div class="modal-card" style="max-width:420px;">
+        <div class="modal-header">
+            <h3 style="font-family:var(--font-heading);">申請加入</h3>
+            <button class="modal-close" onclick="closeApplyModal()">&times;</button>
+        </div>
+        <p class="text-muted" id="applyTargetSummary" style="margin-bottom:1rem; font-size:0.9rem;"></p>
+        <form id="applyForm">
+            <div class="form-group">
+                <label class="form-label">想對主揪說什麼?(選填)</label>
+                <textarea class="form-input" id="applyMessage" rows="3" maxlength="500" placeholder="例:嗨~我也住附近,可以一起 :)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">送出申請</button>
+        </form>
+    </div>
+</div>
+
 <!-- Create Gathering Modal -->
 <div class="modal-overlay hidden" id="createModal">
     <div class="modal-card">
@@ -124,5 +148,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/gatherings.js?v=20260504b"></script>
+<script src="/static/js/gatherings.js?v=20260504c"></script>
 {% endblock %}
