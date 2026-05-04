@@ -99,11 +99,16 @@ async def explore_users(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Show all active users (excluding self)."""
+    """Show active users of the opposite gender (excluding self)."""
     query = select(User).where(User.is_active == True)
 
     # Exclude self
     query = query.where(User.id != current_user.id)
+
+    # Hetero matching — Kevin (male) sees females, Ploy (female) sees males.
+    # Falls back to "all users" if the current user has no gender set.
+    if current_user.gender is not None:
+        query = query.where(User.gender != current_user.gender)
 
     # Filters
     if min_age is not None:
