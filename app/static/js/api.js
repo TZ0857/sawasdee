@@ -13,8 +13,19 @@ const api = {
         if (body) opts.body = isForm ? body : JSON.stringify(body);
 
         const res = await fetch(url, opts);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Request failed');
+        // Some error responses (FastAPI 500, proxies) return plain text or HTML
+        // instead of JSON. Parse defensively so the UI shows "伺服器錯誤" rather
+        // than a useless "Unexpected token" parse error.
+        const text = await res.text();
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (_) { /* not JSON */ }
+
+        if (!res.ok) {
+            const detail = (data && (data.detail || data.message))
+                || (text && text.slice(0, 200))
+                || `HTTP ${res.status}`;
+            throw new Error(detail);
+        }
         return data;
     },
 

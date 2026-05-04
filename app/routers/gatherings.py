@@ -204,13 +204,15 @@ async def create_gathering(
     db.add(member)
     await db.flush()
 
-    # Re-fetch with relationships
+    # Re-fetch with relationships. MUST include requests now that
+    # gathering_to_dict iterates g.requests — async sessions don't lazy-load.
     result = await db.execute(
         select(Gathering)
         .where(Gathering.id == gathering.id)
         .options(
             selectinload(Gathering.host),
             selectinload(Gathering.members).selectinload(GatheringMember.user),
+            selectinload(Gathering.requests),
         )
     )
     gathering = result.scalar_one()
