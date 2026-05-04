@@ -136,13 +136,27 @@
             } catch (e) { /* ignore */ }
         }
 
+        let inFlight = false;
         async function tick(){
-            await Promise.all([refreshGatheringBadge(), refreshMyRequests()]);
+            if (inFlight) return;     // skip if previous round still running
+            inFlight = true;
+            try {
+                await Promise.all([refreshGatheringBadge(), refreshMyRequests()]);
+            } finally {
+                inFlight = false;
+            }
         }
         tick();
-        // Poll every 5s so applications + approvals feel close to real time.
-        // Both endpoints are cheap COUNT / status queries.
-        setInterval(tick, 5000);
+        // 1-second poll so applications / approvals feel essentially instant.
+        // Both endpoints are tiny COUNT / status reads (sub-ms on indexed cols).
+        // The inFlight guard prevents stacking calls if the network slows down.
+        setInterval(tick, 1000);
+
+        // Pause polling when the tab is hidden, fire one immediate refresh
+        // when it becomes visible again so the user sees what they missed.
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') tick();
+        });
     })();
     </script>
     {% block scripts %}{% endblock %}
