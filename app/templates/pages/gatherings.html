@@ -114,13 +114,9 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">時效</label>
-                <select class="form-input" id="gDuration" required>
-                    <option value="2">2 小時</option>
-                    <option value="6">6 小時</option>
-                    <option value="12" selected>12 小時</option>
-                    <option value="24">24 小時</option>
-                </select>
+                <label class="form-label">局的時間</label>
+                <input type="datetime-local" class="form-input" id="gEventAt" required>
+                <p class="text-muted" style="font-size:0.75rem; margin-top:0.3rem;">至少 30 分鐘後,30 天內</p>
             </div>
             <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">發起！</button>
         </form>
@@ -128,5 +124,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/gatherings.js?v=20260504a"></script>
+<script src="/static/js/gatherings.js?v=20260504b"></script>
 {% endblock %}

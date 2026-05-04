@@ -1129,6 +1129,18 @@ h3 { font-size: 1.3rem; }
     font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600;
     margin-bottom: 0.4rem; line-height: 1.35;
 }
+.g-event-time {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    background: rgba(200, 169, 106, 0.10);
+    border: 1px solid rgba(200, 169, 106, 0.35);
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.02em;
+}
 .g-info { display: flex; gap: 0.8rem; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
 .g-host { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; }
 .g-host-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }

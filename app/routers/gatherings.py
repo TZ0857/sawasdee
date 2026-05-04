@@ -4,7 +4,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.database import get_db
 from app.models.gathering import Gathering, GatheringMember
@@ -15,7 +15,10 @@ router = APIRouter(prefix="/api/gatherings", tags=["gatherings"])
 
 GATHERING_TYPES = {"meal", "drinks", "karaoke", "movie", "nightlife"}
 VALID_SLOTS = {2, 4, 6, 8}
-VALID_HOURS = {2, 6, 12, 24}
+
+# Acceptable window for the event time (when the actual gathering happens).
+EVENT_MIN_LEAD = timedelta(minutes=30)
+EVENT_MAX_AHEAD = timedelta(days=30)
 
 
 class CreateGatheringRequest(BaseModel):
@@ -23,7 +26,10 @@ class CreateGatheringRequest(BaseModel):
     title: str
     location: str
     max_slots: int
-    duration_hours: int
+    # When the actual meet-up happens (UTC datetime). Doubles as the
+    # gathering's expiry — once we hit this time the gathering disappears
+    # from the explore feed (you can't sign up for a past event).
+    event_at: datetime
 
 
 def gathering_to_dict(g: Gathering, current_user_id: str = None) -> dict:
@@ -39,6 +45,7 @@ def gathering_to_dict(g: Gathering, current_user_id: str = None) -> dict:
         if str(m.user_id) == current_user_id:
             is_member = True
 
+    event_iso = g.expires_at.isoformat() if g.expires_at else ""
     return {
         "id": str(g.id),
         "host": {
@@ -52,7 +59,10 @@ def gathering_to_dict(g: Gathering, current_user_id: str = None) -> dict:
         "location": g.location,
         "max_slots": g.max_slots,
         "current_slots": g.current_slots,
-        "expires_at": g.expires_at.isoformat() if g.expires_at else "",
+        # event_at = when the meet-up actually happens. expires_at kept
+        # for backwards compatibility (it always equalled the event time).
+        "event_at": event_iso,
+        "expires_at": event_iso,
         "created_at": g.created_at.isoformat() if g.created_at else "",
         "is_active": g.is_active and g.expires_at > datetime.utcnow(),
         "is_host": str(g.host_id) == current_user_id,
@@ -124,14 +134,25 @@ async def create_gathering(
         raise HTTPException(status_code=400, detail="無效的局類型")
     if req.max_slots not in VALID_SLOTS:
         raise HTTPException(status_code=400, detail="人數上限必須是 2/4/6/8")
-    if req.duration_hours not in VALID_HOURS:
-        raise HTTPException(status_code=400, detail="時效必須是 2/6/12/24 小時")
     if not req.title.strip():
         raise HTTPException(status_code=400, detail="標題不能為空")
     if not req.location.strip():
         raise HTTPException(status_code=400, detail="地點不能為空")
 
     now = datetime.utcnow()
+    # Pydantic gives us a tz-aware datetime if the client sent ISO with offset.
+    # Normalise to naive UTC so we compare against datetime.utcnow() correctly.
+    event_at = req.event_at
+    if event_at.tzinfo is not None:
+        # Normalise to naive UTC so it matches the rest of the column
+        # (which is filled by datetime.utcnow()).
+        event_at = event_at.astimezone(timezone.utc).replace(tzinfo=None)
+
+    if event_at < now + EVENT_MIN_LEAD:
+        raise HTTPException(status_code=400, detail="局的時間必須至少在 30 分鐘後")
+    if event_at > now + EVENT_MAX_AHEAD:
+        raise HTTPException(status_code=400, detail="局的時間最多 30 天內")
+
     gathering = Gathering(
         host_id=current_user.id,
         type=req.type,
@@ -139,7 +160,7 @@ async def create_gathering(
         location=req.location.strip(),
         max_slots=req.max_slots,
         current_slots=1,
-        expires_at=now + timedelta(hours=req.duration_hours),
+        expires_at=event_at,
         is_active=True,
     )
     db.add(gathering)
