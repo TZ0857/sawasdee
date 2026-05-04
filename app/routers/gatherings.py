@@ -333,17 +333,19 @@ async def get_pending_count(
     db: AsyncSession = Depends(get_db),
 ):
     """Cheap badge endpoint — returns just the integer count for the navbar.
-    Implemented with a subquery instead of select(func.count()).select_from()
-    .join() because that pattern blew up with 500s on async SQLAlchemy."""
-    my_gathering_ids = select(Gathering.id).where(Gathering.host_id == current_user.id)
+    Mirror of /requests/incoming's working query pattern. Two prior attempts
+    using select(func.count())… both 500'd in production for reasons that
+    aren't obvious from the code. Counting via len(result.all()) is one tiny
+    list of UUIDs per request — totally fine for a 1-second poll."""
     result = await db.execute(
-        select(func.count(GatheringRequest.id))
+        select(GatheringRequest.id)
+        .join(Gathering, GatheringRequest.gathering_id == Gathering.id)
         .where(
-            GatheringRequest.gathering_id.in_(my_gathering_ids),
+            Gathering.host_id == current_user.id,
             GatheringRequest.status == GatheringRequestStatus.pending,
         )
     )
-    return {"count": int(result.scalar() or 0)}
+    return {"count": len(result.scalars().all())}
 
 
 @router.get("/requests/mine")
