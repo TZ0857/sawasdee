@@ -140,7 +140,9 @@
             await Promise.all([refreshGatheringBadge(), refreshMyRequests()]);
         }
         tick();
-        setInterval(tick, 25000);
+        // Poll every 5s so applications + approvals feel close to real time.
+        // Both endpoints are cheap COUNT / status queries.
+        setInterval(tick, 5000);
     })();
     </script>
     {% block scripts %}{% endblock %}
