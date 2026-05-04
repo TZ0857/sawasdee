@@ -1087,6 +1087,16 @@ h3 { font-size: 1.3rem; }
 }
 
 @media (max-width: 640px) {
+    /* Universal iOS Safari fix — any input/textarea/select with font-size
+       smaller than 16px triggers an automatic page zoom on focus. Force
+       16px on every editable control so tapping into a comment box, filter
+       field, search box etc. never zooms the page. */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+
     .user-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
     .g-grid { grid-template-columns: 1fr; }
     .inspiration-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
