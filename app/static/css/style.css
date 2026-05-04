@@ -736,6 +736,149 @@ h3 { font-size: 1.3rem; }
     z-index: 1;
 }
 
+/* ============================================================
+   Chat: reply quote, deleted state, media, action menu, recording
+   ============================================================ */
+
+.message-bubble { cursor: pointer; }
+.message-bubble.message-deleted { cursor: default; opacity: 0.7; }
+
+.msg-text { white-space: pre-wrap; word-break: break-word; }
+
+.msg-deleted {
+    font-style: italic;
+    color: rgba(26,26,26,0.55);
+}
+.message-row-received .msg-deleted { color: var(--text-muted); }
+
+/* Reply quote shown above the bubble of the replying message */
+.msg-reply-quote {
+    max-width: 100%;
+    padding: 0.3rem 0.6rem;
+    margin-bottom: 4px;
+    background: var(--bg-elevated);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Reply preview bar shown above the input while composing a reply */
+.chat-reply-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.7rem;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+}
+.chat-reply-bar-line { color: var(--gold); font-size: 1rem; flex-shrink: 0; }
+.chat-reply-bar-body { flex: 1; min-width: 0; }
+.chat-reply-bar-name { color: var(--gold-light); font-weight: 600; font-size: 0.75rem; }
+.chat-reply-bar-preview {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chat-reply-bar-close {
+    background: none; border: none; color: var(--text-muted);
+    font-size: 1.2rem; cursor: pointer; padding: 0 0.3rem;
+}
+
+/* Media bubbles */
+.msg-media-image {
+    width: 100%;
+    max-width: 280px;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    cursor: zoom-in;
+    display: block;
+}
+.msg-media-video {
+    width: 100%;
+    max-width: 320px;
+    max-height: 360px;
+    border-radius: var(--radius-md);
+    display: block;
+    background: #000;
+}
+.msg-media-audio audio {
+    width: 220px;
+    max-width: 100%;
+    height: 36px;
+    accent-color: var(--gold);
+}
+.message-row .msg-media-image + .msg-text,
+.message-row .msg-media-video + .msg-text,
+.message-row .msg-media-audio + .msg-text {
+    margin-top: 0.45rem;
+}
+
+/* Action menu */
+.chat-action-menu {
+    position: absolute;
+    z-index: 4000;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 130px;
+}
+.chat-action-menu button {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    text-align: left;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+.chat-action-menu button:hover { background: var(--bg-elevated); }
+.chat-action-menu button.chat-action-danger { color: var(--danger, #d94f4f); }
+
+/* Media-button row inside chat-input-area */
+.chat-media-btn {
+    padding: 0.4rem !important;
+    color: var(--text-muted) !important;
+    flex-shrink: 0;
+}
+.chat-media-btn:hover { color: var(--gold) !important; }
+
+/* Recording indicator that replaces input area while capturing voice */
+.chat-recording {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.7rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    background: rgba(217, 79, 79, 0.10);
+}
+.chat-recording-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #d94f4f;
+    animation: chat-rec-pulse 1.2s ease-in-out infinite;
+}
+@keyframes chat-rec-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.chat-recording-time { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+
 /* Voice-message audio player in posts */
 .post-audio-wrap {
     margin: 0 0 0.6rem;

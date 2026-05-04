@@ -29,6 +29,12 @@ async def run_lightweight_migrations():
         "ALTER TABLE posts ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500) DEFAULT ''",
         # posts.video_url is the short-video column.
         "ALTER TABLE posts ADD COLUMN IF NOT EXISTS video_url VARCHAR(500) DEFAULT ''",
+        # messages.* additions for reply / recall / media.
+        "ALTER TABLE messages ALTER COLUMN content DROP NOT NULL",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS reply_to_id UUID REFERENCES messages(id) ON DELETE SET NULL",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_url VARCHAR(500) DEFAULT ''",
+        "ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_type VARCHAR(20) DEFAULT ''",
     ]
     async with engine.begin() as conn:
         for stmt in statements:

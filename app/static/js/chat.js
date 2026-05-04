@@ -45,17 +45,65 @@ function renderReceiptBelow(m, isSent) {
     return '<div class="msg-receipt msg-receipt-sent" title="已送達">已送達</div>';
 }
 
+function renderReplyQuote(reply) {
+    if (!reply) return '';
+    let preview;
+    if (reply.is_deleted) {
+        preview = '<i style="opacity:0.6">已收回的訊息</i>';
+    } else if (reply.media_type === 'audio') {
+        preview = '🎤 語音訊息';
+    } else if (reply.media_type === 'video') {
+        preview = '🎬 影片';
+    } else if (reply.media_type === 'image') {
+        preview = '📷 照片';
+    } else {
+        preview = escapeHtml(reply.content_preview || '');
+    }
+    return `<div class="msg-reply-quote" data-jump-to="${reply.id}">${preview}</div>`;
+}
+
+function renderMedia(m) {
+    if (!m.media_url) return '';
+    const safe = escapeHtml(m.media_url);
+    if (m.media_type === 'audio') {
+        return `<div class="msg-media-audio"><audio controls preload="metadata" src="${safe}"></audio></div>`;
+    }
+    if (m.media_type === 'video') {
+        return `<video class="msg-media-video" controls preload="metadata" playsinline src="${safe}"></video>`;
+    }
+    if (m.media_type === 'image') {
+        return `<img class="msg-media-image" src="${safe}" alt="" onclick="openImageLightbox('${safe}')">`;
+    }
+    return '';
+}
+
 function renderMessage(m, isSent) {
     const ts = (m.created_at || '').endsWith('Z') ? m.created_at : (m.created_at || '') + 'Z';
-    const showTranslation = autoTranslate && m.translated_content && m.translated_content !== m.content;
+    const showTranslation = !m.is_deleted && autoTranslate && m.translated_content && m.translated_content !== m.content;
     const tempAttr = m.is_pending ? ` data-pending-id="${m.pending_id}"` : '';
     const opacity = m.is_pending ? ' opacity:0.78;' : '';
     const receipt = renderReceiptBelow(m, isSent);
+
+    let bodyHtml;
+    if (m.is_deleted) {
+        bodyHtml = '<div class="msg-deleted">↺ 已收回此訊息</div>';
+    } else {
+        const mediaHtml = renderMedia(m);
+        const textHtml = m.content ? `<div class="msg-text">${escapeHtml(m.content)}</div>` : '';
+        const trHtml = showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(m.translated_content)}</div>` : '';
+        bodyHtml = mediaHtml + textHtml + trHtml;
+    }
+
+    const idAttr = m.id ? ` data-msg-id="${m.id}"` : '';
+    const onClick = (m.id && !m.is_pending && !m.is_deleted)
+        ? `onclick="openMsgMenu(this, '${m.id}', ${isSent})"`
+        : '';
+
     return `
-        <div class="message-row ${isSent ? 'message-row-sent' : 'message-row-received'}"${tempAttr}>
-            <div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}" style="${opacity}">
-                <div>${escapeHtml(m.content)}</div>
-                ${showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(m.translated_content)}</div>` : ''}
+        <div class="message-row ${isSent ? 'message-row-sent' : 'message-row-received'}"${tempAttr}${idAttr}>
+            ${renderReplyQuote(m.reply_to)}
+            <div class="message-bubble ${isSent ? 'message-sent' : 'message-received'} ${m.is_deleted ? 'message-deleted' : ''}" style="${opacity}" ${onClick}>
+                ${bodyHtml}
                 <div class="message-time" style="text-align:${isSent ? 'right' : 'left'};">
                     ${timeAgo(ts)}
                 </div>
@@ -64,6 +112,210 @@ function renderMessage(m, isSent) {
         </div>
     `;
 }
+
+/* ---------- Action menu (reply / translate / recall) ---------- */
+let activeMenuMsg = null;     // { id, isSent }
+function openMsgMenu(bubbleEl, msgId, isSent) {
+    activeMenuMsg = { id: msgId, isSent };
+    const menu = document.getElementById('chatActionMenu');
+    if (!menu) return;
+    // Show only the actions that make sense
+    document.getElementById('actionRecallBtn').style.display = isSent ? '' : 'none';
+    // Position menu near the bubble
+    const rect = bubbleEl.getBoundingClientRect();
+    menu.classList.remove('hidden');
+    // After making visible, measure
+    const mw = menu.offsetWidth;
+    const mh = menu.offsetHeight;
+    let top = rect.top + window.scrollY - mh - 6;
+    if (top < 8) top = rect.bottom + window.scrollY + 6;
+    let left = rect.right + window.scrollX - mw;
+    if (left < 8) left = 8;
+    if (left + mw > window.innerWidth - 8) left = window.innerWidth - 8 - mw;
+    menu.style.top = top + 'px';
+    menu.style.left = left + 'px';
+}
+function closeMsgMenu() {
+    activeMenuMsg = null;
+    const menu = document.getElementById('chatActionMenu');
+    if (menu) menu.classList.add('hidden');
+}
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('chatActionMenu');
+    if (!menu || menu.classList.contains('hidden')) return;
+    if (menu.contains(e.target)) return;
+    if (e.target.closest('.message-bubble')) return;
+    closeMsgMenu();
+});
+
+/* ---------- Reply state ---------- */
+let currentReplyTo = null;
+function actionReply() {
+    if (!activeMenuMsg) return closeMsgMenu();
+    const row = document.querySelector(`[data-msg-id="${activeMenuMsg.id}"]`);
+    if (!row) return closeMsgMenu();
+    const senderName = activeMenuMsg.isSent
+        ? '你自己'
+        : (chatPartner ? chatPartner.display_name : '對方');
+    const bubble = row.querySelector('.message-bubble');
+    const previewText = bubble ? (bubble.querySelector('.msg-text')?.textContent
+        || (row.querySelector('.msg-media-audio') ? '🎤 語音訊息' : '')
+        || (row.querySelector('.msg-media-video') ? '🎬 影片' : '')
+        || (row.querySelector('.msg-media-image') ? '📷 照片' : '')) : '';
+    currentReplyTo = { id: activeMenuMsg.id, sender_name: senderName, content: previewText.slice(0, 80) };
+    document.getElementById('chatReplyName').textContent = `回覆 ${senderName}`;
+    document.getElementById('chatReplyPreview').textContent = currentReplyTo.content || '';
+    document.getElementById('chatReplyBar').classList.remove('hidden');
+    document.getElementById('messageInput').focus();
+    closeMsgMenu();
+}
+function clearReply() {
+    currentReplyTo = null;
+    document.getElementById('chatReplyBar').classList.add('hidden');
+}
+
+function actionTranslate() {
+    autoTranslate = !autoTranslate;
+    showToast(autoTranslate ? '已開啟翻譯' : '已關閉翻譯', 'success');
+    lastRenderHash = '';
+    loadMessages(true);
+    closeMsgMenu();
+}
+
+async function actionRecall() {
+    if (!activeMenuMsg) return closeMsgMenu();
+    const id = activeMenuMsg.id;
+    closeMsgMenu();
+    if (!confirm('確定要收回這則訊息?')) return;
+    try {
+        await api.post(`/api/messages/${id}/recall`);
+        // Mark as deleted in pending too just in case
+        pendingMessages = pendingMessages.filter(p => p.id !== id);
+        lastRenderHash = '';
+        loadMessages();
+    } catch (err) {
+        showToast(err.message || '收回失敗', 'error');
+    }
+}
+
+/* ---------- Image / video / voice send ---------- */
+function openImageLightbox(url) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:3001;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    overlay.innerHTML = `<img src="${url}" style="max-width:92vw;max-height:88vh;object-fit:contain;border-radius:12px;">`;
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+}
+
+async function sendImageFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+        showToast('圖片不能超過 20MB', 'error');
+        input.value = '';
+        return;
+    }
+    await sendMediaFile(file, 'image');
+    input.value = '';
+}
+
+async function sendVideoFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) {
+        showToast('影片不能超過 100MB', 'error');
+        input.value = '';
+        return;
+    }
+    // Soft check duration
+    const url = URL.createObjectURL(file);
+    const probe = document.createElement('video');
+    probe.src = url;
+    await new Promise(res => { probe.onloadedmetadata = res; probe.onerror = res; });
+    URL.revokeObjectURL(url);
+    if (probe.duration && probe.duration > 60.5) {
+        showToast('影片不能超過 60 秒', 'error');
+        input.value = '';
+        return;
+    }
+    await sendMediaFile(file, 'video');
+    input.value = '';
+}
+
+async function sendMediaFile(file, mediaType) {
+    const replyId = currentReplyTo ? currentReplyTo.id : '';
+    clearReply();
+    const formData = new FormData();
+    formData.append('receiver_id', chatUserId);
+    formData.append('media_type', mediaType);
+    formData.append('media', file, file.name || `chat_${mediaType}`);
+    if (replyId) formData.append('reply_to_id', replyId);
+    try {
+        await api.post('/api/messages/send-media', formData, true);
+        pollPausedUntil = Date.now() + 800;
+        showToast('已送出', 'success');
+        lastRenderHash = '';
+        loadMessages(true);
+    } catch (err) {
+        showToast(err.message || '傳送失敗', 'error');
+    }
+}
+
+/* ---------- Voice recording ---------- */
+let recMediaRecorder = null;
+let recChunks = [];
+let recStartedAt = 0;
+let recTimerId = null;
+const REC_MAX_MS = 60_000;
+
+async function startRecording() {
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+        return showToast('此瀏覽器不支援錄音', 'error');
+    }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        let mime = '';
+        for (const t of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/mpeg']) {
+            if (MediaRecorder.isTypeSupported(t)) { mime = t; break; }
+        }
+        recMediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        recChunks = [];
+        recMediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recChunks.push(e.data); };
+        recMediaRecorder.onstop = async () => {
+            stream.getTracks().forEach(t => t.stop());
+            const send = recMediaRecorder._shouldSend;
+            recMediaRecorder = null;
+            if (recTimerId) { clearInterval(recTimerId); recTimerId = null; }
+            document.getElementById('chatRecording').classList.add('hidden');
+            document.getElementById('chatInputArea').classList.remove('hidden');
+            if (!send || recChunks.length === 0) return;
+            const blob = new Blob(recChunks, { type: 'audio/webm' });
+            const ext = (blob.type.includes('webm')) ? 'webm' : (blob.type.includes('mp4') ? 'm4a' : 'audio');
+            const file = new File([blob], `voice.${ext}`, { type: blob.type });
+            await sendMediaFile(file, 'audio');
+        };
+        recMediaRecorder.start();
+        recStartedAt = Date.now();
+        document.getElementById('chatInputArea').classList.add('hidden');
+        document.getElementById('chatRecording').classList.remove('hidden');
+        recTimerId = setInterval(() => {
+            const elapsed = Date.now() - recStartedAt;
+            const sec = Math.floor(elapsed / 1000);
+            document.getElementById('chatRecordingTime').textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+            if (elapsed >= REC_MAX_MS) stopRecording(true);
+        }, 200);
+    } catch (err) {
+        showToast('無法存取麥克風,請允許錄音權限', 'error');
+    }
+}
+
+function stopRecording(shouldSend) {
+    if (!recMediaRecorder) return;
+    recMediaRecorder._shouldSend = shouldSend;
+    if (recMediaRecorder.state === 'recording') recMediaRecorder.stop();
+}
+
+function cancelRecording() { stopRecording(false); }
 
 function escapeHtml(s) {
     return String(s == null ? '' : s)
@@ -171,6 +423,11 @@ async function sendMessage() {
     const content = input.value.trim();
     if (!content) return;
 
+    // Snapshot the reply state and clear it so the next message isn't a reply.
+    const replyId = currentReplyTo ? currentReplyTo.id : null;
+    const replySnapshot = currentReplyTo ? { ...currentReplyTo } : null;
+    clearReply();
+
     // Clear input immediately so the user can keep typing the next message.
     input.value = '';
     input.focus();
@@ -187,6 +444,13 @@ async function sendMessage() {
         created_at: nowIso,
         created_at_ms: Date.now(),
         sender_id: currentUser.id,
+        reply_to: replySnapshot ? {
+            id: replySnapshot.id,
+            sender_id: '',
+            is_deleted: false,
+            media_type: '',
+            content_preview: replySnapshot.content || '',
+        } : null,
     };
     pendingMessages.push(optimistic);
 
@@ -204,7 +468,9 @@ async function sendMessage() {
     pollPausedUntil = Date.now() + 5000;
 
     // Fire-and-forget the network call. Failures roll back the optimistic UI.
-    api.post('/api/messages/send', { receiver_id: chatUserId, content })
+    const body = { receiver_id: chatUserId, content };
+    if (replyId) body.reply_to_id = replyId;
+    api.post('/api/messages/send', body)
         .then((result) => {
             // Promote the optimistic row from "傳送中" to "已送達" in place;
             // the next poll will merge the canonical server row in.
