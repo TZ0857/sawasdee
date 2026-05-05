@@ -330,19 +330,38 @@ function closeApplyModal() {
     applyingGatheringId = null;
 }
 
+function _swapCardActionToPending(gid) {
+    // Optimistic UI: flip THIS card's action button to 已申請 immediately,
+    // before the network round-trip + grid re-render lands.
+    const card = document.querySelector(`.g-card[data-id="${gid}"]`);
+    if (!card) return;
+    const actions = card.querySelector('.g-actions');
+    if (!actions) return;
+    actions.innerHTML = '<button class="btn btn-pending btn-sm g-action-btn" disabled>已申請</button>';
+}
+
 document.getElementById('applyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!applyingGatheringId) return;
+    const gid = applyingGatheringId;
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
     const message = document.getElementById('applyMessage').value.trim();
+
+    // Flip the button state right away so the user gets instant feedback.
+    // If the request fails we'll roll back via loadGatherings().
+    _swapCardActionToPending(gid);
+    closeApplyModal();
+    showToast('已送出申請,等對方審核', 'success');
+
     try {
-        await api.post(`/api/gatherings/${applyingGatheringId}/apply`, { message });
-        showToast('已送出申請,等對方審核', 'success');
-        closeApplyModal();
+        await api.post(`/api/gatherings/${gid}/apply`, { message });
+        // Background refresh so members count, pending badge etc. stay accurate.
         loadGatherings();
     } catch (err) {
         showToast(err.message || '申請失敗', 'error');
+        // Roll back the optimistic swap
+        loadGatherings();
     } finally {
         btn.disabled = false;
     }
