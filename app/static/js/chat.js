@@ -139,43 +139,37 @@ function renderMessage(m, isSent) {
     `;
 }
 
-// Auto-translate sweep: after each render, find received messages in
-// foreign languages that haven't been translated yet AND fire /api/translate
-// for them in the background. Server caches the result so re-visiting is free.
-async function _autoTranslateSweep(messages) {
+// Pre-fetch all needed translations in parallel BEFORE the next render.
+// This kills the CLS jump that used to happen when each translation was
+// inserted into the DOM individually and grew its bubble. Server-side
+// cache means subsequent loads are essentially free (200ms first time,
+// <30ms on revisit). A 2.5s ceiling keeps the chat snappy if translate
+// is being slow — anything still missing falls back to a manual 🌐 tap.
+async function _ensureTranslationsLoaded(messages) {
     if (!autoTranslate) return;
+    const todo = [];
     for (const m of messages) {
         if (!m.id || _msgTranslateCache.has(m.id)) continue;
         const isSent = m.sender_id === currentUser.id;
         if (!_needsTranslate(m, isSent)) continue;
-        // Throttle: 1 per ~80ms so we don't hammer the translate service
-        // when scrolling into a long thread.
-        await new Promise(r => setTimeout(r, 80));
-        try {
-            const r = await api.post('/api/translate', {
+        todo.push(
+            api.post('/api/translate', {
                 text: m.content,
                 message_id: m.id,
                 message_type: 'chat',
-            });
-            if (r.failed) continue;   // transient API error; user can retry
-            if (r.needed && r.translated && r.translated !== m.content) {
-                _msgTranslateCache.set(m.id, r.translated);
-                // Insert inline directly (avoid full re-render)
-                const row = document.querySelector(`[data-msg-id="${m.id}"]`);
-                const bubble = row?.querySelector('.message-bubble');
-                if (bubble && !bubble.querySelector('.message-translated')) {
-                    const div = document.createElement('div');
-                    div.className = 'message-translated';
-                    div.textContent = '🌐 ' + r.translated;
-                    const time = bubble.querySelector('.message-time');
-                    bubble.insertBefore(div, time || null);
-                    // Hide the manual 🌐 button — translation already shown
-                    const btn = bubble.querySelector('.msg-translate-btn');
-                    if (btn) btn.remove();
+            }).then(r => {
+                if (r && !r.failed && r.needed && r.translated && r.translated !== m.content) {
+                    _msgTranslateCache.set(m.id, r.translated);
                 }
-            }
-        } catch (_) { /* skip and continue */ }
+            }).catch(() => {})   // best-effort; user can retry via 🌐
+        );
     }
+    if (!todo.length) return;
+    // Bounded wait so a slow translate API can't hang the message render
+    await Promise.race([
+        Promise.all(todo),
+        new Promise(r => setTimeout(r, 2500)),
+    ]);
 }
 
 /* ---------- Action menu (reply / translate / recall) ---------- */
@@ -508,11 +502,21 @@ async function loadMessages(scrollToBottom = false) {
         }
 
         // Hash check — avoid rebuilding identical DOM every 3s (causes flicker)
+        // Include cache size in the hash so newly-loaded translations trigger a
+        // single re-render with the translated text already present (zero CLS).
         const hash = merged.map(m => `${m.id || m.pending_id}:${m.is_read ? 1 : 0}:${(m.translated_content || '').length}`).join('|')
-            + '|d:' + (dividerBeforeMsgId || '');
+            + '|d:' + (dividerBeforeMsgId || '')
+            + '|trc:' + _msgTranslateCache.size;
         const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
         if (hash === lastRenderHash && !scrollToBottom && !isInitialLoad) return;
         lastRenderHash = hash;
+
+        // CLS-fix: when auto-translate is ON, fetch ALL needed translations
+        // in parallel BEFORE rendering. Render then includes them inline so
+        // bubbles are correctly sized from the start — no jumping.
+        if (autoTranslate) {
+            await _ensureTranslationsLoaded(merged);
+        }
 
         container.innerHTML = merged.map(m => {
             const isSent = m.sender_id === currentUser.id;
@@ -521,10 +525,6 @@ async function loadMessages(scrollToBottom = false) {
                 : '';
             return dividerHtml + renderMessage(m, isSent);
         }).join('');
-
-        // Kick off the auto-translate sweep in background. Each translation
-        // gets cached server-side so subsequent renders are instant.
-        if (autoTranslate) _autoTranslateSweep(merged);
 
         // Scroll behavior:
         //   - First load with unread → land on the divider so the user sees

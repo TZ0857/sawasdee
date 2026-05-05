@@ -128,38 +128,33 @@ async function gTranslateMsg(msgId, btnEl) {
     }
 }
 
-// Auto-translate sweep across the visible message list. Runs after every
-// render when autoTranslate is ON. Server cache means repeat sweeps free.
-async function _gAutoTranslateSweep(messages) {
+// Pre-fetch all needed translations in parallel BEFORE the next render.
+// Eliminates the CLS jumps that came from inserting translations one by
+// one into already-rendered bubbles. 2.5s ceiling keeps the chat snappy.
+async function _gEnsureTranslationsLoaded(messages) {
     if (!autoTranslate) return;
+    const todo = [];
     for (const m of messages) {
         if (!m.id || _gMsgTranslateCache.has(m.id)) continue;
         const isMine = !m.is_system && m.sender && m.sender.id === currentUser.id;
         if (!_gNeedsTranslate(m, isMine)) continue;
-        await new Promise(r => setTimeout(r, 80));   // mild throttle
-        try {
-            const r = await api.post('/api/translate', {
+        todo.push(
+            api.post('/api/translate', {
                 text: m.content,
                 message_id: m.id,
                 message_type: 'gathering',
-            });
-            if (r.failed) continue;
-            if (r.needed && r.translated && r.translated !== m.content) {
-                _gMsgTranslateCache.set(m.id, r.translated);
-                // Insert inline without a full re-render
-                const row = document.querySelector(`.g-msg-row [data-msg-id="${m.id}"]`)?.closest('.g-msg-row');
-                const bubble = row?.querySelector('.g-msg-bubble');
-                if (bubble && !bubble.querySelector('.g-msg-translated')) {
-                    const div = document.createElement('div');
-                    div.className = 'g-msg-translated';
-                    div.textContent = '🌐 ' + r.translated;
-                    bubble.insertBefore(div, bubble.querySelector('.g-msg-foot') || bubble.querySelector('.g-msg-time'));
-                    const btn = bubble.querySelector('.g-msg-translate-btn');
-                    if (btn) btn.style.display = 'none';
+            }).then(r => {
+                if (r && !r.failed && r.needed && r.translated && r.translated !== m.content) {
+                    _gMsgTranslateCache.set(m.id, r.translated);
                 }
-            }
-        } catch (_) { /* skip */ }
+            }).catch(() => {})
+        );
     }
+    if (!todo.length) return;
+    await Promise.race([
+        Promise.all(todo),
+        new Promise(r => setTimeout(r, 2500)),
+    ]);
 }
 
 function toggleGatheringAutoTranslate() {
@@ -176,9 +171,9 @@ function toggleGatheringAutoTranslate() {
         lastRenderHash = '';
         loadMessages(true);
     } else {
-        // Kick a sweep right away
-        document.querySelectorAll('.g-msg-row').forEach(() => {});
-        _gAutoTranslateSweep(_lastMessageList || []);
+        // Force a re-render through the new pre-fetch path
+        lastRenderHash = '';
+        loadMessages(true);
     }
 }
 
@@ -268,9 +263,16 @@ async function loadMessages(scrollToBottom = false) {
         }
 
         const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
-        const hash = merged.map(m => `${m.id || m.pending_id}:${m.is_system ? 'S' : ''}`).join('|');
+        const hash = merged.map(m => `${m.id || m.pending_id}:${m.is_system ? 'S' : ''}`).join('|')
+            + '|trc:' + _gMsgTranslateCache.size;
         if (hash === lastRenderHash && !scrollToBottom && !isInitialLoad) return;
         lastRenderHash = hash;
+
+        // CLS-fix: pre-fetch all needed translations BEFORE rendering so
+        // bubbles ship with the right height — no jumping.
+        if (autoTranslate) {
+            await _gEnsureTranslationsLoaded(merged);
+        }
 
         container.innerHTML = merged.map(m => {
             const senderId = m.sender ? m.sender.id : null;
@@ -280,8 +282,6 @@ async function loadMessages(scrollToBottom = false) {
 
         // Cache the latest list so the auto-translate toggle can sweep on demand
         _lastMessageList = merged;
-        // Background auto-translate when ON (server caches; subsequent calls free)
-        if (autoTranslate) _gAutoTranslateSweep(merged);
 
         if (isInitialLoad || scrollToBottom || wasNearBottom) {
             container.scrollTop = container.scrollHeight;
