@@ -2112,3 +2112,64 @@ h3 { font-size: 1.3rem; }
 @media (max-width: 768px) {
     .notif-drawer { right: 0.5rem; width: calc(100vw - 1rem); }
 }
+
+/* ============================================================
+   PERCEIVED-PERF POLISH
+   ============================================================ */
+
+/* Page fade-in — body opacity 0→1 in 180ms so navigations don't snap. */
+@keyframes _sw_pagein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+body { animation: _sw_pagein 0.18s ease-out both; }
+
+/* Universal tap feedback — buttons / links / chips squish slightly when
+   pressed so users feel an immediate response on mobile (where there is
+   no hover state at all). Scoped narrowly to avoid colliding with any
+   `.active` state-classes that mark "currently selected" tabs/chips. */
+button:not(:disabled):active,
+.btn:not(:disabled):active,
+a.btn:active,
+.chip:active,
+.nav-link:active,
+.mobile-nav-link:active,
+.story-circle:active,
+.user-card:active,
+.g-card:active,
+.conversation-item:active,
+.g-chat-item:active,
+.notif-row:active,
+.settings-menu-item:active,
+.profile-tab:active,
+.g-tab:active,
+.g-filter:active,
+.inspiration-card:active,
+.message-bubble:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+    transition: transform 0.06s ease-out, opacity 0.06s ease-out;
+}
+/* Disable the squish on text inputs etc. so iOS focus doesn't visually jump. */
+input:active, textarea:active, select:active { transform: none !important; opacity: 1 !important; }
+
+/* Modal fade+scale-in. The .modal-overlay base style is display:none,
+   .modal-overlay:not(.hidden) flips to display:flex; once visible we
+   animate in from opacity 0 / 0.96 scale. */
+@keyframes _sw_modalin {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: none; }
+}
+.modal-overlay:not(.hidden) > .modal,
+.modal-overlay:not(.hidden) > .modal-card {
+    animation: _sw_modalin 0.18s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.modal-overlay:not(.hidden) {
+    animation: _sw_pagein 0.14s ease-out both;   /* fade the backdrop */
+}
+
+/* Toast slide-down — already animated elsewhere but make sure it feels snappy */
+@media (prefers-reduced-motion: reduce) {
+    body, .modal-overlay:not(.hidden), .modal-overlay:not(.hidden) > .modal,
+    .modal-overlay:not(.hidden) > .modal-card {
+        animation: none !important;
+    }
+    button:active, .btn:active { transform: none !important; }
+}

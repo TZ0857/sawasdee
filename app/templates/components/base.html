@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title>{% block title %}Sawasdee{% endblock %} — Sawasdee</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260504t">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260504u">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
     {% block head %}{% endblock %}
 </head>
@@ -57,111 +57,15 @@
         }
     })();
 
-    // Pending-gathering-request badge (top + mobile nav) AND realtime notice
-    // toasts for both the host (someone applied) and the applicant (request
-    // approved / rejected). Polls /pending-count + /requests/mine every 25s.
-    (function(){
-        const path = window.location.pathname;
-        if(['/', '/login', '/register'].includes(path)) return;
-        if(!localStorage.getItem('token')) return;
-
-        function authedFetch(url){
-            return fetch(url, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
-        }
-
-        // --- Host: pending requests count + new-request toast ---
-        let lastPendingCount = parseInt(sessionStorage.getItem('sw_pending_count') || '0', 10) || 0;
-        async function refreshGatheringBadge(){
-            try {
-                const r = await authedFetch('/api/gatherings/requests/pending-count');
-                if (!r.ok) return;
-                const data = await r.json();
-                const n = data.count || 0;
-                document.querySelectorAll('[data-page="gatherings"] .nav-badge, [data-page="gatherings"] .mobile-nav-badge')
-                    .forEach(el => {
-                        if (n > 0) {
-                            el.textContent = n > 9 ? '9+' : String(n);
-                            el.classList.remove('hidden');
-                        } else {
-                            el.classList.add('hidden');
-                        }
-                    });
-                if (n > lastPendingCount) {
-                    const delta = n - lastPendingCount;
-                    if (window.showToast) showToast(`🔔 你有 ${delta} 個新的入局申請`, 'success');
-                }
-                lastPendingCount = n;
-                sessionStorage.setItem('sw_pending_count', String(n));
-            } catch (e) { /* ignore */ }
-        }
-
-        // --- Applicant: detect approve/reject of my own pending requests ---
-        function readSeenStatus(){
-            try { return JSON.parse(sessionStorage.getItem('sw_my_req_status') || '{}'); }
-            catch (_) { return {}; }
-        }
-        function writeSeenStatus(map){
-            sessionStorage.setItem('sw_my_req_status', JSON.stringify(map));
-        }
-        async function refreshMyRequests(){
-            try {
-                const r = await authedFetch('/api/gatherings/requests/mine');
-                if (!r.ok) return;
-                const data = await r.json();
-                const reqs = data.requests || [];
-                const seen = readSeenStatus();
-                const next = {};
-                for (const req of reqs) {
-                    next[req.id] = req.status;
-                    const prev = seen[req.id];
-                    if (prev && prev !== req.status) {
-                        // status changed since last poll
-                        if (req.status === 'approved') {
-                            const goChat = `<a href="/gatherings/${req.gathering.id}/chat" style="color:inherit; text-decoration:underline; font-weight:700;">進入聊天 →</a>`;
-                            if (window.showToast) showToast(
-                                `🎉 「${req.gathering.title}」核准你的申請! · ${goChat}`,
-                                'success', { html: true, duration: 6000 }
-                            );
-                            // Auto-jump if user is currently on /gatherings or /messages
-                            const here = window.location.pathname;
-                            if (here.startsWith('/gatherings') && !here.endsWith('/chat')) {
-                                setTimeout(() => { window.location.href = `/gatherings/${req.gathering.id}/chat`; }, 1500);
-                            }
-                        } else if (req.status === 'rejected') {
-                            if (window.showToast) showToast(`「${req.gathering.title}」未通過你的申請`, 'error');
-                        }
-                    }
-                }
-                writeSeenStatus(next);
-            } catch (e) { /* ignore */ }
-        }
-
-        let inFlight = false;
-        async function tick(){
-            if (inFlight) return;     // skip if previous round still running
-            inFlight = true;
-            try {
-                await Promise.all([refreshGatheringBadge(), refreshMyRequests()]);
-            } finally {
-                inFlight = false;
-            }
-        }
-        tick();
-        // 1-second poll so applications / approvals feel essentially instant.
-        // Both endpoints are tiny COUNT / status reads (sub-ms on indexed cols).
-        // The inFlight guard prevents stacking calls if the network slows down.
-        setInterval(tick, 1000);
-
-        // Pause polling when the tab is hidden, fire one immediate refresh
-        // when it becomes visible again so the user sees what they missed.
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') tick();
-        });
-    })();
-
-    // Notification bell — polls /api/notifications/unread-count alongside the
-    // gathering poller. Drawer fetches the actual rows on open so the badge
-    // call stays cheap.
+    // ─────────────────────────────────────────────────────────────────
+    // Combined background poller — ONE round trip every 1.2s for:
+    //   • Host: pending gathering-request count → 組局 nav badge + toast
+    //   • Applicant: own request status changes → approve/reject toast
+    //   • Bell: unread notification count → 鈴鐺 badge
+    // Used to be 3 separate setIntervals hitting 3 endpoints. Combining
+    // them cuts ~66% of network round-trips and DB connections without
+    // changing user-visible cadence.
+    // ─────────────────────────────────────────────────────────────────
     (function(){
         const path = window.location.pathname;
         if(['/', '/login', '/register'].includes(path)) return;
@@ -171,24 +75,117 @@
             return fetch(url, { ...opts, headers: { ...(opts.headers || {}), 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
         }
 
-        async function refreshNotifBadge(){
-            try {
-                const r = await authedFetch('/api/notifications/unread-count');
-                if (!r.ok) return;
-                const data = await r.json();
-                const n = data.count || 0;
-                document.querySelectorAll('#notifBadge').forEach(el => {
+        let lastPendingCount = parseInt(sessionStorage.getItem('sw_pending_count') || '0', 10) || 0;
+
+        function applyPendingBadge(n) {
+            document.querySelectorAll('[data-page="gatherings"] .nav-badge, [data-page="gatherings"] .mobile-nav-badge')
+                .forEach(el => {
                     if (n > 0) {
-                        el.textContent = n > 99 ? '99+' : String(n);
+                        el.textContent = n > 9 ? '9+' : String(n);
                         el.classList.remove('hidden');
                     } else {
                         el.classList.add('hidden');
                     }
                 });
-            } catch (e) {}
+            if (n > lastPendingCount) {
+                const delta = n - lastPendingCount;
+                if (window.showToast) showToast(`🔔 你有 ${delta} 個新的入局申請`, 'success');
+            }
+            lastPendingCount = n;
+            sessionStorage.setItem('sw_pending_count', String(n));
         }
-        refreshNotifBadge();
-        setInterval(refreshNotifBadge, 1500);
+
+        function applyNotifBadge(n) {
+            document.querySelectorAll('#notifBadge').forEach(el => {
+                if (n > 0) {
+                    el.textContent = n > 99 ? '99+' : String(n);
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function readSeenStatus(){
+            try { return JSON.parse(sessionStorage.getItem('sw_my_req_status') || '{}'); }
+            catch (_) { return {}; }
+        }
+        function writeSeenStatus(map){
+            sessionStorage.setItem('sw_my_req_status', JSON.stringify(map));
+        }
+        function diffMyRequests(reqs) {
+            const seen = readSeenStatus();
+            const next = {};
+            for (const req of reqs) {
+                next[req.id] = req.status;
+                const prev = seen[req.id];
+                if (prev && prev !== req.status) {
+                    if (req.status === 'approved') {
+                        const goChat = `<a href="/gatherings/${req.gathering.id}/chat" style="color:inherit; text-decoration:underline; font-weight:700;">進入聊天 →</a>`;
+                        if (window.showToast) showToast(
+                            `🎉 「${req.gathering.title}」核准你的申請! · ${goChat}`,
+                            'success', { html: true, duration: 6000 }
+                        );
+                        const here = window.location.pathname;
+                        if (here.startsWith('/gatherings') && !here.endsWith('/chat')) {
+                            setTimeout(() => { window.location.href = `/gatherings/${req.gathering.id}/chat`; }, 1500);
+                        }
+                    } else if (req.status === 'rejected') {
+                        if (window.showToast) showToast(`「${req.gathering.title}」未通過你的申請`, 'error');
+                    }
+                }
+            }
+            writeSeenStatus(next);
+        }
+
+        let inFlight = false;
+        async function tick(){
+            if (inFlight) return;
+            inFlight = true;
+            try {
+                const r = await authedFetch('/api/poll');
+                if (!r.ok) return;
+                const data = await r.json();
+                applyPendingBadge(data.gathering_pending || 0);
+                applyNotifBadge(data.notif_unread || 0);
+                diffMyRequests(data.my_requests || []);
+            } catch (e) { /* ignore — next tick retries */ }
+            finally { inFlight = false; }
+        }
+        tick();
+        // 1.2s combined poll. Single round trip → cheaper than the old 3×.
+        setInterval(tick, 1200);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') tick();
+        });
+    })();
+
+    // ─────────────────────────────────────────────────────────────────
+    // Notification drawer — open/close, populate on open, mark-read.
+    // The bell BADGE count is updated by the combined poller above; this
+    // block only handles user interactions with the drawer itself.
+    // ─────────────────────────────────────────────────────────────────
+    (function(){
+        const path = window.location.pathname;
+        if(['/', '/login', '/register'].includes(path)) return;
+        if(!localStorage.getItem('token')) return;
+
+        function authedFetch(url, opts={}){
+            return fetch(url, { ...opts, headers: { ...(opts.headers || {}), 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+        }
+
+        // Re-trigger the combined poll's badge refresh after mark-all-read
+        function refreshNotifBadge() {
+            authedFetch('/api/poll').then(r => r.ok ? r.json() : null).then(data => {
+                if (!data) return;
+                const n = data.notif_unread || 0;
+                document.querySelectorAll('#notifBadge').forEach(el => {
+                    if (n > 0) { el.textContent = n > 99 ? '99+' : String(n); el.classList.remove('hidden'); }
+                    else el.classList.add('hidden');
+                });
+            });
+        }
 
         async function loadNotifList(){
             const list = document.getElementById('notifDrawerList');

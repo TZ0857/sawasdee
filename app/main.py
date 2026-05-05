@@ -13,7 +13,7 @@ from app.seed import (
     generate_seed_albums, generate_seed_stories,
     generate_seed_gatherings,
 )
-from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings, blocks, notifications, translate
+from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings, blocks, notifications, translate, poll
 # Import models so SQLAlchemy registers them on Base before init_db()
 from app.models.block import BlockedUser  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
@@ -245,6 +245,7 @@ app.include_router(gatherings.router)
 app.include_router(blocks.router)
 app.include_router(notifications.router)
 app.include_router(translate.router)
+app.include_router(poll.router)
 
 
 # Page routes

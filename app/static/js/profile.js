@@ -184,7 +184,7 @@ async function loadAlbums() {
 
 function renderAlbumCard(a) {
     const cover = a.cover_url
-        ? `<img src="${escapeAttr(a.cover_url)}" alt="" onerror="this.outerHTML='<div class=&quot;album-cover-fallback&quot;>📷</div>'">`
+        ? `<img src="${escapeAttr(a.cover_url)}" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=&quot;album-cover-fallback&quot;>📷</div>'">`
         : `<div class="album-cover-fallback">📷</div>`;
 
     let badge = '';
@@ -489,7 +489,7 @@ async function renderPendingRequestsPanel() {
                     </div>
                     ${reqs.map(r => `
                         <div class="pending-request-row">
-                            <img src="${escapeAttr(r.requester.avatar_url || '')}" alt="" class="pending-request-avatar">
+                            <img src="${escapeAttr(r.requester.avatar_url || '')}" alt="" class="pending-request-avatar" loading="lazy" decoding="async">
                             <div style="flex:1; min-width:0;">
                                 <div><strong>${escapeHtmlA(r.requester.display_name)}</strong> 想看 <span style="color:var(--gold-light)">${escapeHtmlA(r.album.title)}</span></div>
                                 <div class="text-muted" style="font-size:0.78rem;">${timeAgo(r.created_at)}</div>

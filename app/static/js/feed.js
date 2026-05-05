@@ -213,7 +213,7 @@ function renderImage(url) {
     // (Railway containers have ephemeral filesystem — files in /uploads
     //  vanish on every redeploy unless a Volume is mounted there).
     const safe = escapeHtml(url);
-    return `<img src="${safe}" class="post-image" alt="" onerror="this.outerHTML='<div class=&quot;post-image-missing&quot;>📷 圖片暫時無法載入</div>'">`;
+    return `<img src="${safe}" class="post-image" alt="" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=&quot;post-image-missing&quot;>📷 圖片暫時無法載入</div>'">`;
 }
 
 function renderVideo(url) {
@@ -247,7 +247,7 @@ async function loadFeed() {
         feed.innerHTML = data.posts.map(p => `
             <div class="card post-card" data-post-id="${p.id}">
                 <div class="post-header">
-                    <img src="${escapeHtml(p.author.avatar_url || '')}" class="post-avatar" alt="" style="${p.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                    <img src="${escapeHtml(p.author.avatar_url || '')}" class="post-avatar" alt="" loading="lazy" decoding="async" style="${p.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
                     <div>
                         <a href="/profile/${escapeHtml(p.author.username)}" class="post-author" style="color:var(--text-primary)">${escapeHtml(p.author.display_name)}</a>
                         <div class="post-time">${timeAgo(p.created_at)}</div>
@@ -323,7 +323,7 @@ async function loadComments(postId) {
         } else {
             list.innerHTML = data.comments.map(c => `
                 <div class="comment-item">
-                    <img src="${escapeHtml(c.author.avatar_url || '')}" class="comment-avatar" alt="" style="${c.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                    <img src="${escapeHtml(c.author.avatar_url || '')}" class="comment-avatar" alt="" loading="lazy" decoding="async" style="${c.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
                     <div class="comment-body">
                         <span class="comment-author">${escapeHtml(c.author.display_name)}</span>
                         <span class="comment-text">${escapeHtml(c.content)}</span>
@@ -373,7 +373,7 @@ async function loadStories() {
     const myStoryCircle = `
         <div class="story-circle story-mine" onclick="document.getElementById('storyUploadInput').click()">
             <div class="story-avatar-ring story-add-ring">
-                <img src="${myAvatar}" alt="${escapeHtml(user.display_name || '我')}" style="${myAvatar ? '' : 'background:var(--gradient-gold)'}">
+                <img src="${myAvatar}" alt="${escapeHtml(user.display_name || '我')}" loading="lazy" decoding="async" style="${myAvatar ? '' : 'background:var(--gradient-gold)'}">
                 <div class="story-add-plus">+</div>
             </div>
             <div class="story-name">你的限動</div>
@@ -387,7 +387,7 @@ async function loadStories() {
     bar.innerHTML = myStoryCircle + others.map(g => `
         <div class="story-circle" onclick="viewStory('${escapeHtml(g.stories[0].image_url)}')">
             <div class="story-avatar-ring">
-                <img src="${escapeHtml(g.author.avatar_url || '')}" alt="${escapeHtml(g.author.display_name)}" style="${g.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
+                <img src="${escapeHtml(g.author.avatar_url || '')}" alt="${escapeHtml(g.author.display_name)}" loading="lazy" decoding="async" style="${g.author.avatar_url ? '' : 'background:var(--gradient-gold)'}">
             </div>
             <div class="story-name">${escapeHtml(g.author.display_name)}</div>
         </div>

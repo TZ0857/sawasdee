@@ -90,7 +90,7 @@ function renderCard(g) {
     else if (pct <= 30) barClass = 'g-bar-warn';
 
     const membersHtml = g.members.map(m =>
-        `<img src="${m.avatar_url || ''}" alt="${m.display_name}" class="g-member-avatar" title="${m.display_name}" onerror="this.style.display='none'">`
+        `<img src="${m.avatar_url || ''}" alt="${m.display_name}" class="g-member-avatar" title="${m.display_name}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
     ).join('');
 
     // Optimistic-pending tracker: lets the UI stay on "已申請" even if a
@@ -146,7 +146,7 @@ function renderCard(g) {
                 <span>👥 ${g.current_slots}/${g.max_slots}</span>
             </div>
             <div class="g-host">
-                <img src="${g.host.avatar_url || ''}" alt="" class="g-host-avatar" onerror="this.style.display='none'">
+                <img src="${g.host.avatar_url || ''}" alt="" class="g-host-avatar" loading="lazy" decoding="async" onerror="this.style.display='none'">
                 <span>${escapeHtml(g.host.display_name)} 發起</span>
             </div>
             <div class="g-members">${membersHtml}</div>
@@ -252,7 +252,7 @@ function renderIncomingRow(r) {
     const msg = r.message ? `<div class="g-incoming-msg">「${escapeHtml(r.message)}」</div>` : '';
     return `
         <div class="g-incoming-row">
-            <img src="${escapeHtml(r.applicant.avatar_url || '')}" alt="" class="g-incoming-avatar">
+            <img src="${escapeHtml(r.applicant.avatar_url || '')}" alt="" class="g-incoming-avatar" loading="lazy" decoding="async">
             <div style="flex:1; min-width:0;">
                 <div><strong>${escapeHtml(r.applicant.display_name)}</strong>${ageStr ? ` <span class="text-muted">· ${ageStr}</span>` : ''}</div>
                 <div class="text-muted" style="font-size:0.78rem;">想加入「${escapeHtml(r.gathering.title)}」</div>

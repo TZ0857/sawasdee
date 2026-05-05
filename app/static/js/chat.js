@@ -72,7 +72,7 @@ function renderMedia(m) {
         return `<video class="msg-media-video" controls preload="metadata" playsinline src="${safe}"></video>`;
     }
     if (m.media_type === 'image') {
-        return `<img class="msg-media-image" src="${safe}" alt="" onclick="openImageLightbox('${safe}')">`;
+        return `<img class="msg-media-image" src="${safe}" alt="" loading="lazy" decoding="async" onclick="openImageLightbox('${safe}')">`;
     }
     return '';
 }
@@ -626,7 +626,7 @@ function renderConvSidebar(convs) {
             <div class="conversation-item ${isActive ? 'active' : ''}"
                  onclick="window.location.href='/chat/${c.other_user.id}'"
                  data-unread="${c.unread_count || 0}">
-                <img src="${c.other_user.avatar_url || ''}" alt="" class="conversation-avatar"
+                <img src="${c.other_user.avatar_url || ''}" alt="" class="conversation-avatar" loading="lazy" decoding="async"
                      title="點擊查看個人頁"
                      onclick="event.stopPropagation(); window.location.href='${profilePath}'; return false;"
                      style="${c.other_user.avatar_url ? '' : 'background:var(--gradient-gold)'}; cursor:pointer;">

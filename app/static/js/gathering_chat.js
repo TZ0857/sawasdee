@@ -108,7 +108,7 @@ function renderMessage(m, isMine) {
     const senderInfo = isMine ? '' : `
         <div class="g-msg-sender">
             <a href="${profilePath}" title="查看 ${escapeHtml(m.sender.display_name)} 的個人頁" style="display:inline-flex; align-items:center; gap:0.3rem; color:inherit; text-decoration:none;">
-                <img src="${escapeHtml(m.sender.avatar_url || '')}" alt="" class="g-msg-avatar"
+                <img src="${escapeHtml(m.sender.avatar_url || '')}" alt="" class="g-msg-avatar" loading="lazy" decoding="async"
                      style="${m.sender.avatar_url ? '' : 'background:var(--gradient-gold)'}">
                 <span class="g-msg-name">${escapeHtml(m.sender.display_name)}</span>
             </a>
@@ -301,7 +301,7 @@ async function loadMembers() {
             const hostBadge = m.is_host ? '<span class="g-member-host-badge">主揪</span>' : '';
             return `
                 <a href="${profilePath}" class="g-member-row" title="查看 ${escapeHtml(m.display_name)} 的個人頁">
-                    <img src="${escapeHtml(m.avatar_url || '')}" alt="" class="g-member-avatar"
+                    <img src="${escapeHtml(m.avatar_url || '')}" alt="" class="g-member-avatar" loading="lazy" decoding="async"
                          onerror="this.style.background='var(--gradient-gold)'; this.removeAttribute('src');">
                     <div class="g-member-name">
                         ${escapeHtml(m.display_name)}${isMe ? ' (你)' : ''}

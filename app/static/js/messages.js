@@ -25,7 +25,7 @@ function renderConversations(conversations) {
         const profilePath = `/profile/${encodeURIComponent(c.other_user.username)}`;
         return `
         <div class="conversation-item" onclick="window.location.href='/chat/${c.other_user.id}'" data-unread="${c.unread_count || 0}">
-            <img src="${c.other_user.avatar_url || ''}" class="conversation-avatar" alt=""
+            <img src="${c.other_user.avatar_url || ''}" class="conversation-avatar" alt="" loading="lazy" decoding="async"
                  title="點擊查看個人頁"
                  onclick="event.stopPropagation(); window.location.href='${profilePath}'; return false;"
                  style="${c.other_user.avatar_url ? '' : 'background:var(--gradient-gold)'}; cursor:pointer;">
