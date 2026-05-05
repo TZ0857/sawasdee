@@ -266,6 +266,7 @@ async def apply_to_gathering(
             existing_req.message = (req.message or "").strip()
             db.add(existing_req)
             await db.flush()
+            await db.commit()  # see comment in the new-request branch below
             return {"status": "pending", "message": "已重新送出申請"}
 
     if gathering.current_slots >= gathering.max_slots:
@@ -295,6 +296,11 @@ async def apply_to_gathering(
             )
     except Exception:
         pass
+
+    # Explicit commit so the row is durably visible BEFORE the client gets 200
+    # — relying on the dependency-yield commit can race against the immediate
+    # follow-up GET /api/gatherings the frontend fires for grid refresh.
+    await db.commit()
 
     return {"status": "pending", "message": "已送出申請,等對方審核"}
 

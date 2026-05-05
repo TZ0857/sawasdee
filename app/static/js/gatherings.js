@@ -93,6 +93,15 @@ function renderCard(g) {
         `<img src="${m.avatar_url || ''}" alt="${m.display_name}" class="g-member-avatar" title="${m.display_name}" onerror="this.style.display='none'">`
     ).join('');
 
+    // Optimistic-pending tracker: lets the UI stay on "已申請" even if a
+    // subsequent grid reload races against the DB commit and momentarily
+    // returns my_request_status:null. Cleared once the server confirms
+    // pending (or marks approved/rejected).
+    if (g.my_request_status === 'pending') {
+        _optimisticPending.delete(g.id);   // server caught up
+    }
+    const optimistic = _optimisticPending.has(g.id);
+
     let actionBtn = '';
     if (isPast) {
         actionBtn = '<div class="g-expired-label">局已開始 · 自動關閉</div>';
@@ -102,11 +111,13 @@ function renderCard(g) {
             <button class="btn btn-ghost btn-sm g-action-btn" onclick="deleteGathering('${g.id}')">刪除</button>
         `;
     } else if (g.is_member) {
+        // Server says I'm a member → host already approved, drop optimism.
+        _optimisticPending.delete(g.id);
         actionBtn = `
             <a href="/gatherings/${g.id}/chat" class="btn btn-secondary btn-sm g-action-btn">💬 聊天</a>
             <button class="btn btn-ghost btn-sm g-action-btn" onclick="leaveGathering('${g.id}')">退出</button>
         `;
-    } else if (g.my_request_status === 'pending') {
+    } else if (g.my_request_status === 'pending' || optimistic) {
         actionBtn = '<button class="btn btn-pending btn-sm g-action-btn" disabled>已申請</button>';
     } else if (g.my_request_status === 'rejected') {
         actionBtn = `<button class="btn btn-secondary btn-sm g-action-btn" onclick="openApplyModal('${g.id}', \`${escapeAttr(g.title)}\`)">重新申請</button>`;
@@ -330,9 +341,14 @@ function closeApplyModal() {
     applyingGatheringId = null;
 }
 
+// Set of gathering IDs the user just applied to. Persists across
+// loadGatherings() reruns so a stale GET (returning my_request_status:null
+// before the apply commit replicates) cannot revert the button to "申請加入".
+// Cleared in renderCard once the server confirms pending / approved / etc.
+const _optimisticPending = new Set();
+
 function _swapCardActionToPending(gid) {
-    // Optimistic UI: flip THIS card's action button to 已申請 immediately,
-    // before the network round-trip + grid re-render lands.
+    _optimisticPending.add(gid);
     const card = document.querySelector(`.g-card[data-id="${gid}"]`);
     if (!card) return;
     const actions = card.querySelector('.g-actions');
@@ -348,8 +364,8 @@ document.getElementById('applyForm').addEventListener('submit', async (e) => {
     btn.disabled = true;
     const message = document.getElementById('applyMessage').value.trim();
 
-    // Flip the button state right away so the user gets instant feedback.
-    // If the request fails we'll roll back via loadGatherings().
+    // Flip the button state right away. The optimistic Set keeps it that way
+    // even if the next loadGatherings() races the DB commit.
     _swapCardActionToPending(gid);
     closeApplyModal();
     showToast('已送出申請,等對方審核', 'success');
@@ -359,8 +375,9 @@ document.getElementById('applyForm').addEventListener('submit', async (e) => {
         // Background refresh so members count, pending badge etc. stay accurate.
         loadGatherings();
     } catch (err) {
+        // Real failure — roll back the optimism and tell the user.
+        _optimisticPending.delete(gid);
         showToast(err.message || '申請失敗', 'error');
-        // Roll back the optimistic swap
         loadGatherings();
     } finally {
         btn.disabled = false;
