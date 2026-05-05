@@ -109,8 +109,26 @@ async def translate_text(
 
     # Real translation
     translated = await translate_message(text, source_lang=source)
-    if not translated:
-        translated = text
+
+    # Defensive: reject any fallback-shaped string (legacy "[🇹🇼→🇹🇭] xxx"
+    # that older code returned on failure). NEVER cache or surface those.
+    looks_like_fallback = (
+        translated is not None
+        and translated.startswith("[")
+        and "→" in translated
+    )
+    if not translated or looks_like_fallback:
+        # Translation API failed — tell the client honestly so the user can
+        # retry, but don't poison the cache with placeholder text.
+        return {
+            "original": text,
+            "translated": text,
+            "source_lang": source,
+            "target_lang": target,
+            "cached": False,
+            "needed": True,
+            "failed": True,
+        }
 
     # Persist cache (best-effort; failure must not break the response)
     if req.message_id and req.message_type in ("chat", "gathering") and translated != text:
@@ -122,7 +140,6 @@ async def translate_text(
                 target_lang=target,
                 translated_text=translated,
             ))
-            # commit explicitly so subsequent calls in the same second hit cache
             await db.commit()
         except Exception:
             try: await db.rollback()

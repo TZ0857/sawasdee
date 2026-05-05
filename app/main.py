@@ -96,6 +96,11 @@ async def run_lightweight_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_gatherings BOOLEAN DEFAULT TRUE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_language VARCHAR(10) DEFAULT 'zh-TW'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS auto_translate_msgs BOOLEAN DEFAULT TRUE",
+        # One-time cleanup — drop translation rows that were poisoned with
+        # the legacy "[🇹🇼→🇹🇭] xxx" / "[🇹🇭→🇹🇼] xxx" fallback string. Those
+        # weren't real translations; they were the failure-indicator that
+        # leaked through. Future failures no longer get cached at all.
+        "DELETE FROM message_translations WHERE translated_text LIKE '[%→%'",
     ]
     async with engine.begin() as conn:
         for stmt in statements:

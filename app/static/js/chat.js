@@ -157,6 +157,7 @@ async function _autoTranslateSweep(messages) {
                 message_id: m.id,
                 message_type: 'chat',
             });
+            if (r.failed) continue;   // transient API error; user can retry
             if (r.needed && r.translated && r.translated !== m.content) {
                 _msgTranslateCache.set(m.id, r.translated);
                 // Insert inline directly (avoid full re-render)
@@ -269,19 +270,29 @@ async function translateMsg(msgId, btnEl) {
     bubble.insertBefore(placeholder, time || null);
     try {
         let translated = _msgTranslateCache.get(msgId);
+        let failed = false;
         if (!translated) {
             const r = await api.post('/api/translate', {
                 text: sourceText,
                 message_id: msgId,
                 message_type: 'chat',
             });
+            failed = !!r.failed;
             translated = r.translated || sourceText;
-            _msgTranslateCache.set(msgId, translated);
+            // Only cache a real translation — don't poison the client cache
+            // with the API-failure passthrough so user can retry next tap.
+            if (!failed && translated !== sourceText) {
+                _msgTranslateCache.set(msgId, translated);
+            }
+        }
+        if (failed) {
+            placeholder.textContent = '🌐 翻譯服務暫時不可用,請稍後再點一次';
+            // Keep the 🌐 button visible so the user can retry
+            return;
         }
         placeholder.textContent = (translated === sourceText)
             ? '🌐 (與你的語言相同,無需翻譯)'
             : '🌐 ' + translated;
-        // Hide the small 🌐 button now that we showed the result
         if (btnEl) btnEl.style.display = 'none';
     } catch (err) {
         placeholder.textContent = '🌐 翻譯失敗,請稍後再試';

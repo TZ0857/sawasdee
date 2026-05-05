@@ -100,14 +100,22 @@ async function gTranslateMsg(msgId, btnEl) {
     bubble.insertBefore(placeholder, bubble.querySelector('.g-msg-foot') || bubble.querySelector('.g-msg-time'));
     try {
         let translated = _gMsgTranslateCache.get(msgId);
+        let failed = false;
         if (!translated) {
             const r = await api.post('/api/translate', {
                 text: sourceText,
                 message_id: msgId,
                 message_type: 'gathering',
             });
+            failed = !!r.failed;
             translated = r.translated || sourceText;
-            _gMsgTranslateCache.set(msgId, translated);
+            if (!failed && translated !== sourceText) {
+                _gMsgTranslateCache.set(msgId, translated);
+            }
+        }
+        if (failed) {
+            placeholder.textContent = '🌐 翻譯服務暫時不可用,請稍後再點一次';
+            return;
         }
         placeholder.textContent = translated === sourceText
             ? '🌐 (與你的語言相同,無需翻譯)'
@@ -135,6 +143,7 @@ async function _gAutoTranslateSweep(messages) {
                 message_id: m.id,
                 message_type: 'gathering',
             });
+            if (r.failed) continue;
             if (r.needed && r.translated && r.translated !== m.content) {
                 _gMsgTranslateCache.set(m.id, r.translated);
                 // Insert inline without a full re-render

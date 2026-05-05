@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 import json
 import urllib.parse
@@ -34,23 +35,23 @@ async def google_translate_free(text: str, source: str, target: str) -> str:
 
 
 async def translate_message(text: str, source_lang: str = None) -> str:
-    """Translate between Thai and Chinese. Tries DeepL first, then Google Translate."""
+    """Translate between Thai and Chinese. Tries DeepL first, then Google Translate.
+
+    Returns None when both providers fail. The caller (router) treats None
+    as 'translation unavailable right now' — it does NOT cache anything,
+    so a transient API failure can be retried later by the user.
+    """
     detected = source_lang or detect_language(text)
 
     if detected == "EN":
         return text
 
-    # Map language codes for translation
     if detected == "TH":
-        target_label = "zh-TW"
-        source_label = "th"
-        flag = "🇹🇭→🇹🇼"
+        target_label, source_label = "zh-TW", "th"
     else:
-        target_label = "th"
-        source_label = "zh-TW"
-        flag = "🇹🇼→🇹🇭"
+        target_label, source_label = "th", "zh-TW"
 
-    # Try DeepL first
+    # Try DeepL first (paid, more accurate)
     if DEEPL_API_KEY:
         try:
             target_deepl = "ZH" if detected == "TH" else "TH"
@@ -65,14 +66,20 @@ async def translate_message(text: str, source_lang: str = None) -> str:
                 )
                 if response.status_code == 200:
                     result = response.json()
-                    return result["translations"][0]["text"]
+                    out = result.get("translations", [{}])[0].get("text")
+                    if out and out.strip() and out != text:
+                        return out
         except Exception:
             pass
 
-    # Fallback: Google Translate (free)
-    translated = await google_translate_free(text, source_label, target_label)
-    if translated and translated != text:
-        return translated
+    # Fallback: Google Translate (free, less reliable)
+    # Retry once with a short backoff — common case is rate-limit / transient 5xx.
+    for attempt in range(2):
+        translated = await google_translate_free(text, source_label, target_label)
+        if translated and translated.strip() and translated != text:
+            return translated
+        await asyncio.sleep(0.4)
 
-    # Last resort: return with language label
-    return f"[{flag}] {text}"
+    # Both providers failed — return None so the caller doesn't cache
+    # a fake "[🇹🇼→🇹🇭] originaltext" placeholder as a real translation.
+    return None

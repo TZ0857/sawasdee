@@ -176,12 +176,18 @@ h3 { font-size: 1.3rem; }
    ============================================================ */
 .mobile-nav {
     display: none;
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+    position: fixed !important;   /* defensive — iOS sometimes loses fixed if a parent gets a transform */
+    bottom: 0 !important; left: 0 !important; right: 0 !important;
+    z-index: 1000;
     background: rgba(5, 5, 5, 0.95);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--border);
     padding: 0.35rem 0 calc(0.35rem + env(safe-area-inset-bottom));
     justify-content: space-around; align-items: center;
+    /* Hardware-accelerate so iOS keeps it pinned during momentum scroll */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
 }
 .mobile-nav-link {
     display: flex; flex-direction: column; align-items: center; gap: 0.12rem;
@@ -2179,9 +2185,12 @@ h3 { font-size: 1.3rem; }
    PERCEIVED-PERF POLISH
    ============================================================ */
 
-/* Page fade-in — body opacity 0→1 in 180ms so navigations don't snap. */
-@keyframes _sw_pagein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-body { animation: _sw_pagein 0.18s ease-out both; }
+/* Page fade-in — body opacity 0→1 in 160ms so navigations don't snap.
+   Intentionally NO transform — a transformed body creates a new
+   containing block on iOS, which would break the position:fixed
+   mobile-nav at the bottom of every page. */
+@keyframes _sw_pagein { from { opacity: 0; } to { opacity: 1; } }
+body { animation: _sw_pagein 0.16s ease-out both; }
 
 /* Universal tap feedback — buttons / links / chips squish slightly when
    pressed so users feel an immediate response on mobile (where there is
