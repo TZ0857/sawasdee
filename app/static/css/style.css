@@ -1704,7 +1704,11 @@ h3 { font-size: 1.3rem; }
 
 /* Gathering Create Modal */
 .modal-overlay.hidden { display: none !important; }
-#createModal:not(.hidden) { display: flex; }
+/* Generic show rule — any .modal-overlay without .hidden flexes open.
+   Previously only #createModal had this, so #applyModal (and any future
+   modal toggled via the same .hidden pattern) silently stayed display:none
+   even after we removed the class — making the apply flow look broken. */
+.modal-overlay:not(.hidden) { display: flex; }
 .modal-card {
     background: var(--bg-card); border: 1px solid var(--border-light);
     border-radius: var(--radius-xl); padding: 2rem;
