@@ -3,7 +3,20 @@ requireAuth();
 
 let allConversations = [];
 
+function _showConvSkeleton() {
+    document.getElementById('convListContent').innerHTML = Array.from({length: 5}, () => `
+        <div class="skeleton-row">
+            <div class="skeleton skeleton-avatar"></div>
+            <div>
+                <div class="skeleton skeleton-line w-50"></div>
+                <div class="skeleton skeleton-line w-90"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
 async function loadConversations() {
+    _showConvSkeleton();
     try {
         const data = await api.get('/api/messages/conversations');
         allConversations = data.conversations || [];
@@ -59,19 +72,23 @@ function filterConv(type, btnEl) {
     // never existed on Conversation so it always returned 0 results).
 }
 
-// Search conversations
+// Search conversations — debounced 200ms so we don't re-render the list
+// on every keystroke (cheap when there are few conversations, but adds up
+// if the user pastes a long string).
 const convSearch = document.getElementById('convSearch');
 if (convSearch) {
+    let _convSearchTimer = null;
     convSearch.addEventListener('input', function() {
-        const q = this.value.toLowerCase();
-        if (!q) {
-            renderConversations(allConversations);
-            return;
-        }
-        renderConversations(allConversations.filter(c =>
-            c.other_user.display_name.toLowerCase().includes(q) ||
-            (c.last_message || '').toLowerCase().includes(q)
-        ));
+        const val = this.value;
+        clearTimeout(_convSearchTimer);
+        _convSearchTimer = setTimeout(() => {
+            const q = val.toLowerCase().trim();
+            if (!q) { renderConversations(allConversations); return; }
+            renderConversations(allConversations.filter(c =>
+                c.other_user.display_name.toLowerCase().includes(q) ||
+                (c.last_message || '').toLowerCase().includes(q)
+            ));
+        }, 200);
     });
 }
 

@@ -100,6 +100,31 @@ function doLogout() {
     window.location.href = '/login';
 }
 
+// Touch-prefetch nav targets — when the user starts a tap on a nav link
+// (top desktop nav OR bottom mobile nav), kick off the HTML fetch in
+// background. By the time the click event fires (~120-300ms later), the
+// HTML is in the disk cache and navigation feels instantaneous.
+function _prefetch(url) {
+    if (!url || url === '#' || url.startsWith('javascript:')) return;
+    if (_prefetch._seen?.has(url)) return;
+    (_prefetch._seen ??= new Set()).add(url);
+    try {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'document';
+        link.href = url;
+        document.head.appendChild(link);
+    } catch (_) { /* ignore */ }
+}
+document.addEventListener('touchstart', (e) => {
+    const a = e.target.closest('a[href]');
+    if (a && a.origin === window.location.origin) _prefetch(a.href);
+}, { passive: true });
+document.addEventListener('mouseover', (e) => {
+    const a = e.target.closest('a[href]');
+    if (a && a.origin === window.location.origin) _prefetch(a.href);
+}, { passive: true });
+
 // Init navbar avatar
 document.addEventListener('DOMContentLoaded', () => {
     const user = getUser();

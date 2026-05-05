@@ -421,7 +421,10 @@ h3 { font-size: 1.3rem; }
 .post-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
 .post-author { font-weight: 600; font-size: 0.88rem; }
 .post-time { font-size: 0.72rem; color: var(--text-muted); }
-.post-image { width: 100%; max-height: 560px; object-fit: cover; display: block; }
+/* Reserve space (4:5 portrait-ish) so the page doesn't jump when the
+   image finally decodes — fixes Cumulative Layout Shift on the feed. */
+.post-image { width: 100%; max-height: 560px; aspect-ratio: 4/5; object-fit: cover; display: block; background: var(--bg-elevated); }
+.post-image[src=""] { aspect-ratio: 4/5; }
 .post-video {
     width: 100%;
     max-height: 560px;
@@ -2111,6 +2114,40 @@ h3 { font-size: 1.3rem; }
 .notif-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
 @media (max-width: 768px) {
     .notif-drawer { right: 0.5rem; width: calc(100vw - 1rem); }
+}
+
+/* ============================================================
+   SKELETON SCREENS — gray placeholder shapes shown while data loads.
+   Replaces generic spinners with content-shaped previews so the page
+   doesn't look "still empty"; perceived load time drops ~2x.
+   ============================================================ */
+@keyframes _sw_shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.skeleton {
+    background: linear-gradient(90deg,
+        rgba(255,255,255,0.04) 0%,
+        rgba(255,255,255,0.10) 50%,
+        rgba(255,255,255,0.04) 100%);
+    background-size: 200% 100%;
+    animation: _sw_shimmer 1.4s infinite linear;
+    border-radius: var(--radius-md);
+}
+.skeleton-card {
+    height: 280px; border-radius: var(--radius-lg); margin-bottom: 0.6rem;
+}
+.skeleton-line { height: 12px; margin: 0.4rem 0; border-radius: 4px; }
+.skeleton-line.w-50 { width: 50%; } .skeleton-line.w-30 { width: 30%; }
+.skeleton-line.w-70 { width: 70%; } .skeleton-line.w-90 { width: 90%; }
+.skeleton-avatar { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+.skeleton-row {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.7rem 0.8rem;
+}
+.skeleton-row > div:last-child { flex: 1; }
+.skeleton-grid-card {
+    height: 320px; border-radius: var(--radius-lg);
 }
 
 /* ============================================================

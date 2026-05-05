@@ -8,7 +8,12 @@ let searchTimeout = null;
 
 async function loadUsers(page = 1) {
     const grid = document.getElementById('userGrid');
-    grid.innerHTML = '<div class="flex-center" style="grid-column:1/-1; padding:4rem;"><div class="spinner"></div></div>';
+    // Skeleton card grid feels ~2× faster than a centered spinner
+    grid.innerHTML = Array.from({length: 6}, () => `
+        <div class="user-card">
+            <div class="skeleton skeleton-grid-card"></div>
+        </div>
+    `).join('');
 
     let url = `/api/users/explore?page=${page}&per_page=12`;
     if (filters.min_age) url += `&min_age=${filters.min_age}`;

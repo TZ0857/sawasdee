@@ -218,7 +218,15 @@ async def send_message(
     # and would race against an in-flight transaction otherwise.
     await db.commit()
 
-    background_tasks.add_task(_translate_in_background, msg_id_str, req.content)
+    # Skip translation if both users share a nationality — saves a translate
+    # API call + DB write that would never produce a useful translation.
+    same_nation = (
+        getattr(current_user, "nationality", None) is not None
+        and getattr(receiver, "nationality", None) is not None
+        and current_user.nationality == receiver.nationality
+    )
+    if not same_nation and req.content:
+        background_tasks.add_task(_translate_in_background, msg_id_str, req.content)
 
     return {
         "id": msg_id_str,
@@ -355,7 +363,13 @@ async def send_media_message(
     msg_id_str = str(msg.id)
     await db.commit()
 
-    if msg.content:
+    # Same-nationality skip — see /send for rationale
+    same_nation_media = (
+        getattr(current_user, "nationality", None) is not None
+        and getattr(receiver, "nationality", None) is not None
+        and current_user.nationality == receiver.nationality
+    )
+    if msg.content and not same_nation_media:
         background_tasks.add_task(_translate_in_background, msg_id_str, msg.content)
 
     return {

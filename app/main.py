@@ -229,8 +229,32 @@ templates_dir = os.path.join(os.path.dirname(__file__), "templates")
 uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 os.makedirs(uploads_dir, exist_ok=True)
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+class _CachedStaticFiles(StaticFiles):
+    """Same as StaticFiles but adds long-lived Cache-Control headers.
+    Combined with the ?v=xxx cache-busting we already do on every CSS/JS
+    link, this means returning visitors NEVER re-download static assets
+    until we bump the version — eliminates a per-page 304 round trip.
+    Uploads (user-generated images, avatars) get a shorter cache."""
+
+    def __init__(self, *args, max_age: int = 31536000, immutable: bool = True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._max_age = max_age
+        self._immutable = immutable
+
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            cc = f"public, max-age={self._max_age}"
+            if self._immutable:
+                cc += ", immutable"
+            response.headers["Cache-Control"] = cc
+        return response
+
+
+# Static JS/CSS — versioned by ?v=… so we can mark as immutable safely
+app.mount("/static", _CachedStaticFiles(directory=static_dir), name="static")
+# Uploads — user-generated, can be replaced on edit; cache 1 day, mutable
+app.mount("/uploads", _CachedStaticFiles(directory=uploads_dir, max_age=86400, immutable=False), name="uploads")
 
 templates = Jinja2Templates(directory=templates_dir)
 

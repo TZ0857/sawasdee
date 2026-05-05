@@ -230,6 +230,25 @@ function renderAudio(url) {
 }
 
 async function loadFeed() {
+    const feedSkeleton = document.getElementById('postsFeed');
+    if (feedSkeleton && !feedSkeleton.querySelector('.post-card')) {
+        feedSkeleton.innerHTML = Array.from({length: 3}, () => `
+            <div class="card post-card">
+                <div class="post-header">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div style="flex:1">
+                        <div class="skeleton skeleton-line w-30"></div>
+                        <div class="skeleton skeleton-line w-50"></div>
+                    </div>
+                </div>
+                <div class="skeleton" style="aspect-ratio:4/5; width:100%; max-height:560px; border-radius:0;"></div>
+                <div style="padding:0.85rem 1rem;">
+                    <div class="skeleton skeleton-line w-90"></div>
+                    <div class="skeleton skeleton-line w-70"></div>
+                </div>
+            </div>
+        `).join('');
+    }
     try {
         let feedUrl = '/api/posts/feed?page=1&per_page=20';
         if (currentFilter) feedUrl += `&filter=${currentFilter}`;
@@ -283,18 +302,35 @@ async function loadFeed() {
 }
 
 async function toggleLike(postId, el) {
+    // Optimistic UI: flip heart + count immediately, reconcile with server later.
+    const wasLiked = el.classList.contains('liked');
+    const willBeLiked = !wasLiked;
+    const countEl = el.querySelector('span');
+    const svg = el.querySelector('svg');
+    const prevCount = parseInt(countEl.textContent || '0', 10) || 0;
+    const optimisticCount = Math.max(0, prevCount + (willBeLiked ? 1 : -1));
+    countEl.textContent = optimisticCount;
+    el.classList.toggle('liked', willBeLiked);
+    if (svg) svg.setAttribute('fill', willBeLiked ? 'currentColor' : 'none');
+    el.style.pointerEvents = 'none';   // dedupe rapid taps
     try {
         const data = await api.post(`/api/posts/${postId}/like`);
-        el.querySelector('span').textContent = data.likes_count;
+        // Reconcile with server truth
+        countEl.textContent = data.likes_count;
         el.classList.toggle('liked', data.liked);
-        el.querySelector('svg').setAttribute('fill', data.liked ? 'currentColor' : 'none');
-        // If we're on the "liked" filter and the user just unliked, drop the post
+        if (svg) svg.setAttribute('fill', data.liked ? 'currentColor' : 'none');
         if (currentFilter === 'liked' && !data.liked) {
             const card = el.closest('.post-card');
             if (card) card.remove();
         }
     } catch (err) {
+        // Roll back on failure
+        countEl.textContent = prevCount;
+        el.classList.toggle('liked', wasLiked);
+        if (svg) svg.setAttribute('fill', wasLiked ? 'currentColor' : 'none');
         showToast('操作失敗', 'error');
+    } finally {
+        el.style.pointerEvents = '';
     }
 }
 

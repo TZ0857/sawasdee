@@ -7,7 +7,15 @@ const currentUser = getUser();
 function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.profile-tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+    const target = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (target) {
+        target.classList.remove('hidden');
+        // Tiny cross-fade so the swap doesn't snap
+        target.style.animation = 'none';
+        // Force reflow then re-trigger animation
+        void target.offsetWidth;
+        target.style.animation = '_sw_pagein 0.16s ease-out';
+    }
     document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
 
     if (tab === 'albums') loadAlbums();
@@ -19,6 +27,9 @@ async function loadProfile() {
         // /api/users/{id_or_username} now accepts both — single round trip.
         profileData = await api.get(`/api/users/${encodeURIComponent(profileUsername)}`);
         renderProfile();
+        // Pre-warm albums in background so the 相簿 tab opens instantly
+        // when the user finally taps it. Throw away errors silently.
+        setTimeout(() => loadAlbums().catch(() => {}), 50);
     } catch (err) {
         showToast('找不到這位會員', 'error');
         document.getElementById('profileName').textContent = '找不到此會員';

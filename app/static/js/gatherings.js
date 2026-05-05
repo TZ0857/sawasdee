@@ -18,7 +18,7 @@ let countdownInterval = null;
 async function loadGatherings() {
     const grid = document.getElementById('gatheringGrid');
     const empty = document.getElementById('gatheringEmpty');
-    grid.innerHTML = '<div class="flex-center" style="grid-column:1/-1;padding:4rem;"><div class="spinner"></div></div>';
+    grid.innerHTML = Array.from({length: 4}, () => '<div class="g-card"><div class="skeleton skeleton-grid-card" style="height:240px;"></div></div>').join('');
     empty.classList.add('hidden');
 
     try {
@@ -165,10 +165,18 @@ function escapeAttr(s) {
 }
 
 // === Countdowns ===
+// Updates ONCE per minute (not once per second). Card text is in
+// "X 小時 Y 分後" / "X 天 Y 小時後" granularity — there's no visible change
+// per second except in the final 60s window, which we handle separately.
 function startCountdowns() {
     if (countdownInterval) clearInterval(countdownInterval);
     updateCountdowns();
-    countdownInterval = setInterval(updateCountdowns, 1000);
+    countdownInterval = setInterval(updateCountdowns, 60_000);
+    // Re-tick whenever the tab returns to foreground so stale countdowns
+    // catch up immediately.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') updateCountdowns();
+    });
 }
 
 function updateCountdowns() {
