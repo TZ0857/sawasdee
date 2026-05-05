@@ -658,11 +658,36 @@ h3 { font-size: 1.3rem; }
     border: 1px solid var(--border);
 }
 .message-translated {
-    font-size: 0.78rem; color: rgba(26,26,26,0.55);
-    margin-top: 0.3rem; padding-top: 0.3rem;
-    border-top: 1px solid rgba(26,26,26,0.12);
-    font-style: italic;
+    font-size: 0.85rem; color: var(--text-primary);
+    margin-top: 0.4rem; padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    background: rgba(196, 86, 111, 0.08);
+    border-left: 2px solid var(--gold, #C4566F);
+    line-height: 1.45;
 }
+/* In gold sent bubbles, contrast against the gold background */
+.message-sent .message-translated {
+    background: rgba(0,0,0,0.12); color: #1a1a1a;
+    border-left-color: rgba(0,0,0,0.4);
+}
+
+/* Inline 🌐 translate button — sits at bubble bottom-right of a received
+   foreign-language message. Tap to translate that message in place. */
+.msg-translate-btn {
+    background: rgba(196, 86, 111, 0.15);
+    border: none; cursor: pointer;
+    color: var(--gold, #C4566F);
+    padding: 0.18rem 0.45rem;
+    margin-top: 0.35rem;
+    border-radius: 999px;
+    font-size: 0.8rem; line-height: 1;
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    transition: background 0.15s, transform 0.06s;
+}
+.msg-translate-btn::after { content: "翻譯"; font-size: 0.72rem; }
+.msg-translate-btn:hover { background: rgba(196, 86, 111, 0.25); }
+.msg-translate-btn:disabled { opacity: 0.4; cursor: wait; }
+
 .message-time { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.15rem; }
 .message-sent .message-time { color: rgba(26, 26, 26, 0.55); }
 

@@ -3,7 +3,17 @@ requireAuth();
 
 const currentUser = getUser();
 let chatPartner = null;
-let autoTranslate = false;
+
+// Viewer's display language → derived from nationality. Translations target this.
+//   taiwanese → 'ZH'; thai → 'TH'; anything else → 'EN'
+const _MY_LANG = (currentUser.nationality === 'thai') ? 'TH'
+               : (currentUser.nationality === 'taiwanese') ? 'ZH'
+               : 'EN';
+
+// Auto-translate ON/OFF — persisted per-conversation in localStorage so the
+// user's preference for THIS chat sticks without forcing a global setting.
+const _AUTO_KEY = `sw_autotr:${chatUserId}`;
+let autoTranslate = localStorage.getItem(_AUTO_KEY) === '1';
 let lastRenderHash = '';        // skip re-render when nothing changed
 let pendingMessages = [];       // optimistic msgs not yet confirmed by server
 let pendingSeq = 0;             // increasing id for optimistic msgs
@@ -77,18 +87,25 @@ function renderMedia(m) {
     return '';
 }
 
+// Returns true when this message both (a) needs a 🌐 translate button
+// to be visible to me, and (b) is eligible for the auto-translate path.
+function _needsTranslate(m, isSent) {
+    if (isSent) return false;            // I wrote it; I already understand
+    if (m.is_pending || m.is_deleted) return false;
+    if (!m.content) return false;        // pure media has nothing to translate
+    if (!m.source_lang || m.source_lang === 'EN') return false;
+    return m.source_lang !== _MY_LANG;   // only when languages differ
+}
+
 function renderMessage(m, isSent) {
     const ts = (m.created_at || '').endsWith('Z') ? m.created_at : (m.created_at || '') + 'Z';
-    // Show server-cached translation when autoTranslate is on, OR a per-message
-    // on-demand translation the user tapped 翻譯 on (cached client-side).
-    const tappedTranslation = m.id ? _msgTranslateCache.get(m.id) : null;
-    const autoTrText = (autoTranslate && m.translated_content && m.translated_content !== m.content)
-        ? m.translated_content : null;
-    const trText = tappedTranslation || autoTrText;
-    const showTranslation = !m.is_deleted && !!trText;
+    // Reuse cached translation across re-renders (poll wipes the DOM)
+    const tapped = m.id ? _msgTranslateCache.get(m.id) : null;
+    const trText = tapped || null;
     const tempAttr = m.is_pending ? ` data-pending-id="${m.pending_id}"` : '';
     const opacity = m.is_pending ? ' opacity:0.78;' : '';
     const receipt = renderReceiptBelow(m, isSent);
+    const needTr = _needsTranslate(m, isSent);
 
     let bodyHtml;
     if (m.is_deleted) {
@@ -96,8 +113,11 @@ function renderMessage(m, isSent) {
     } else {
         const mediaHtml = renderMedia(m);
         const textHtml = m.content ? `<div class="msg-text">${escapeHtml(m.content)}</div>` : '';
-        const trHtml = showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(trText)}</div>` : '';
-        bodyHtml = mediaHtml + textHtml + trHtml;
+        const trHtml = trText ? `<div class="message-translated">🌐 ${escapeHtml(trText)}</div>` : '';
+        const trBtn = (needTr && m.id)
+            ? `<button class="msg-translate-btn" type="button" onclick="event.stopPropagation(); translateMsg('${m.id}', this);" title="翻譯這則訊息">🌐</button>`
+            : '';
+        bodyHtml = mediaHtml + textHtml + trHtml + trBtn;
     }
 
     const idAttr = m.id ? ` data-msg-id="${m.id}"` : '';
@@ -117,6 +137,44 @@ function renderMessage(m, isSent) {
             ${receipt}
         </div>
     `;
+}
+
+// Auto-translate sweep: after each render, find received messages in
+// foreign languages that haven't been translated yet AND fire /api/translate
+// for them in the background. Server caches the result so re-visiting is free.
+async function _autoTranslateSweep(messages) {
+    if (!autoTranslate) return;
+    for (const m of messages) {
+        if (!m.id || _msgTranslateCache.has(m.id)) continue;
+        const isSent = m.sender_id === currentUser.id;
+        if (!_needsTranslate(m, isSent)) continue;
+        // Throttle: 1 per ~80ms so we don't hammer the translate service
+        // when scrolling into a long thread.
+        await new Promise(r => setTimeout(r, 80));
+        try {
+            const r = await api.post('/api/translate', {
+                text: m.content,
+                message_id: m.id,
+                message_type: 'chat',
+            });
+            if (r.needed && r.translated && r.translated !== m.content) {
+                _msgTranslateCache.set(m.id, r.translated);
+                // Insert inline directly (avoid full re-render)
+                const row = document.querySelector(`[data-msg-id="${m.id}"]`);
+                const bubble = row?.querySelector('.message-bubble');
+                if (bubble && !bubble.querySelector('.message-translated')) {
+                    const div = document.createElement('div');
+                    div.className = 'message-translated';
+                    div.textContent = '🌐 ' + r.translated;
+                    const time = bubble.querySelector('.message-time');
+                    bubble.insertBefore(div, time || null);
+                    // Hide the manual 🌐 button — translation already shown
+                    const btn = bubble.querySelector('.msg-translate-btn');
+                    if (btn) btn.remove();
+                }
+            }
+        } catch (_) { /* skip and continue */ }
+    }
 }
 
 /* ---------- Action menu (reply / translate / recall) ---------- */
@@ -183,12 +241,10 @@ function clearReply() {
 // Per-message translation cache so re-tapping 翻譯 doesn't re-fetch.
 const _msgTranslateCache = new Map();   // msgId → translated text
 
-async function actionTranslate() {
-    if (!activeMenuMsg) return closeMsgMenu();
-    const id = activeMenuMsg.id;
-    closeMsgMenu();
-
-    const row = document.querySelector(`[data-msg-id="${id}"]`);
+// Bubble-level translate (the new primary entry point — one tap on the
+// 🌐 icon in the bubble corner translates that message inline).
+async function translateMsg(msgId, btnEl) {
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
     if (!row) return;
     const bubble = row.querySelector('.message-bubble');
     if (!bubble) return;
@@ -198,40 +254,52 @@ async function actionTranslate() {
         showToast('這則訊息沒有文字可翻譯', 'error');
         return;
     }
-
-    // If we already have a translation rendered, toggle it off (and back on if tapped again).
+    // Toggle off if translation already shown
     const existing = bubble.querySelector('.message-translated');
     if (existing) {
         existing.remove();
+        if (btnEl) btnEl.style.display = '';   // bring the 🌐 button back
         return;
     }
-
-    // Show a placeholder while we fetch
+    if (btnEl) btnEl.disabled = true;
     const placeholder = document.createElement('div');
     placeholder.className = 'message-translated';
     placeholder.textContent = '🌐 翻譯中…';
-    bubble.appendChild(placeholder);
-
+    const time = bubble.querySelector('.message-time');
+    bubble.insertBefore(placeholder, time || null);
     try {
-        let translated = _msgTranslateCache.get(id);
+        let translated = _msgTranslateCache.get(msgId);
         if (!translated) {
-            const r = await api.post('/api/translate', { text: sourceText });
+            const r = await api.post('/api/translate', {
+                text: sourceText,
+                message_id: msgId,
+                message_type: 'chat',
+            });
             translated = r.translated || sourceText;
-            _msgTranslateCache.set(id, translated);
+            _msgTranslateCache.set(msgId, translated);
         }
-        if (translated === sourceText) {
-            placeholder.textContent = '🌐 (語言相同,無需翻譯)';
-        } else {
-            placeholder.textContent = '🌐 ' + translated;
-        }
+        placeholder.textContent = (translated === sourceText)
+            ? '🌐 (與你的語言相同,無需翻譯)'
+            : '🌐 ' + translated;
+        // Hide the small 🌐 button now that we showed the result
+        if (btnEl) btnEl.style.display = 'none';
     } catch (err) {
         placeholder.textContent = '🌐 翻譯失敗,請稍後再試';
+    } finally {
+        if (btnEl) btnEl.disabled = false;
     }
 }
 
-// Optional: keep autoTranslate toggle on the chat header for users who want
-// every message translated automatically. The per-bubble action above is the
-// primary way to translate on demand.
+// Legacy popup-menu entry point — keeps the existing menu working (some
+// users may tap-and-hold the bubble first). Just delegates to translateMsg.
+async function actionTranslate() {
+    if (!activeMenuMsg) return closeMsgMenu();
+    const id = activeMenuMsg.id;
+    closeMsgMenu();
+    const row = document.querySelector(`[data-msg-id="${id}"]`);
+    const btn = row?.querySelector('.msg-translate-btn');
+    return translateMsg(id, btn || null);
+}
 
 async function actionRecall() {
     if (!activeMenuMsg) return closeMsgMenu();
@@ -443,6 +511,10 @@ async function loadMessages(scrollToBottom = false) {
             return dividerHtml + renderMessage(m, isSent);
         }).join('');
 
+        // Kick off the auto-translate sweep in background. Each translation
+        // gets cached server-side so subsequent renders are instant.
+        if (autoTranslate) _autoTranslateSweep(merged);
+
         // Scroll behavior:
         //   - First load with unread → land on the divider so the user sees
         //     where they left off (Telegram-style).
@@ -560,12 +632,17 @@ async function sendMessage() {
 
 function toggleAutoTranslate() {
     autoTranslate = !autoTranslate;
+    localStorage.setItem(_AUTO_KEY, autoTranslate ? '1' : '0');
     const btn = document.getElementById('translateToggle');
     if (btn) {
         btn.style.background = autoTranslate ? 'rgba(200, 169, 106, 0.15)' : '';
-        btn.title = autoTranslate ? '翻譯已開啟' : '翻譯已關閉';
+        btn.title = autoTranslate ? '自動翻譯已開啟' : '自動翻譯已關閉';
     }
-    showToast(autoTranslate ? '已開啟自動翻譯' : '已關閉自動翻譯', 'success');
+    showToast(autoTranslate ? '已開啟自動翻譯 — 對方訊息會自動翻成你的語言' : '已關閉自動翻譯', 'success');
+    if (!autoTranslate) {
+        // Clear cache so the manual 🌐 button reappears (no auto-rendered translations)
+        _msgTranslateCache.clear();
+    }
     lastRenderHash = '';
     loadMessages(true);
 }
@@ -655,6 +732,14 @@ const _convSearch = document.getElementById('chatConvSearch');
 if (_convSearch) {
     _convSearch.addEventListener('input', () => renderConvSidebar(filteredSidebarConvs()));
 }
+
+// Reflect persisted auto-translate state on the toggle button at load time
+(function _initAutoTrToggle() {
+    const btn = document.getElementById('translateToggle');
+    if (!btn) return;
+    btn.style.background = autoTranslate ? 'rgba(200, 169, 106, 0.15)' : '';
+    btn.title = autoTranslate ? '自動翻譯已開啟' : '自動翻譯已關閉';
+})();
 
 loadChatUser();
 loadMessages(true);
