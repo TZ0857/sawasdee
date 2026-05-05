@@ -79,7 +79,13 @@ function renderMedia(m) {
 
 function renderMessage(m, isSent) {
     const ts = (m.created_at || '').endsWith('Z') ? m.created_at : (m.created_at || '') + 'Z';
-    const showTranslation = !m.is_deleted && autoTranslate && m.translated_content && m.translated_content !== m.content;
+    // Show server-cached translation when autoTranslate is on, OR a per-message
+    // on-demand translation the user tapped 翻譯 on (cached client-side).
+    const tappedTranslation = m.id ? _msgTranslateCache.get(m.id) : null;
+    const autoTrText = (autoTranslate && m.translated_content && m.translated_content !== m.content)
+        ? m.translated_content : null;
+    const trText = tappedTranslation || autoTrText;
+    const showTranslation = !m.is_deleted && !!trText;
     const tempAttr = m.is_pending ? ` data-pending-id="${m.pending_id}"` : '';
     const opacity = m.is_pending ? ' opacity:0.78;' : '';
     const receipt = renderReceiptBelow(m, isSent);
@@ -90,7 +96,7 @@ function renderMessage(m, isSent) {
     } else {
         const mediaHtml = renderMedia(m);
         const textHtml = m.content ? `<div class="msg-text">${escapeHtml(m.content)}</div>` : '';
-        const trHtml = showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(m.translated_content)}</div>` : '';
+        const trHtml = showTranslation ? `<div class="message-translated">🌐 ${escapeHtml(trText)}</div>` : '';
         bodyHtml = mediaHtml + textHtml + trHtml;
     }
 
@@ -174,13 +180,58 @@ function clearReply() {
     document.getElementById('chatReplyBar').classList.add('hidden');
 }
 
-function actionTranslate() {
-    autoTranslate = !autoTranslate;
-    showToast(autoTranslate ? '已開啟翻譯' : '已關閉翻譯', 'success');
-    lastRenderHash = '';
-    loadMessages(true);
+// Per-message translation cache so re-tapping 翻譯 doesn't re-fetch.
+const _msgTranslateCache = new Map();   // msgId → translated text
+
+async function actionTranslate() {
+    if (!activeMenuMsg) return closeMsgMenu();
+    const id = activeMenuMsg.id;
     closeMsgMenu();
+
+    const row = document.querySelector(`[data-msg-id="${id}"]`);
+    if (!row) return;
+    const bubble = row.querySelector('.message-bubble');
+    if (!bubble) return;
+    const textEl = bubble.querySelector('.msg-text');
+    const sourceText = textEl ? textEl.textContent.trim() : '';
+    if (!sourceText) {
+        showToast('這則訊息沒有文字可翻譯', 'error');
+        return;
+    }
+
+    // If we already have a translation rendered, toggle it off (and back on if tapped again).
+    const existing = bubble.querySelector('.message-translated');
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    // Show a placeholder while we fetch
+    const placeholder = document.createElement('div');
+    placeholder.className = 'message-translated';
+    placeholder.textContent = '🌐 翻譯中…';
+    bubble.appendChild(placeholder);
+
+    try {
+        let translated = _msgTranslateCache.get(id);
+        if (!translated) {
+            const r = await api.post('/api/translate', { text: sourceText });
+            translated = r.translated || sourceText;
+            _msgTranslateCache.set(id, translated);
+        }
+        if (translated === sourceText) {
+            placeholder.textContent = '🌐 (語言相同,無需翻譯)';
+        } else {
+            placeholder.textContent = '🌐 ' + translated;
+        }
+    } catch (err) {
+        placeholder.textContent = '🌐 翻譯失敗,請稍後再試';
+    }
 }
+
+// Optional: keep autoTranslate toggle on the chat header for users who want
+// every message translated automatically. The per-bubble action above is the
+// primary way to translate on demand.
 
 async function actionRecall() {
     if (!activeMenuMsg) return closeMsgMenu();

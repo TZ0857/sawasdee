@@ -51,6 +51,47 @@ async function loadMyChats() {
     }
 }
 
+/* ---------- Per-message translation cache ---------- */
+const _gMsgTranslateCache = new Map();   // msgId → translated text
+
+async function gTranslateMsg(msgId, btnEl) {
+    btnEl.disabled = true;
+    const bubble = btnEl.closest('.g-msg-bubble');
+    if (!bubble) return;
+    const textEl = bubble.querySelector('.g-msg-text');
+    const sourceText = textEl ? textEl.textContent.trim() : '';
+    if (!sourceText) {
+        showToast('沒有文字可翻譯', 'error');
+        btnEl.disabled = false;
+        return;
+    }
+    const existing = bubble.querySelector('.g-msg-translated');
+    if (existing) {
+        existing.remove();
+        btnEl.disabled = false;
+        return;
+    }
+    const placeholder = document.createElement('div');
+    placeholder.className = 'g-msg-translated';
+    placeholder.textContent = '🌐 翻譯中…';
+    bubble.insertBefore(placeholder, bubble.querySelector('.g-msg-time'));
+    try {
+        let translated = _gMsgTranslateCache.get(msgId);
+        if (!translated) {
+            const r = await api.post('/api/translate', { text: sourceText });
+            translated = r.translated || sourceText;
+            _gMsgTranslateCache.set(msgId, translated);
+        }
+        placeholder.textContent = translated === sourceText
+            ? '🌐 (語言相同,無需翻譯)'
+            : '🌐 ' + translated;
+    } catch (err) {
+        placeholder.textContent = '🌐 翻譯失敗,請稍後再試';
+    } finally {
+        btnEl.disabled = false;
+    }
+}
+
 /* ---------- Render messages ---------- */
 function renderMessage(m, isMine) {
     const ts = m.created_at.endsWith('Z') ? m.created_at : m.created_at + 'Z';
@@ -73,12 +114,25 @@ function renderMessage(m, isMine) {
             </a>
         </div>
     `;
+    // Reuse cached translation across re-renders (poll every 3s wipes the DOM)
+    const cached = m.id ? _gMsgTranslateCache.get(m.id) : null;
+    const translatedHtml = cached
+        ? `<div class="g-msg-translated">🌐 ${escapeHtml(cached)}</div>`
+        : '';
+    // Translate button only on real (non-pending, non-system) messages with text
+    const translateBtn = (m.id && !m.is_pending && m.content)
+        ? `<button class="g-msg-translate-btn" type="button" onclick="gTranslateMsg('${m.id}', this)" title="翻譯這則訊息">🌐</button>`
+        : '';
     return `
         <div class="g-msg-row ${isMine ? 'g-msg-row-mine' : 'g-msg-row-other'}"${tempAttr}>
             ${senderInfo}
             <div class="g-msg-bubble ${isMine ? 'g-msg-bubble-mine' : 'g-msg-bubble-other'}" style="${opacity}">
-                <div>${escapeHtml(m.content)}</div>
-                <div class="g-msg-time">${timeAgo(ts)}</div>
+                <div class="g-msg-text">${escapeHtml(m.content)}</div>
+                ${translatedHtml}
+                <div class="g-msg-foot">
+                    <span class="g-msg-time">${timeAgo(ts)}</span>
+                    ${translateBtn}
+                </div>
             </div>
         </div>
     `;

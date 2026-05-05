@@ -1583,6 +1583,29 @@ h3 { font-size: 1.3rem; }
     color: rgba(26,26,26,0.55);
 }
 .g-msg-row-other .g-msg-time { color: var(--text-muted); text-align: left; }
+.g-msg-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem; margin-top: 0.2rem;
+}
+.g-msg-row-other .g-msg-foot { flex-direction: row; }
+.g-msg-row-mine .g-msg-foot { flex-direction: row-reverse; }
+.g-msg-translated {
+    margin-top: 0.4rem; padding: 0.4rem 0.55rem;
+    border-radius: 8px; background: rgba(255,255,255,0.06);
+    color: var(--text-primary); font-size: 0.85rem; line-height: 1.4;
+    border-left: 2px solid var(--gold, #C4566F);
+}
+.g-msg-bubble-mine .g-msg-translated {
+    background: rgba(0,0,0,0.12); color: #1a1a1a; border-left-color: rgba(0,0,0,0.4);
+}
+.g-msg-translate-btn {
+    background: transparent; border: none; cursor: pointer;
+    color: inherit; opacity: 0.55; padding: 0.15rem 0.35rem;
+    font-size: 0.85rem; border-radius: 6px; transition: opacity 0.15s, background 0.15s;
+}
+.g-msg-translate-btn:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.g-msg-bubble-mine .g-msg-translate-btn:hover { background: rgba(0,0,0,0.08); }
+.g-msg-translate-btn:disabled { opacity: 0.3; cursor: wait; }
 
 .g-msg-system {
     align-self: center;
