@@ -86,12 +86,23 @@ def _msg_to_dict(m: Message, include_reply: bool = True) -> dict:
         content = m.content or ""
         translated_content = (m.translated_content or "")
 
+    # Lightweight source-language hint so the client can decide whether to
+    # show the 🌐 翻譯 button without a per-message API call.
+    source_lang = ""
+    if content:
+        try:
+            from app.services.translate import detect_language
+            source_lang = detect_language(content)
+        except Exception:
+            source_lang = ""
+
     base = {
         "id": str(m.id),
         "sender_id": str(m.sender_id),
         "receiver_id": str(m.receiver_id),
         "content": content,
         "translated_content": translated_content,
+        "source_lang": source_lang,
         "is_read": m.is_read,
         "is_deleted": bool(getattr(m, "is_deleted", False)),
         "media_url": getattr(m, "media_url", "") or "",

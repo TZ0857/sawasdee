@@ -551,6 +551,31 @@ async def _ensure_member(db, gathering_id: str, user_id: str) -> Gathering:
     return gathering
 
 
+def _gathering_msg_to_dict(m) -> dict:
+    """Serialize a GatheringMessage with the source-language hint the
+    frontend uses to decide whether to show the 🌐 翻譯 button."""
+    source_lang = ""
+    if m.content and not m.is_system:
+        try:
+            from app.services.translate import detect_language
+            source_lang = detect_language(m.content)
+        except Exception:
+            source_lang = ""
+    return {
+        "id": str(m.id),
+        "sender": {
+            "id": str(m.sender.id),
+            "username": m.sender.username,
+            "display_name": m.sender.display_name,
+            "avatar_url": m.sender.avatar_url or "",
+        },
+        "content": m.content,
+        "is_system": m.is_system,
+        "source_lang": source_lang,
+        "created_at": m.created_at.isoformat(),
+    }
+
+
 @router.get("/{gathering_id}/messages")
 async def list_chat_messages(
     gathering_id: str,
@@ -576,18 +601,7 @@ async def list_chat_messages(
             "type": gathering.type,
         },
         "messages": [
-            {
-                "id": str(m.id),
-                "sender": {
-                    "id": str(m.sender.id),
-                    "username": m.sender.username,
-                    "display_name": m.sender.display_name,
-                    "avatar_url": m.sender.avatar_url or "",
-                },
-                "content": m.content,
-                "is_system": m.is_system,
-                "created_at": m.created_at.isoformat(),
-            }
+            _gathering_msg_to_dict(m)
             for m in reversed(msgs)
         ],
     }

@@ -17,6 +17,7 @@ from app.routers import auth, users, posts, messages, albums, subscriptions, gat
 # Import models so SQLAlchemy registers them on Base before init_db()
 from app.models.block import BlockedUser  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
+from app.models.translation import MessageTranslation  # noqa: F401
 
 
 # --- Demo avatar set ----------------------------------------------------
