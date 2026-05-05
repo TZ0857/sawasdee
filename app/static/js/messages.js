@@ -42,18 +42,21 @@ function renderConversations(conversations) {
     }).join('');
 }
 
-function filterConv(type) {
-    // Update active chip
+function filterConv(type, btnEl) {
+    // Update active chip — accept the tapped button explicitly so we don't
+    // rely on the global `event` (undefined under some mobile browsers /
+    // strict mode bundlers).
     document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
-    event.target.classList.add('active');
+    const target = btnEl || (typeof event !== 'undefined' ? event.target : null);
+    if (target && target.classList) target.classList.add('active');
 
     if (type === 'all') {
         renderConversations(allConversations);
     } else if (type === 'unread') {
         renderConversations(allConversations.filter(c => c.unread_count > 0));
-    } else if (type === 'saved') {
-        renderConversations(allConversations.filter(c => c.is_saved));
     }
+    // 'saved' filter intentionally removed (chip dropped from UI; the field
+    // never existed on Conversation so it always returned 0 results).
 }
 
 // Search conversations

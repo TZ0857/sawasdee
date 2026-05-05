@@ -12,8 +12,8 @@
             </div>
             <!-- Tabs -->
             <div style="display:flex; gap:0.25rem; padding:0 0.5rem 0.75rem;">
-                <button class="chip active" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConv('all')">全部</button>
-                <button class="chip" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConv('unread')">未讀</button>
+                <button class="chip active" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConv('all', this)">全部</button>
+                <button class="chip" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConv('unread', this)">未讀</button>
             </div>
             <div id="convListContent">
                 <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
@@ -35,5 +35,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/messages.js?v=20260504b"></script>
+<script src="/static/js/messages.js?v=20260504c"></script>
 {% endblock %}
