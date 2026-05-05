@@ -52,7 +52,7 @@ async function loadUsers(page = 1) {
                 ${u.is_online ? '<div class="online-dot"></div>' : ''}
                 <div class="card-img-wrap">
                     ${u.avatar_url
-                        ? `<img src="${u.avatar_url}" class="card-img" alt="${u.display_name}" loading="lazy">`
+                        ? `<img src="${u.avatar_url}" class="card-img" alt="${u.display_name}" loading="lazy" decoding="async">`
                         : `<div class="card-img-fallback">${avatarFallback(u.display_name)}</div>`
                     }
                 </div>
