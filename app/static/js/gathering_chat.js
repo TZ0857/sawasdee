@@ -8,6 +8,16 @@ let pendingSeq = 0;
 let pollPausedUntil = 0;
 let isInitialLoad = true;
 
+// Viewer's display language → translations target this.
+const _MY_LANG = (currentUser.nationality === 'thai') ? 'TH'
+               : (currentUser.nationality === 'taiwanese') ? 'ZH'
+               : 'EN';
+
+// Per-gathering auto-translate preference, persisted in localStorage.
+const _AUTO_KEY = `sw_autotr_g:${gatheringId}`;
+let autoTranslate = localStorage.getItem(_AUTO_KEY) === '1';
+let _lastMessageList = [];   // cached for auto-translate sweep on toggle
+
 const TYPE_EMOJI = { meal: '🍜', drinks: '🥂', karaoke: '🎤', movie: '🎬', nightlife: '🌙' };
 
 function escapeHtml(s) {
@@ -51,44 +61,115 @@ async function loadMyChats() {
     }
 }
 
-/* ---------- Per-message translation cache ---------- */
+/* ---------- Per-message translation cache (client side) ---------- */
 const _gMsgTranslateCache = new Map();   // msgId → translated text
 
+// Show 🌐 button on a gathering chat message?
+//   - skip system messages, my own messages, pending optimistic messages
+//   - skip if no text or English source (we don't have an EN nationality)
+//   - only when message language differs from MY language
+function _gNeedsTranslate(m, isMine) {
+    if (m.is_system || isMine) return false;
+    if (m.is_pending) return false;
+    if (!m.content) return false;
+    if (!m.source_lang || m.source_lang === 'EN') return false;
+    return m.source_lang !== _MY_LANG;
+}
+
 async function gTranslateMsg(msgId, btnEl) {
-    btnEl.disabled = true;
-    const bubble = btnEl.closest('.g-msg-bubble');
-    if (!bubble) return;
+    if (btnEl) btnEl.disabled = true;
+    const bubble = btnEl ? btnEl.closest('.g-msg-bubble')
+                         : document.querySelector(`.g-msg-row [data-msg-id="${msgId}"] .g-msg-bubble`);
+    if (!bubble) { if (btnEl) btnEl.disabled = false; return; }
     const textEl = bubble.querySelector('.g-msg-text');
     const sourceText = textEl ? textEl.textContent.trim() : '';
     if (!sourceText) {
         showToast('沒有文字可翻譯', 'error');
-        btnEl.disabled = false;
+        if (btnEl) btnEl.disabled = false;
         return;
     }
     const existing = bubble.querySelector('.g-msg-translated');
     if (existing) {
         existing.remove();
-        btnEl.disabled = false;
+        if (btnEl) { btnEl.disabled = false; btnEl.style.display = ''; }
         return;
     }
     const placeholder = document.createElement('div');
     placeholder.className = 'g-msg-translated';
     placeholder.textContent = '🌐 翻譯中…';
-    bubble.insertBefore(placeholder, bubble.querySelector('.g-msg-time'));
+    bubble.insertBefore(placeholder, bubble.querySelector('.g-msg-foot') || bubble.querySelector('.g-msg-time'));
     try {
         let translated = _gMsgTranslateCache.get(msgId);
         if (!translated) {
-            const r = await api.post('/api/translate', { text: sourceText });
+            const r = await api.post('/api/translate', {
+                text: sourceText,
+                message_id: msgId,
+                message_type: 'gathering',
+            });
             translated = r.translated || sourceText;
             _gMsgTranslateCache.set(msgId, translated);
         }
         placeholder.textContent = translated === sourceText
-            ? '🌐 (語言相同,無需翻譯)'
+            ? '🌐 (與你的語言相同,無需翻譯)'
             : '🌐 ' + translated;
+        if (btnEl) btnEl.style.display = 'none';
     } catch (err) {
         placeholder.textContent = '🌐 翻譯失敗,請稍後再試';
     } finally {
-        btnEl.disabled = false;
+        if (btnEl) btnEl.disabled = false;
+    }
+}
+
+// Auto-translate sweep across the visible message list. Runs after every
+// render when autoTranslate is ON. Server cache means repeat sweeps free.
+async function _gAutoTranslateSweep(messages) {
+    if (!autoTranslate) return;
+    for (const m of messages) {
+        if (!m.id || _gMsgTranslateCache.has(m.id)) continue;
+        const isMine = !m.is_system && m.sender && m.sender.id === currentUser.id;
+        if (!_gNeedsTranslate(m, isMine)) continue;
+        await new Promise(r => setTimeout(r, 80));   // mild throttle
+        try {
+            const r = await api.post('/api/translate', {
+                text: m.content,
+                message_id: m.id,
+                message_type: 'gathering',
+            });
+            if (r.needed && r.translated && r.translated !== m.content) {
+                _gMsgTranslateCache.set(m.id, r.translated);
+                // Insert inline without a full re-render
+                const row = document.querySelector(`.g-msg-row [data-msg-id="${m.id}"]`)?.closest('.g-msg-row');
+                const bubble = row?.querySelector('.g-msg-bubble');
+                if (bubble && !bubble.querySelector('.g-msg-translated')) {
+                    const div = document.createElement('div');
+                    div.className = 'g-msg-translated';
+                    div.textContent = '🌐 ' + r.translated;
+                    bubble.insertBefore(div, bubble.querySelector('.g-msg-foot') || bubble.querySelector('.g-msg-time'));
+                    const btn = bubble.querySelector('.g-msg-translate-btn');
+                    if (btn) btn.style.display = 'none';
+                }
+            }
+        } catch (_) { /* skip */ }
+    }
+}
+
+function toggleGatheringAutoTranslate() {
+    autoTranslate = !autoTranslate;
+    localStorage.setItem(_AUTO_KEY, autoTranslate ? '1' : '0');
+    const btn = document.getElementById('gAutoTrToggle');
+    if (btn) {
+        btn.style.background = autoTranslate ? 'rgba(196,86,111,0.15)' : '';
+        btn.title = autoTranslate ? '自動翻譯已開啟' : '自動翻譯已關閉';
+    }
+    if (window.showToast) showToast(autoTranslate ? '已開啟自動翻譯' : '已關閉自動翻譯', 'success');
+    if (!autoTranslate) {
+        _gMsgTranslateCache.clear();
+        lastRenderHash = '';
+        loadMessages(true);
+    } else {
+        // Kick a sweep right away
+        document.querySelectorAll('.g-msg-row').forEach(() => {});
+        _gAutoTranslateSweep(_lastMessageList || []);
     }
 }
 
@@ -119,12 +200,15 @@ function renderMessage(m, isMine) {
     const translatedHtml = cached
         ? `<div class="g-msg-translated">🌐 ${escapeHtml(cached)}</div>`
         : '';
-    // Translate button only on real (non-pending, non-system) messages with text
-    const translateBtn = (m.id && !m.is_pending && m.content)
+    // 🌐 button only when message is in a foreign language relative to me
+    // (and not my own / pending / system / English)
+    const showTrBtn = _gNeedsTranslate(m, isMine) && !cached;
+    const translateBtn = showTrBtn
         ? `<button class="g-msg-translate-btn" type="button" onclick="gTranslateMsg('${m.id}', this)" title="翻譯這則訊息">🌐</button>`
         : '';
+    const idAttr = m.id ? ` data-msg-id="${m.id}"` : '';
     return `
-        <div class="g-msg-row ${isMine ? 'g-msg-row-mine' : 'g-msg-row-other'}"${tempAttr}>
+        <div class="g-msg-row ${isMine ? 'g-msg-row-mine' : 'g-msg-row-other'}"${tempAttr}${idAttr}>
             ${senderInfo}
             <div class="g-msg-bubble ${isMine ? 'g-msg-bubble-mine' : 'g-msg-bubble-other'}" style="${opacity}">
                 <div class="g-msg-text">${escapeHtml(m.content)}</div>
@@ -184,6 +268,11 @@ async function loadMessages(scrollToBottom = false) {
             const isMine = !m.is_system && senderId === currentUser.id;
             return renderMessage(m, isMine);
         }).join('');
+
+        // Cache the latest list so the auto-translate toggle can sweep on demand
+        _lastMessageList = merged;
+        // Background auto-translate when ON (server caches; subsequent calls free)
+        if (autoTranslate) _gAutoTranslateSweep(merged);
 
         if (isInitialLoad || scrollToBottom || wasNearBottom) {
             container.scrollTop = container.scrollHeight;
@@ -337,6 +426,14 @@ async function kickMember(userId, displayName) {
         showToast(err.message || '移出失敗', 'error');
     }
 }
+
+// Reflect persisted auto-translate state on toggle button at load time
+(function _initAutoTrToggle() {
+    const btn = document.getElementById('gAutoTrToggle');
+    if (!btn) return;
+    btn.style.background = autoTranslate ? 'rgba(196,86,111,0.15)' : '';
+    btn.title = autoTranslate ? '自動翻譯已開啟' : '自動翻譯已關閉';
+})();
 
 loadMyChats();
 loadMessages(true);
