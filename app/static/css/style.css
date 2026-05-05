@@ -1907,6 +1907,7 @@ h3 { font-size: 1.3rem; }
         left: 0 !important;
         right: 0 !important;
         width: 100% !important;
+        max-width: 100vw !important;
         z-index: 1001 !important;
         padding: 0.5rem 0.4rem !important;
         margin: 0 !important;
@@ -1915,6 +1916,30 @@ h3 { font-size: 1.3rem; }
         -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid var(--border) !important;
         box-sizing: border-box !important;
+        display: flex !important;
+        gap: 0.3rem !important;            /* tighter so 5 elements fit on 360px-ish phones */
+        align-items: center !important;
+        overflow: hidden !important;       /* never let a child spill off-screen */
+    }
+    /* Tighter media buttons on mobile so the row fits */
+    .chat-input-area .chat-media-btn {
+        padding: 0.35rem !important;
+        flex: 0 0 auto !important;
+        min-width: 36px !important;
+    }
+    /* Input must be allowed to shrink past placeholder width — the default
+       flex min-width:auto is what was pushing the send button off-screen. */
+    .chat-input-area .chat-input {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        padding: 0.55rem 0.85rem !important;
+    }
+    /* Send button: compact, tap-target sized, can't be pushed away */
+    .chat-input-area > .btn-primary,
+    .chat-input-area > button[onclick*="sendMessage"] {
+        flex: 0 0 auto !important;
+        padding: 0.5rem 0.85rem !important;
+        min-width: 44px !important;
     }
 
     /* Messages list — fills the gap between header and input, scrollable, edge to edge */
