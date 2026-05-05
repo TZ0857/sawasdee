@@ -268,6 +268,7 @@ async function openAlbumViewer(album) {
         <div class="album-viewer-body">${photoTiles}</div>
     `;
     modal.classList.add('active');
+    modal.classList.remove('hidden');
     // Stash photos for the lightbox to navigate
     modal._photos = photos;
 }
@@ -448,6 +449,7 @@ function openPrivateAccessGate(album) {
         ${body}
     `;
     modal.classList.add('active');
+    modal.classList.remove('hidden');
 }
 
 async function requestAccess(albumId) {
@@ -526,11 +528,16 @@ async function rejectRequest(requestId) {
 }
 
 function showCreateAlbum() {
-    document.getElementById('createAlbumModal').classList.add('active');
+    const m = document.getElementById('createAlbumModal');
+    m.classList.add('active');         // legacy class — harmless
+    m.classList.remove('hidden');      // generic pattern — actually shows
 }
 
 function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.classList.remove('active');
+    m.classList.add('hidden');
 }
 
 async function createAlbum() {

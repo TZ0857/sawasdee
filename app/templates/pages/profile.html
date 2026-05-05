@@ -83,7 +83,7 @@
 </div>
 
 <!-- Create Album Modal -->
-<div class="modal-overlay" id="createAlbumModal">
+<div class="modal-overlay hidden" id="createAlbumModal">
     <div class="modal">
         <div class="modal-header">
             <h3>建立新相簿</h3>
@@ -105,7 +105,7 @@
 </div>
 
 <!-- Photo Viewer Modal -->
-<div class="modal-overlay" id="photoViewerModal">
+<div class="modal-overlay hidden" id="photoViewerModal">
     <div class="modal" style="max-width:700px; padding:0; background:transparent; border:none;">
         <button class="modal-close" onclick="closeModal('photoViewerModal')" style="position:absolute; top:1rem; right:1rem; z-index:1">×</button>
         <img id="photoViewerImg" style="width:100%; border-radius:var(--radius-lg);">
@@ -114,5 +114,5 @@
 {% endblock %}
 {% block scripts %}
 <script>const profileUsername = "{{ username }}";</script>
-<script src="/static/js/profile.js?v=20260504c"></script>
+<script src="/static/js/profile.js?v=20260504d"></script>
 {% endblock %}
