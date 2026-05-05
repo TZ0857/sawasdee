@@ -82,10 +82,17 @@ a:hover { color: var(--gold-light); }
 img { max-width: 100%; height: auto; display: block; }
 
 /* === Typography === */
-h1, h2, h3 { font-family: var(--font-heading); font-weight: 600; letter-spacing: 0.02em; color: var(--text-primary); }
-h1 { font-size: 2.5rem; }
-h2 { font-size: 1.8rem; }
-h3 { font-size: 1.3rem; }
+h1, h2, h3 { font-family: var(--font-heading); font-weight: 600; letter-spacing: 0.015em; color: var(--text-primary); line-height: 1.2; }
+h1 { font-size: 3rem; line-height: 1.15; letter-spacing: -0.005em; }
+h2 { font-size: 2.1rem; }
+h3 { font-size: 1.4rem; }
+@media (max-width: 640px) {
+    h1 { font-size: 2.1rem; }
+    h2 { font-size: 1.55rem; }
+    h3 { font-size: 1.2rem; }
+}
+/* Body line-height bump for editorial feel */
+p { line-height: 1.7; }
 
 /* ============================================================
    NAVBAR — Fixed top bar
@@ -212,7 +219,8 @@ h3 { font-size: 1.3rem; }
     padding-top: calc(76px + env(safe-area-inset-top, 0px));
     min-height: 100vh;
 }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+@media (max-width: 640px) { .container { padding: 0 1.2rem; } }
 .container-sm { max-width: 640px; margin: 0 auto; padding: 0 1.5rem; }
 
 /* ============================================================
@@ -321,31 +329,45 @@ h3 { font-size: 1.3rem; }
    CARDS
    ============================================================ */
 .card {
-    background: var(--bg-card); border: 1px solid var(--border);
+    background: var(--bg-card);
+    /* Hairline top + soft drop shadow → cards "lift" off the page instead of
+       being outlined. Adds depth without animation. */
+    border: 1px solid transparent;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 1px 0 rgba(0, 0, 0, 0.6),
+        0 8px 28px rgba(0, 0, 0, 0.35);
     border-radius: var(--radius-lg); overflow: hidden;
     transition: var(--transition);
 }
 .card:hover {
-    border-color: var(--border-light);
-    box-shadow: var(--shadow-sm);
+    box-shadow:
+        inset 0 1px 0 rgba(200, 169, 106, 0.10),
+        0 1px 0 rgba(0, 0, 0, 0.6),
+        0 14px 40px rgba(0, 0, 0, 0.5);
 }
-.card-body { padding: 1.2rem; }
+.card-body { padding: 1.6rem; }
 
 /* ============================================================
    USER CARDS — Explore
    ============================================================ */
-.user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+.user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 
 .user-card {
     position: relative; cursor: pointer;
     border-radius: var(--radius-xl); overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid transparent;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 6px 22px rgba(0, 0, 0, 0.45);
     transition: var(--transition);
 }
 .user-card:hover {
-    border-color: var(--border-light);
     transform: translateY(-3px);
-    box-shadow: var(--shadow-gold);
+    box-shadow:
+        inset 0 1px 0 rgba(200, 169, 106, 0.12),
+        0 14px 40px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(200, 169, 106, 0.18);
 }
 .user-card .card-img-wrap {
     width: 100%; aspect-ratio: 3/4; position: relative;
@@ -366,8 +388,9 @@ h3 { font-size: 1.3rem; }
 
 .user-card .card-overlay {
     position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(0deg, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.6) 50%, transparent 100%);
-    padding: 3rem 1.1rem 1.1rem;
+    /* Higher contrast at base, faster fade — keeps the FACE area unobscured */
+    background: linear-gradient(0deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.55) 35%, transparent 70%);
+    padding: 3.5rem 1.3rem 1.3rem;
 }
 .user-card .card-name {
     font-family: var(--font-heading); font-size: 1.15rem;
@@ -415,7 +438,7 @@ h3 { font-size: 1.3rem; }
     object-fit: cover; border: 2.5px solid var(--bg-primary);
 }
 .story-name { font-size: 0.7rem; color: var(--text-muted); max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.story-mine .story-avatar-ring { position: relative; background: var(--bg-elevated); border: 2px dashed var(--gold, #C4566F); padding: 0; }
+.story-mine .story-avatar-ring { position: relative; background: var(--bg-elevated); border: 2px dashed var(--gold); padding: 0; }
 .story-mine .story-avatar-ring img { border: none; opacity: 0.6; }
 .story-mine .story-add-plus {
     position: absolute; right: -2px; bottom: -2px;
@@ -673,11 +696,11 @@ h3 { font-size: 1.3rem; }
 }
 .message-translated {
     font-size: 0.85rem; color: var(--text-primary);
-    margin-top: 0.4rem; padding: 0.4rem 0.55rem;
+    margin-top: 0.4rem; padding: 0.45rem 0.6rem;
     border-radius: 8px;
-    background: rgba(196, 86, 111, 0.08);
-    border-left: 2px solid var(--gold, #C4566F);
-    line-height: 1.45;
+    background: rgba(200, 169, 106, 0.07);
+    border-left: 2px solid var(--gold);
+    line-height: 1.5;
 }
 /* In gold sent bubbles, contrast against the gold background */
 .message-sent .message-translated {
@@ -688,18 +711,18 @@ h3 { font-size: 1.3rem; }
 /* Inline 🌐 translate button — sits at bubble bottom-right of a received
    foreign-language message. Tap to translate that message in place. */
 .msg-translate-btn {
-    background: rgba(196, 86, 111, 0.15);
+    background: rgba(200, 169, 106, 0.12);
     border: none; cursor: pointer;
-    color: var(--gold, #C4566F);
-    padding: 0.18rem 0.45rem;
-    margin-top: 0.35rem;
+    color: var(--gold);
+    padding: 0.18rem 0.5rem;
+    margin-top: 0.4rem;
     border-radius: 999px;
-    font-size: 0.8rem; line-height: 1;
+    font-size: 0.78rem; line-height: 1;
     display: inline-flex; align-items: center; gap: 0.25rem;
     transition: background 0.15s, transform 0.06s;
 }
-.msg-translate-btn::after { content: "翻譯"; font-size: 0.72rem; }
-.msg-translate-btn:hover { background: rgba(196, 86, 111, 0.25); }
+.msg-translate-btn::after { content: "翻譯"; font-size: 0.7rem; letter-spacing: 0.05em; }
+.msg-translate-btn:hover { background: rgba(200, 169, 106, 0.2); }
 .msg-translate-btn:disabled { opacity: 0.4; cursor: wait; }
 
 .message-time { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.15rem; }
@@ -1304,12 +1327,12 @@ h3 { font-size: 1.3rem; }
 /* ============================================================
    PAGE HEADERS & EMPTY STATES
    ============================================================ */
-.page-header { margin-bottom: 1.5rem; padding-top: 0.5rem; }
+.page-header { margin-bottom: 2rem; padding-top: 1rem; }
 .page-title {
-    font-family: var(--font-heading); font-size: 1.6rem; font-weight: 600;
-    margin-bottom: 0.2rem;
+    font-family: var(--font-heading); font-size: 2rem; font-weight: 600;
+    margin-bottom: 0.35rem; letter-spacing: -0.005em; line-height: 1.2;
 }
-.page-subtitle { color: var(--text-muted); font-size: 0.88rem; }
+.page-subtitle { color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; }
 
 /* Empty State — Premium Card Style */
 .empty-state {
@@ -1369,13 +1392,22 @@ h3 { font-size: 1.3rem; }
 .g-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 
 .g-card {
-    background: var(--bg-card); border: 1px solid var(--border);
+    background: var(--bg-card);
+    border: 1px solid transparent;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 6px 22px rgba(0, 0, 0, 0.35);
     border-radius: var(--radius-lg); overflow: hidden;
     transition: var(--transition); position: relative;
 }
-.g-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.g-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 1px 0 rgba(200, 169, 106, 0.12),
+        0 12px 32px rgba(0, 0, 0, 0.5);
+}
 .g-card-expired { opacity: 0.45; pointer-events: none; }
-.g-card-expired:hover { transform: none; box-shadow: none; }
+.g-card-expired:hover { transform: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 6px 22px rgba(0,0,0,0.35); }
 
 .g-progress { height: 4px; background: var(--bg-elevated); width: 100%; }
 .g-progress-bar { height: 100%; transition: width 1s linear; border-radius: 0 2px 2px 0; }
@@ -1385,8 +1417,8 @@ h3 { font-size: 1.3rem; }
 
 @keyframes pulse-danger { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-.g-card-body { padding: 0.9rem 1.1rem; }
-.g-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.g-card-body { padding: 1.1rem 1.3rem; }
+.g-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
 .g-type-badge {
     font-size: 0.75rem; padding: 0.15rem 0.6rem;
     background: var(--bg-elevated); border-radius: var(--radius-full);
@@ -1632,10 +1664,10 @@ h3 { font-size: 1.3rem; }
 .g-msg-row-other .g-msg-foot { flex-direction: row; }
 .g-msg-row-mine .g-msg-foot { flex-direction: row-reverse; }
 .g-msg-translated {
-    margin-top: 0.4rem; padding: 0.4rem 0.55rem;
-    border-radius: 8px; background: rgba(255,255,255,0.06);
-    color: var(--text-primary); font-size: 0.85rem; line-height: 1.4;
-    border-left: 2px solid var(--gold, #C4566F);
+    margin-top: 0.4rem; padding: 0.45rem 0.6rem;
+    border-radius: 8px; background: rgba(200, 169, 106, 0.07);
+    color: var(--text-primary); font-size: 0.85rem; line-height: 1.5;
+    border-left: 2px solid var(--gold);
 }
 .g-msg-bubble-mine .g-msg-translated {
     background: rgba(0,0,0,0.12); color: #1a1a1a; border-left-color: rgba(0,0,0,0.4);
@@ -1878,7 +1910,7 @@ h3 { font-size: 1.3rem; }
     .trust-section { gap: 1.2rem; }
     .mobile-nav { display: flex; }
     /* main-content padding-bottom is set further down to account for safe-area too */
-    .page-title { font-size: 1.35rem; }
+    .page-title { font-size: 1.55rem; }
 
     /* Mobile chrome accounting:
          - top navbar:        56px
@@ -2094,11 +2126,11 @@ h3 { font-size: 1.3rem; }
 
     .g-msg-row { max-width: 86% !important; }
 
-    /* Cards tighter on mobile */
-    .card-body { padding: 1rem; }
-    .g-card-body { padding: 0.8rem; }
-    .user-card .card-overlay { padding: 2rem 0.8rem 0.8rem; }
-    .user-card .card-name { font-size: 1rem; }
+    /* Cards on mobile — slightly tighter than desktop but still breathable */
+    .card-body { padding: 1.2rem; }
+    .g-card-body { padding: 1rem 1.1rem; }
+    .user-card .card-overlay { padding: 2.5rem 1rem 1rem; }
+    .user-card .card-name { font-size: 1.05rem; }
 }
 
 /* ============================================================
@@ -2113,7 +2145,7 @@ h3 { font-size: 1.3rem; }
 .nav-bell:hover { color: var(--text-primary); background: var(--bg-elevated); }
 .nav-bell .nav-badge {
     position: absolute; top: -2px; right: -2px;
-    background: var(--danger, #C4566F); color: #fff;
+    background: var(--danger); color: #fff;
     font-size: 0.62rem; font-weight: 700;
     min-width: 16px; height: 16px; border-radius: 8px;
     padding: 0 4px; display: flex; align-items: center; justify-content: center;
@@ -2132,7 +2164,7 @@ h3 { font-size: 1.3rem; }
     font-size: 0.92rem;
 }
 .notif-drawer-head .btn-link {
-    background: none; border: none; color: var(--gold, #C4566F);
+    background: none; border: none; color: var(--gold);
     cursor: pointer; font-size: 0.78rem; padding: 0;
 }
 .notif-drawer-list { max-height: 60vh; overflow-y: auto; }
@@ -2144,10 +2176,10 @@ h3 { font-size: 1.3rem; }
 }
 .notif-row:last-child { border-bottom: none; }
 .notif-row:hover { background: var(--bg-elevated); }
-.notif-row.unread { background: rgba(196, 86, 111, 0.06); }
+.notif-row.unread { background: rgba(200, 169, 106, 0.05); }
 .notif-row.unread::before {
     content: ""; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--danger, #C4566F); flex-shrink: 0;
+    background: var(--gold); flex-shrink: 0;
 }
 .notif-title { font-size: 0.85rem; line-height: 1.35; }
 .notif-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
