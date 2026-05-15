@@ -47,9 +47,18 @@ echo.
 pause
 
 :: 6. 設定環境變數
+:: 重要：SECRET_KEY 只在還沒設定時才產生一次。
+:: 之前每次部署都重設亂數，會讓所有使用者的 JWT token 失效（出現 Invalid token），
+:: 現在改成只設定一次、之後永久沿用。
 echo.
-echo [步驟 3.5] 設定環境變數...
-railway variables set SECRET_KEY=sawasdee-prod-%RANDOM%%RANDOM%
+echo [步驟 3.5] 檢查 SECRET_KEY...
+railway variables 2>nul | findstr /C:"SECRET_KEY" >nul
+if errorlevel 1 (
+    railway variables set SECRET_KEY=sawasdee-prod-%RANDOM%%RANDOM%%RANDOM%%RANDOM%
+    echo [已產生新的 SECRET_KEY]
+) else (
+    echo [SECRET_KEY 已存在，沿用既有設定 - 不會讓現有使用者被登出]
+)
 echo.
 
 :: 7. 部署

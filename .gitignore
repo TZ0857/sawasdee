@@ -11,3 +11,6 @@ venv/
 *.egg-info/
 dist/
 build/
+
+# Claude Code 個人設定（每台電腦自己的權限白名單，不該共用）
+.claude/settings.local.json
