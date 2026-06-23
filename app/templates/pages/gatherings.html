@@ -1,17 +1,57 @@
 {% extends "components/base.html" %}
-{% block title %}精選聚會{% endblock %}
+{% block title %}聚會{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content"><div class="container">
- <header class="tt-page-head" style="display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap"><div><div class="tt-kicker">CURATED GATHERINGS</div><h1 class="tt-page-title">把連結帶進生活</h1><p class="tt-page-subtitle">吃一頓飯、喝一杯酒，認識剛好也想出門的人。</p></div><button class="btn btn-primary" onclick="openCreateModal()">＋ 建立聚會</button></header>
- <div class="g-tabs"><button class="g-tab active" data-tab="explore" onclick="switchTab('explore')">探索聚會</button><button class="g-tab" data-tab="mine" onclick="switchTab('mine')">我的聚會 <span class="g-tab-badge hidden" id="mineTabBadge">0</span></button></div>
- <div id="incomingPanel" class="hidden" style="margin:1rem 0"></div>
- <div class="g-filters"><button class="g-filter active" data-type="" onclick="filterType('')">全部</button><button class="g-filter" data-type="meal" onclick="filterType('meal')">用餐</button><button class="g-filter" data-type="drinks" onclick="filterType('drinks')">喝一杯</button><button class="g-filter" data-type="karaoke" onclick="filterType('karaoke')">KTV</button><button class="g-filter" data-type="movie" onclick="filterType('movie')">電影</button><button class="g-filter" data-type="nightlife" onclick="filterType('nightlife')">夜生活</button></div>
- <section class="g-grid" id="gatheringGrid"><div class="flex-center" style="grid-column:1/-1;padding:4rem"><div class="spinner"></div></div></section>
- <div class="hidden" id="gatheringEmpty"><div class="empty-state-card" style="max-width:420px"><div class="empty-icon">✦</div><div class="empty-title">還沒有符合的聚會</div><div class="empty-desc">成為第一個發起的人，讓今晚有個有趣的開始。</div><button class="btn btn-primary" onclick="openCreateModal()">建立聚會</button></div></div>
- <section style="margin:3rem 0"><div class="tt-orchid-rule" style="margin-bottom:1rem">尋找靈感</div><div class="inspiration-grid"><button class="inspiration-card" onclick="quickCreate('meal','一起吃晚餐')"><span class="insp-emoji">🍽</span><span class="insp-label">一起吃飯</span></button><button class="inspiration-card" onclick="quickCreate('drinks','下班喝一杯')"><span class="insp-emoji">🍸</span><span class="insp-label">喝一杯</span></button><button class="inspiration-card" onclick="quickCreate('karaoke','今晚 KTV')"><span class="insp-emoji">🎤</span><span class="insp-label">KTV</span></button><button class="inspiration-card" onclick="quickCreate('movie','一起看電影')"><span class="insp-emoji">🎬</span><span class="insp-label">看電影</span></button><button class="inspiration-card" onclick="quickCreate('nightlife','探索城市夜晚')"><span class="insp-emoji">🌃</span><span class="insp-label">夜生活</span></button></div></section>
-</div></main>
-<div class="modal-overlay hidden" id="applyModal"><div class="modal-card" style="max-width:420px"><div class="modal-header"><h3>申請加入</h3><button class="modal-close" onclick="closeApplyModal()">×</button></div><p class="text-muted" id="applyTargetSummary" style="margin-bottom:1rem"></p><form id="applyForm"><div class="form-group"><label class="form-label">想對主辦人說的話（選填）</label><textarea class="form-input" id="applyMessage" rows="3" maxlength="500" placeholder="簡單介紹自己，讓對方更認識你…"></textarea></div><button type="submit" class="btn btn-primary btn-block btn-lg mt-2">送出申請</button></form></div></div>
-<div class="modal-overlay hidden" id="createModal"><div class="modal-card"><div class="modal-header"><h3>建立聚會</h3><button class="modal-close" onclick="closeCreateModal()">×</button></div><form id="createForm"><div class="form-group"><label class="form-label">類型</label><select class="form-input" id="gType" required><option value="meal">用餐</option><option value="drinks">喝一杯</option><option value="karaoke">KTV</option><option value="movie">電影</option><option value="nightlife">夜生活</option></select></div><div class="form-group"><label class="form-label">聚會名稱</label><input type="text" class="form-input" id="gTitle" placeholder="例如：一起去信義區喝一杯" required maxlength="200"></div><div class="form-group"><label class="form-label">地點</label><input type="text" class="form-input" id="gLocation" placeholder="例如：台北信義區" required maxlength="200"></div><div class="form-group"><label class="form-label">人數上限</label><select class="form-input" id="gSlots" required><option value="2">2 人</option><option value="4" selected>4 人</option><option value="6">6 人</option><option value="8">8 人</option></select></div><div class="form-group"><label class="form-label">開始時間</label><input type="datetime-local" class="form-input" id="gEventAt" required></div><button type="submit" class="btn btn-primary btn-block btn-lg mt-2">發佈聚會</button></form></div></div>
+<main class="main-content">
+  <div class="container">
+    <header class="tt-page-head" style="display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div class="tt-kicker">CURATED GATHERINGS</div>
+        <h1 class="tt-page-title">讓心動走進城市裡</h1>
+        <p class="tt-page-subtitle">精心挑選的餐桌、夜色與聲音，讓線上的默契變成真實的相遇。</p>
+      </div>
+      <button class="btn btn-primary" type="button" onclick="openCreateModal()">建立聚會</button>
+    </header>
+
+    <nav class="g-tabs" aria-label="聚會分類">
+      <button class="g-tab active" type="button" data-tab="explore" onclick="switchTab('explore')">探索聚會</button>
+      <button class="g-tab" type="button" data-tab="mine" onclick="switchTab('mine')">我的聚會 <span class="g-tab-badge hidden" id="mineTabBadge">0</span></button>
+    </nav>
+    <div id="incomingPanel" class="hidden" style="margin:1rem 0" aria-live="polite"></div>
+
+    <section aria-label="聚會類型">
+      <div class="g-filters">
+        <button class="g-filter active" type="button" data-type="" onclick="filterType('')">全部氛圍</button>
+        <button class="g-filter" type="button" data-type="meal" onclick="filterType('meal')">餐桌時光</button>
+        <button class="g-filter" type="button" data-type="drinks" onclick="filterType('drinks')">微醺聊天</button>
+        <button class="g-filter" type="button" data-type="karaoke" onclick="filterType('karaoke')">KTV</button>
+        <button class="g-filter" type="button" data-type="movie" onclick="filterType('movie')">電影約會</button>
+        <button class="g-filter" type="button" data-type="nightlife" onclick="filterType('nightlife')">城市夜遊</button>
+      </div>
+      <section class="g-grid" id="gatheringGrid" aria-live="polite">
+        <div class="flex-center" style="grid-column:1/-1;padding:4rem"><div class="spinner"></div></div>
+      </section>
+      <div class="hidden" id="gatheringEmpty">
+        <div class="empty-state-card" style="max-width:420px">
+          <div class="empty-icon">✦</div><div class="empty-title">這個夜晚還留著空白</div><div class="empty-desc">成為第一個發起的人，讓一場剛好的相遇在城市中發生。</div><button class="btn btn-primary" type="button" onclick="openCreateModal()">建立聚會</button>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin:3rem 0" aria-label="快速建立聚會">
+      <div class="tt-orchid-rule" style="margin-bottom:1rem">今晚想做什麼？</div>
+      <div class="inspiration-grid">
+        <button class="inspiration-card" type="button" onclick="quickCreate('meal','一起吃頓好吃的')"><span class="insp-emoji">🍜</span><span class="insp-label">一起吃飯</span></button>
+        <button class="inspiration-card" type="button" onclick="quickCreate('drinks','下班後喝一杯')"><span class="insp-emoji">🍸</span><span class="insp-label">喝一杯</span></button>
+        <button class="inspiration-card" type="button" onclick="quickCreate('karaoke','一起唱 KTV')"><span class="insp-emoji">🎤</span><span class="insp-label">唱 KTV</span></button>
+        <button class="inspiration-card" type="button" onclick="quickCreate('movie','一起看場電影')"><span class="insp-emoji">🎬</span><span class="insp-label">看電影</span></button>
+        <button class="inspiration-card" type="button" onclick="quickCreate('nightlife','今晚一起夜遊')"><span class="insp-emoji">✦</span><span class="insp-label">城市夜遊</span></button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="modal-overlay hidden" id="applyModal"><div class="modal-card" style="max-width:420px"><div class="modal-header"><div><div class="tt-kicker">JOIN THE VIBE</div><h3>申請加入</h3></div><button class="modal-close" type="button" onclick="closeApplyModal()" aria-label="關閉">×</button></div><p class="text-muted" id="applyTargetSummary" style="margin-bottom:1rem"></p><form id="applyForm"><div class="form-group"><label class="form-label" for="applyMessage">留一句讓主揪認識你的話</label><textarea class="form-input" id="applyMessage" rows="3" maxlength="500" placeholder="例如：我也喜歡這間店，很想一起聊聊旅遊故事。"></textarea></div><button type="submit" class="btn btn-primary btn-block btn-lg mt-2">送出申請</button></form></div></div>
+<div class="modal-overlay hidden" id="createModal"><div class="modal-card"><div class="modal-header"><div><div class="tt-kicker">MAKE A PLAN</div><h3>建立聚會</h3></div><button class="modal-close" type="button" onclick="closeCreateModal()" aria-label="關閉">×</button></div><form id="createForm"><div class="form-group"><label class="form-label" for="gType">聚會類型</label><select class="form-input" id="gType" required><option value="meal">餐桌時光</option><option value="drinks">微醺聊天</option><option value="karaoke">KTV</option><option value="movie">電影約會</option><option value="nightlife">城市夜遊</option></select></div><div class="form-group"><label class="form-label" for="gTitle">聚會標題</label><input type="text" class="form-input" id="gTitle" placeholder="例如：信義區晚餐與散步" required maxlength="200"></div><div class="form-group"><label class="form-label" for="gLocation">地點</label><input type="text" class="form-input" id="gLocation" placeholder="例如：信義區、อโศก" required maxlength="200"></div><div class="form-group"><label class="form-label" for="gSlots">人數上限</label><select class="form-input" id="gSlots" required><option value="2">2 位</option><option value="4" selected>4 位</option><option value="6">6 位</option><option value="8">8 位</option></select></div><div class="form-group"><label class="form-label" for="gEventAt">日期與時間</label><input type="datetime-local" class="form-input" id="gEventAt" required></div><button type="submit" class="btn btn-primary btn-block btn-lg mt-2">發布聚會</button></form></div></div>
 {% endblock %}
 {% block scripts %}<script src="/static/js/gatherings.js?v=20260623"></script>{% endblock %}

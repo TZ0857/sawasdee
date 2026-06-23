@@ -1,94 +1,91 @@
 {% extends "components/base.html" %}
-{% block title %}聊天{% endblock %}
+{% block title %}訊息{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
+
 {% block content %}
-<div class="main-content">
-    <!-- Mirrors the /messages page layout but with the chat panel filled in.
-         Same wrap class so visual styling is shared, but a different parent
-         class than .messages-layout to avoid the mobile "hide chat-area" rule. -->
+<main class="main-content">
     <div class="chat-desktop-wrap">
-        <aside class="conversations-list chat-conv-sidebar" id="chatConvSidebar">
-            <h3 style="padding:0.5rem; margin-bottom:0.5rem; font-family:var(--font-heading)">訊息</h3>
-            <div style="padding:0 0.5rem 0.75rem;">
-                <input type="text" class="form-input" id="chatConvSearch" placeholder="搜尋對話..." style="font-size:0.85rem; padding:0.5rem 0.75rem;">
+        <aside class="conversations-list chat-conv-sidebar" id="chatConvSidebar" aria-label="對話列表">
+            <div class="tt-orchid-rule" style="margin:.9rem .75rem .6rem;">PRIVATE CONNECTIONS</div>
+            <div style="padding:0 .6rem .8rem;">
+                <input type="search" class="form-input" id="chatConvSearch" placeholder="搜尋對話" aria-label="搜尋對話">
             </div>
-            <div style="display:flex; gap:0.25rem; padding:0 0.5rem 0.75rem;">
-                <button class="chip active" data-conv-filter="all" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConvSidebar('all')">全部</button>
-                <button class="chip" data-conv-filter="unread" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConvSidebar('unread')">未讀</button>
+            <div class="filter-chips" style="padding:0 .6rem .9rem;">
+                <button class="chip active" data-conv-filter="all" onclick="filterConvSidebar('all')" type="button">全部</button>
+                <button class="chip" data-conv-filter="unread" onclick="filterConvSidebar('unread')" type="button">未讀</button>
             </div>
-            <div id="chatConvList" style="padding:0 0.3rem;">
+            <div id="chatConvList">
                 <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
             </div>
         </aside>
 
-        <div class="container-sm chat-container">
-            <div class="chat-header" id="chatHeader">
-                <a href="/messages" class="btn btn-ghost btn-sm chat-back-mobile">← 返回</a>
-                <img src="" class="post-avatar" id="chatAvatar" alt="">
-                <div style="flex:1;">
-                    <div style="display:flex; align-items:center; gap:0.4rem;">
-                        <span class="conversation-name" id="chatName">Loading...</span>
-                        <span class="badge hidden" id="chatVerified" style="background:var(--success); color:#fff; font-size:0.6rem; padding:0.1rem 0.3rem;">✓</span>
+        <section class="container-sm chat-container" aria-label="私人聊天室">
+            <header class="chat-header" id="chatHeader">
+                <a href="/messages" class="btn btn-ghost btn-sm chat-back-mobile" aria-label="返回訊息">← <span>訊息</span></a>
+                <img src="" class="post-avatar" id="chatAvatar" alt="對話對象頭像">
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; gap:.45rem;">
+                        <span class="conversation-name" id="chatName">載入中…</span>
+                        <span class="badge hidden" id="chatVerified" aria-label="已驗證">✓</span>
                     </div>
-                    <div style="font-size:0.75rem; color:var(--text-muted)" id="chatStatus"></div>
+                    <div id="chatStatus" aria-live="polite"></div>
                 </div>
-                <button class="btn btn-ghost btn-sm" id="translateToggle" onclick="toggleAutoTranslate()" title="AI 中泰即時翻譯" style="color:var(--gold);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                    翻譯
+                <button class="btn btn-ghost btn-sm" id="translateToggle" onclick="toggleAutoTranslate()" title="AI 中泰即時翻譯" type="button" aria-label="切換 AI 翻譯">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>翻譯</span>
                 </button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
+            </header>
+
+            <div class="chat-messages" id="chatMessages" aria-live="polite">
                 <div class="flex-center" style="flex:1"><div class="spinner"></div></div>
             </div>
-            <!-- Reply preview bar (shown only when replying to a specific msg) -->
+
             <div class="chat-reply-bar hidden" id="chatReplyBar">
                 <div class="chat-reply-bar-line">↩</div>
                 <div class="chat-reply-bar-body">
-                    <div class="chat-reply-bar-name" id="chatReplyName">回覆 …</div>
+                    <div class="chat-reply-bar-name" id="chatReplyName">回覆訊息</div>
                     <div class="chat-reply-bar-preview" id="chatReplyPreview"></div>
                 </div>
-                <button class="chat-reply-bar-close" onclick="clearReply()" type="button" title="取消回覆">×</button>
+                <button class="chat-reply-bar-close" onclick="clearReply()" type="button" title="取消回覆" aria-label="取消回覆">×</button>
             </div>
 
-            <!-- Recording indicator (replaces input area while recording) -->
-            <div class="chat-recording hidden" id="chatRecording">
-                <span class="chat-recording-dot"></span>
-                <span>錄音中</span>
+            <div class="chat-recording hidden" id="chatRecording" aria-live="polite">
+                <span class="chat-recording-dot"></span><span>錄音中</span>
                 <span class="chat-recording-time" id="chatRecordingTime">0:00</span>
-                <div style="flex:1;"></div>
+                <div style="flex:1"></div>
                 <button class="btn btn-ghost btn-sm" onclick="cancelRecording()" type="button">取消</button>
-                <button class="btn btn-primary btn-sm" onclick="stopRecording(true)" type="button">送出</button>
+                <button class="btn btn-primary btn-sm" onclick="stopRecording(true)" type="button">傳送</button>
             </div>
 
             <div class="chat-input-area" id="chatInputArea">
-                <button class="btn btn-ghost chat-media-btn" type="button" title="傳送圖片" onclick="document.getElementById('chatImageInput').click()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <button class="btn btn-ghost chat-media-btn" type="button" title="傳送圖片" aria-label="傳送圖片" onclick="document.getElementById('chatImageInput').click()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
                 </button>
-                <button class="btn btn-ghost chat-media-btn" type="button" title="傳送影片 (60s / 100MB)" onclick="document.getElementById('chatVideoInput').click()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <button class="btn btn-ghost chat-media-btn" type="button" title="傳送影片（60 秒／100 MB）" aria-label="傳送影片" onclick="document.getElementById('chatVideoInput').click()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                 </button>
-                <button class="btn btn-ghost chat-media-btn" type="button" title="錄音傳送" onclick="startRecording()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                <button class="btn btn-ghost chat-media-btn" type="button" title="錄製語音" aria-label="錄製語音" onclick="startRecording()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4m-4 0h8"/></svg>
                 </button>
-                <input type="file" id="chatImageInput" accept="image/*" style="display:none" onchange="sendImageFile(this)">
-                <input type="file" id="chatVideoInput" accept="video/*" style="display:none" onchange="sendVideoFile(this)">
-                <input type="text" class="chat-input" id="messageInput" placeholder="輸入訊息... (支援中泰翻譯)">
-                <button class="btn btn-primary" onclick="sendMessage()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <input type="file" id="chatImageInput" accept="image/*" hidden onchange="sendImageFile(this)">
+                <input type="file" id="chatVideoInput" accept="video/*" hidden onchange="sendVideoFile(this)">
+                <input type="text" class="chat-input" id="messageInput" placeholder="輸入訊息… 支援中泰翻譯" autocomplete="off">
+                <button class="btn btn-primary" onclick="sendMessage()" type="button" aria-label="傳送訊息">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                 </button>
             </div>
 
-            <!-- Action menu (shown next to a tapped message bubble) -->
             <div class="chat-action-menu hidden" id="chatActionMenu">
                 <button onclick="actionReply()" type="button">↩ 回覆</button>
-                <button onclick="actionTranslate()" type="button" id="actionTranslateBtn">🌐 翻譯</button>
-                <button onclick="actionRecall()" type="button" id="actionRecallBtn" class="chat-action-danger">↺ 收回</button>
+                <button onclick="actionTranslate()" type="button" id="actionTranslateBtn">翻譯</button>
+                <button onclick="actionRecall()" type="button" id="actionRecallBtn" class="chat-action-danger">收回</button>
             </div>
-        </div>
+        </section>
     </div>
-</div>
+</main>
 {% endblock %}
+
 {% block scripts %}
 <script>const chatUserId = "{{ user_id }}";</script>
-<script src="/static/js/chat.js?v=20260504h"></script>
+<script src="/static/js/chat.js?v=20260623"></script>
 {% endblock %}

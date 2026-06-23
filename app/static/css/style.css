@@ -3,7 +3,7 @@
    Design System: Black + Champagne Gold
    ======================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600;700&display=swap');
 
 /* === CSS Variables — Champagne Gold Design Tokens === */
 :root {
@@ -48,8 +48,8 @@
     --warning: #E8A838;
 
     /* Typography */
-    --font-heading: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Noto Serif TC', 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+    --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
 
     /* Radii */
     --radius-sm: 8px;
@@ -2663,7 +2663,13 @@ body[data-theme="orchid"] .mobile-nav-link.active { color:#FF5DB1; }
 .tt-page-subtitle { position:relative; z-index:1; color:var(--text-secondary); margin-top:.45rem; }
 .tt-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1.35rem 0 .8rem; flex-wrap:wrap; }
 .tt-search { display:flex; align-items:center; gap:.6rem; flex:1; min-width:220px; max-width:550px; padding:.15rem .75rem; border-radius:999px; background:rgba(14,18,40,.88); border:1px solid rgba(0,240,255,.22); color:#00F0FF; }.tt-search .form-input { border:0; background:transparent; padding:.7rem 0; box-shadow:none; }
+/*
 .tt-orchid-rule { display:flex; gap:.4rem; align-items:center; color:#FFC77A; font-size:.75rem; letter-spacing:.12em; }.tt-orchid-rule::before { content:"✦"; color:#FF5DB1; }
+/* The preceding legacy declaration contained an unclosed string. Keep it
+   isolated so it cannot invalidate the rules that follow. */
+/*
+.tt-orchid-rule::before { content:"*"; color:#FF5DB1; }
+*/
 @media (max-width:640px) { .tt-page-head { padding:1.5rem 0 1rem; }.tt-toolbar { align-items:stretch; }.tt-toolbar .btn { flex:0 0 auto; } }
 
 /* Remaining application surfaces: profiles, feed, chat, settings and auth. */
@@ -2710,3 +2716,796 @@ body[data-theme="orchid"] .modal-overlay { background:rgba(2,4,13,.76); backdrop
 body[data-theme="orchid"] .tt-register-card { width:min(94vw,620px); margin:3.8rem auto; } .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; } @media(max-width:520px){.form-grid{grid-template-columns:1fr}.tt-register-card{margin:1.5rem auto}}
 body[data-theme="orchid"] .tt-profile-header { overflow:hidden; border:1px solid rgba(122,60,255,.3); border-radius:22px; background:#11162D; box-shadow:0 18px 45px rgba(0,0,0,.3); } body[data-theme="orchid"] .tt-profile-header .profile-info { background:linear-gradient(90deg,rgba(12,16,34,.98),rgba(18,17,42,.95)); } body[data-theme="orchid"] #premiumBadge { color:#16101f!important; background:linear-gradient(110deg,#00F0FF,#FFC77A)!important; } body[data-theme="orchid"] #verifiedBadge { background:#7A3CFF!important; }
 body[data-theme="orchid"] .create-post textarea { background:#0B1022!important; border:1px solid rgba(122,60,255,.28)!important; color:#F4EEF5; } body[data-theme="orchid"] .create-post textarea:focus { border-color:#00F0FF!important; }
+
+/* Interaction audit: one consistent response language across every control. */
+body[data-theme="orchid"] button, body[data-theme="orchid"] a, body[data-theme="orchid"] input, body[data-theme="orchid"] select, body[data-theme="orchid"] textarea { -webkit-tap-highlight-color:transparent; }
+body[data-theme="orchid"] .btn { min-height:38px; border-radius:999px; font-family:var(--font-body); font-weight:600; letter-spacing:.01em; transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease,color .18s ease; }
+body[data-theme="orchid"] .btn:not(:disabled):hover { transform:translateY(-2px); } body[data-theme="orchid"] .btn:not(:disabled):active { transform:translateY(0) scale(.98); box-shadow:none; }
+body[data-theme="orchid"] .btn:focus-visible, body[data-theme="orchid"] .chip:focus-visible, body[data-theme="orchid"] .g-tab:focus-visible, body[data-theme="orchid"] .g-filter:focus-visible, body[data-theme="orchid"] .nav-link:focus-visible { outline:2px solid #00F0FF; outline-offset:3px; }
+body[data-theme="orchid"] .btn.btn-primary:not(:disabled):hover { box-shadow:0 12px 34px rgba(255,77,155,.3),0 0 20px rgba(0,240,255,.16); } body[data-theme="orchid"] .btn:disabled { opacity:.48; cursor:not-allowed; filter:saturate(.55); }
+body[data-theme="orchid"] .chip, body[data-theme="orchid"] .g-filter, body[data-theme="orchid"] .g-tab { min-height:34px; border-radius:999px; font-family:var(--font-body); font-weight:600; transition:.18s ease; } body[data-theme="orchid"] .chip:hover, body[data-theme="orchid"] .g-filter:hover, body[data-theme="orchid"] .g-tab:hover { border-color:#FF5DB1; color:#fff; }
+body[data-theme="orchid"] .form-input, body[data-theme="orchid"] .form-textarea, body[data-theme="orchid"] .form-select { border-radius:12px; min-height:43px; font-family:var(--font-body); } body[data-theme="orchid"] textarea.form-textarea { min-height:auto; line-height:1.55; }
+body[data-theme="orchid"] .nav-link { border-radius:999px; min-height:34px; transition:.18s ease; } body[data-theme="orchid"] .nav-bell, body[data-theme="orchid"] .nav-avatar { transition:transform .18s ease,filter .18s ease; } body[data-theme="orchid"] .nav-bell:hover, body[data-theme="orchid"] .nav-avatar:hover { transform:translateY(-1px); filter:brightness(1.2); }
+body[data-theme="orchid"] .user-card-rich, body[data-theme="orchid"] .g-card, body[data-theme="orchid"] .post-card { overflow:hidden; transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; } body[data-theme="orchid"] .user-card-rich:hover, body[data-theme="orchid"] .g-card:hover, body[data-theme="orchid"] .post-card:hover { transform:translateY(-4px); }
+
+/* Page atmosphere without getting in the way of the live content. */
+.tt-page-head::before { content:""; position:absolute; z-index:0; inset:0; pointer-events:none; background:linear-gradient(90deg,rgba(11,15,30,.98),rgba(11,15,30,.82) 56%,rgba(11,15,30,.26)),url('https://images.unsplash.com/photo-1534791547702-0b7ead3eab91?auto=format&fit=crop&w=1400&q=70') 82% 45%/cover; opacity:.38; mix-blend-mode:screen; }.tt-page-head>* { position:relative; z-index:1; }
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder::after { content:"✦   TAIWAN × THAILAND   ✦"; position:absolute; right:2rem; top:1.4rem; color:rgba(255,232,183,.72); letter-spacing:.17em; font-size:.62rem; } body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder { position:relative; background:linear-gradient(100deg,rgba(0,240,255,.24),rgba(80,37,183,.5),rgba(255,77,155,.35)),url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1500&q=75') center/cover; }
+body[data-theme="orchid"] .user-card-overlay { background:linear-gradient(0deg,rgba(7,10,24,.98) 0%,rgba(8,11,27,.72) 42%,rgba(8,11,27,.08) 78%,transparent 100%); } body[data-theme="orchid"] .user-card-name { font-family:var(--font-heading); font-size:1.38rem; } body[data-theme="orchid"] .user-card-tag { border-color:rgba(122,60,255,.34); background:rgba(122,60,255,.11); color:#DAD1E8; }
+body[data-theme="orchid"] .settings-menu-item { border-left:2px solid transparent; border-right:0!important; } body[data-theme="orchid"] .settings-menu-item:hover { color:#fff!important; background:rgba(122,60,255,.1)!important; } body[data-theme="orchid"] .settings-menu-item.active { color:#FFB3D3!important; border-left-color:#FF5DB1!important; background:linear-gradient(90deg,rgba(122,60,255,.25),transparent)!important; }
+body[data-theme="orchid"] .settings-row { border-color:rgba(122,60,255,.18); } body[data-theme="orchid"] .toggle input:checked + .toggle-slider { background:linear-gradient(90deg,#7A3CFF,#FF5DB1); border-color:#FF5DB1; }
+body[data-theme="orchid"] .chat-action-menu { background:#191E3B; border-color:rgba(122,60,255,.38); box-shadow:0 15px 38px rgba(0,0,0,.45); } body[data-theme="orchid"] .chat-action-menu button:hover { background:rgba(255,93,177,.12); color:#FF9CC5; }
+body[data-theme="orchid"] .settings-layout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:1.4rem; align-items:start; } body[data-theme="orchid"] .settings-sidebar { position:sticky; top:5.4rem; overflow:hidden; padding:.45rem 0; } body[data-theme="orchid"] .settings-sidebar .settings-menu-item { display:block; padding:.8rem 1rem; text-decoration:none; } body[data-theme="orchid"] .settings-panel h3 { margin:0 0 1.25rem; font:500 1.7rem var(--font-heading); color:#F7EAF2; } @media(max-width:720px){body[data-theme="orchid"] .settings-layout{grid-template-columns:1fr}body[data-theme="orchid"] .settings-sidebar{position:static;display:flex;overflow:auto;padding:.3rem}body[data-theme="orchid"] .settings-sidebar .settings-menu-item{white-space:nowrap;border-left:0!important;border-bottom:2px solid transparent}body[data-theme="orchid"] .settings-sidebar .settings-menu-item.active{border-bottom-color:#FF5DB1!important}}
+
+/* Brand ornament: one quiet cultural signature shared across desktop pages. */
+body[data-theme="orchid"] .tt-page-head::after { width:min(50vw,680px); height:220px; right:-80px; top:-10px; opacity:.75; background:linear-gradient(90deg,transparent,rgba(11,15,30,.16)),url('/static/img/tt-ornament.svg') right bottom/contain no-repeat; }
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder::before { content:""; position:absolute; inset:0; pointer-events:none; background:url('/static/img/tt-ornament.svg') right 85%/55% auto no-repeat; opacity:.55; mix-blend-mode:screen; }
+body[data-theme="orchid"] .g-card::before, body[data-theme="orchid"] .post-card::before { content:""; position:absolute; pointer-events:none; width:160px; height:70px; right:-25px; bottom:-18px; background:url('/static/img/tt-ornament.svg') right bottom/330px auto no-repeat; opacity:.22; }
+body[data-theme="orchid"] .g-card, body[data-theme="orchid"] .post-card { position:relative; }
+
+/* =====================================================================
+   Neon Orchid finishing system
+   A deliberately quiet desktop-first layer: the colour is expressive, but
+   the surfaces, type scale and controls stay precise enough for everyday
+   reading, messaging and moderation.
+   ===================================================================== */
+body[data-theme="orchid"] {
+    color-scheme: dark;
+    background-color: #080c1b;
+    background-image:
+        radial-gradient(900px 540px at -8% -10%, rgba(0, 240, 255, .09), transparent 66%),
+        radial-gradient(780px 540px at 105% 14%, rgba(255, 93, 177, .12), transparent 64%),
+        linear-gradient(155deg, #080c1b 0%, #0b1022 48%, #100d27 100%);
+}
+
+body[data-theme="orchid"] h1,
+body[data-theme="orchid"] h2,
+body[data-theme="orchid"] h3 {
+    font-weight: 600;
+    letter-spacing: -.025em;
+}
+
+body[data-theme="orchid"] .navbar {
+    height: 68px;
+    padding-inline: clamp(1rem, 3vw, 3rem);
+    background: linear-gradient(90deg, rgba(7, 11, 26, .94), rgba(13, 15, 35, .78));
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .035), 0 12px 36px rgba(0, 0, 0, .16);
+}
+
+body[data-theme="orchid"] .nav-brand-name {
+    font-family: var(--font-heading);
+    font-size: 1.16rem;
+    font-weight: 600;
+    letter-spacing: .025em;
+}
+
+body[data-theme="orchid"] .nav-link {
+    padding: .46rem .75rem;
+    font-size: .82rem;
+    color: #aea7c2;
+}
+
+body[data-theme="orchid"] .nav-link.active::after {
+    width: 22px;
+    height: 1px;
+    background: linear-gradient(90deg, #00f0ff, #ff5db1);
+    box-shadow: 0 0 10px rgba(0, 240, 255, .6);
+}
+
+body[data-theme="orchid"] .main-content {
+    padding-top: 84px;
+}
+
+body[data-theme="orchid"] .container {
+    max-width: 1320px;
+}
+
+body[data-theme="orchid"] .tt-orchid-rule::before {
+    content: "✦";
+    color: #ff5db1;
+    text-shadow: 0 0 12px rgba(255, 93, 177, .7);
+}
+
+/* Buttons, chips and form fields share one tactile language. */
+body[data-theme="orchid"] .btn,
+body[data-theme="orchid"] button:not(.nav-bell):not(.chat-media-btn):not(.chat-action-btn) {
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: .012em;
+}
+
+body[data-theme="orchid"] .btn.btn-primary {
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: linear-gradient(105deg, #00dce9 0%, #703cf0 49%, #f64f9d 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 9px 24px rgba(109, 57, 229, .32);
+}
+
+body[data-theme="orchid"] .btn.btn-primary:hover {
+    filter: saturate(1.08) brightness(1.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 14px 30px rgba(109, 57, 229, .38), 0 0 22px rgba(255, 93, 177, .14);
+}
+
+body[data-theme="orchid"] .btn.btn-secondary,
+body[data-theme="orchid"] .btn.btn-ghost {
+    border: 1px solid rgba(163, 148, 255, .35);
+    background: linear-gradient(145deg, rgba(29, 32, 64, .82), rgba(14, 17, 38, .78));
+    color: #e8e1ef;
+}
+
+body[data-theme="orchid"] .btn.btn-secondary:hover,
+body[data-theme="orchid"] .btn.btn-ghost:hover {
+    border-color: rgba(0, 240, 255, .62);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 240, 255, .10);
+}
+
+body[data-theme="orchid"] .form-label {
+    color: #d4cbe0;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .035em;
+}
+
+body[data-theme="orchid"] .form-input,
+body[data-theme="orchid"] .form-select,
+body[data-theme="orchid"] .form-textarea,
+body[data-theme="orchid"] .chat-input,
+body[data-theme="orchid"] input:not([type="checkbox"]):not([type="radio"]),
+body[data-theme="orchid"] select,
+body[data-theme="orchid"] textarea {
+    border-color: rgba(135, 117, 228, .32);
+    background-color: rgba(8, 12, 29, .76);
+    color: #f6f1fa;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
+}
+
+body[data-theme="orchid"] .form-input:hover,
+body[data-theme="orchid"] .form-select:hover,
+body[data-theme="orchid"] .form-textarea:hover,
+body[data-theme="orchid"] .chat-input:hover {
+    border-color: rgba(0, 240, 255, .38);
+}
+
+body[data-theme="orchid"] .form-input:focus,
+body[data-theme="orchid"] .form-select:focus,
+body[data-theme="orchid"] .form-textarea:focus,
+body[data-theme="orchid"] .chat-input:focus,
+body[data-theme="orchid"] input:focus,
+body[data-theme="orchid"] select:focus,
+body[data-theme="orchid"] textarea:focus {
+    outline: 0;
+    border-color: #00e1ef;
+    box-shadow: 0 0 0 3px rgba(0, 240, 255, .11), inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+body[data-theme="orchid"] .form-input::placeholder,
+body[data-theme="orchid"] .form-textarea::placeholder,
+body[data-theme="orchid"] .chat-input::placeholder { color: #817b97; }
+
+body[data-theme="orchid"] .card,
+body[data-theme="orchid"] .modal-card,
+body[data-theme="orchid"] .filter-drawer,
+body[data-theme="orchid"] .post-card,
+body[data-theme="orchid"] .create-post,
+body[data-theme="orchid"] .pricing-card,
+body[data-theme="orchid"] .settings-panel {
+    border-color: rgba(131, 105, 218, .28);
+    background: linear-gradient(145deg, rgba(25, 29, 57, .92), rgba(10, 14, 31, .94));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 18px 45px rgba(1, 3, 12, .24);
+}
+
+/* Cards carry the nightlife light at their edge instead of becoming flat
+   purple boxes. The overlay remains dark for legible real-member content. */
+body[data-theme="orchid"] .user-card-rich,
+body[data-theme="orchid"] .g-card {
+    border: 1px solid rgba(145, 121, 238, .32);
+    background: linear-gradient(150deg, #191d3a, #0d1127 74%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045), 0 16px 38px rgba(0, 0, 0, .31);
+}
+
+body[data-theme="orchid"] .user-card-rich::after,
+body[data-theme="orchid"] .g-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(0, 240, 255, .12), transparent 24%, transparent 68%, rgba(255, 93, 177, .13));
+    opacity: .82;
+}
+
+body[data-theme="orchid"] .user-card-rich:hover,
+body[data-theme="orchid"] .g-card:hover,
+body[data-theme="orchid"] .post-card:hover {
+    border-color: rgba(0, 240, 255, .65);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 22px 52px rgba(0, 0, 0, .4), 0 0 28px rgba(122, 60, 255, .16);
+}
+
+body[data-theme="orchid"] .user-card-overlay {
+    background: linear-gradient(0deg, rgba(6, 9, 22, .98) 0%, rgba(7, 10, 24, .76) 44%, rgba(7, 10, 24, .08) 76%, transparent 100%);
+}
+
+body[data-theme="orchid"] .user-card-name,
+body[data-theme="orchid"] .g-title,
+body[data-theme="orchid"] .post-author-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+
+body[data-theme="orchid"] .chat-header,
+body[data-theme="orchid"] .g-chat-header,
+body[data-theme="orchid"] .chat-input-area,
+body[data-theme="orchid"] .g-chat-input-area {
+    background: linear-gradient(90deg, rgba(15, 19, 42, .96), rgba(21, 18, 49, .9));
+    border-color: rgba(131, 105, 218, .28);
+}
+
+body[data-theme="orchid"] .chat-area,
+body[data-theme="orchid"] .g-chat-main {
+    background-image: radial-gradient(600px 340px at 92% -10%, rgba(255, 93, 177, .09), transparent 67%), radial-gradient(560px 340px at -12% 108%, rgba(0, 240, 255, .07), transparent 64%);
+}
+
+body[data-theme="orchid"] .message-bubble.sent,
+body[data-theme="orchid"] .g-msg-row.mine .g-msg-bubble {
+    border: 1px solid rgba(255, 181, 222, .22);
+    background: linear-gradient(125deg, #6035cf, #d94b92);
+    box-shadow: 0 8px 18px rgba(105, 44, 165, .19);
+}
+
+body[data-theme="orchid"] .message-bubble.received,
+body[data-theme="orchid"] .g-msg-bubble {
+    background: #1a1f3b;
+    border-color: rgba(146, 125, 225, .22);
+}
+
+body[data-theme="orchid"] .profile-cover,
+body[data-theme="orchid"] .profile-cover-placeholder {
+    min-height: 220px;
+    background-position: center;
+}
+
+body[data-theme="orchid"] .mobile-nav {
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, .18);
+}
+
+body[data-theme="orchid"] .mobile-nav-link.active {
+    color: #ff8bbf;
+    text-shadow: 0 0 14px rgba(255, 93, 177, .45);
+}
+
+@media (max-width: 900px) {
+    body[data-theme="orchid"] .navbar { height: 60px; }
+    body[data-theme="orchid"] .main-content { padding-top: 72px; }
+    body[data-theme="orchid"] .profile-cover,
+    body[data-theme="orchid"] .profile-cover-placeholder { min-height: 170px; }
+}
+
+@media (max-width: 640px) {
+    body[data-theme="orchid"] .container { padding-inline: 1rem; }
+    body[data-theme="orchid"] .card,
+    body[data-theme="orchid"] .modal-card,
+    body[data-theme="orchid"] .filter-drawer { border-radius: 16px; }
+    body[data-theme="orchid"] .btn { min-height: 40px; }
+    body[data-theme="orchid"] .user-card-rich:hover,
+    body[data-theme="orchid"] .g-card:hover,
+    body[data-theme="orchid"] .post-card:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* =====================================================================
+   TT polish pass
+   The board is atmospheric, but real product UI has to stay calm enough to
+   read for an hour.  This final layer deliberately reserves the bright
+   colours for focus, intent and live states; everything else is ink, glass
+   and a fine warm-metal edge.
+   ===================================================================== */
+body[data-theme="orchid"] {
+    --font-heading: 'Noto Serif TC', 'Iowan Old Style', 'Songti TC', Georgia, serif;
+    --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+    letter-spacing: .006em;
+}
+
+body[data-theme="orchid"] ::selection {
+    color: #fff;
+    background: rgba(199, 75, 160, .72);
+}
+
+/* A restrained editorial hierarchy prevents the Chinese copy from feeling
+   like a generic generated landing page. */
+body[data-theme="orchid"] .tt-kicker,
+body[data-theme="orchid"] .tt-orchid-rule {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+}
+
+body[data-theme="orchid"] .tt-orchid-rule {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    color: #ffd284;
+    line-height: 1.2;
+}
+
+body[data-theme="orchid"] .tt-orchid-rule::before {
+    content: "✦";
+    color: #ff5db1;
+    font-size: .82rem;
+    text-shadow: 0 0 12px rgba(255, 93, 177, .7);
+}
+
+body[data-theme="orchid"] .tt-page-title {
+    font-weight: 600;
+    line-height: 1.16;
+    text-wrap: balance;
+}
+
+body[data-theme="orchid"] .tt-page-subtitle {
+    max-width: 42rem;
+    font-size: .94rem;
+    line-height: 1.8;
+}
+
+/* Navigation gets a precise hairline and a small monogram-like brand lockup.
+   It remains intentionally quiet so that live profile photos own each page. */
+body[data-theme="orchid"] .navbar::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent 3%, rgba(0, 240, 255, .32) 22%, rgba(255, 199, 122, .28) 50%, rgba(255, 93, 177, .3) 78%, transparent 97%);
+}
+
+body[data-theme="orchid"] .nav-brand {
+    gap: .34rem;
+}
+
+body[data-theme="orchid"] .nav-brand-name {
+    color: #f4e5db;
+    text-shadow: 0 0 18px rgba(255, 199, 122, .1);
+}
+
+body[data-theme="orchid"] .nav-link {
+    position: relative;
+    padding-inline: .7rem;
+}
+
+body[data-theme="orchid"] .nav-link:hover {
+    background: rgba(255, 255, 255, .035);
+}
+
+body[data-theme="orchid"] .nav-link.active {
+    color: #f2d7e9;
+    background: linear-gradient(100deg, rgba(122, 60, 255, .16), rgba(255, 93, 177, .1));
+}
+
+body[data-theme="orchid"] .nav-premium-btn {
+    border-color: rgba(255, 199, 122, .45) !important;
+    background: linear-gradient(110deg, rgba(255, 199, 122, .09), rgba(255, 93, 177, .05)) !important;
+}
+
+/* Buttons and compact actions share the same outer glow and pressed state.
+   The gradient does not occupy secondary actions, which keeps the CTA
+   hierarchy clear even on the dense chat and settings screens. */
+body[data-theme="orchid"] .btn.btn-primary {
+    background-size: 160% 100%;
+    background-position: 0 50%;
+    border-color: rgba(255, 255, 255, .22);
+}
+
+body[data-theme="orchid"] .btn.btn-primary:hover {
+    background-position: 100% 50%;
+}
+
+body[data-theme="orchid"] .btn.btn-secondary,
+body[data-theme="orchid"] .btn.btn-ghost {
+    background: rgba(12, 16, 35, .62);
+    border-color: rgba(207, 190, 255, .24);
+}
+
+body[data-theme="orchid"] .btn.btn-ghost {
+    color: #cfc7df;
+}
+
+body[data-theme="orchid"] .btn.btn-ghost:hover {
+    color: #fff;
+    border-color: rgba(255, 93, 177, .58);
+    background: rgba(255, 93, 177, .09);
+}
+
+body[data-theme="orchid"] .chip,
+body[data-theme="orchid"] .g-filter,
+body[data-theme="orchid"] .g-tab {
+    border-color: rgba(177, 155, 250, .24);
+    background: rgba(17, 21, 46, .54);
+}
+
+body[data-theme="orchid"] .chip.active,
+body[data-theme="orchid"] .g-filter.active,
+body[data-theme="orchid"] .g-tab.active {
+    background: linear-gradient(105deg, rgba(102, 56, 228, .92), rgba(223, 72, 148, .92));
+    box-shadow: 0 5px 15px rgba(116, 56, 212, .22);
+}
+
+/* Forms use an inset surface plus an unmistakable cyan focus ring. */
+body[data-theme="orchid"] .form-input,
+body[data-theme="orchid"] .form-select,
+body[data-theme="orchid"] .form-textarea,
+body[data-theme="orchid"] .chat-input {
+    border-radius: 11px;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .018), transparent 45%);
+}
+
+body[data-theme="orchid"] .form-input:focus,
+body[data-theme="orchid"] .form-select:focus,
+body[data-theme="orchid"] .form-textarea:focus,
+body[data-theme="orchid"] .chat-input:focus {
+    background-color: rgba(9, 14, 32, .94);
+}
+
+body[data-theme="orchid"] .form-label {
+    color: #d7cddd;
+}
+
+/* Give content surfaces a low-contrast top light rather than another obvious
+   purple box. The warm 1px edge is used only for profile and premium moments. */
+body[data-theme="orchid"] .card,
+body[data-theme="orchid"] .modal-card,
+body[data-theme="orchid"] .filter-drawer,
+body[data-theme="orchid"] .pricing-card,
+body[data-theme="orchid"] .settings-panel {
+    border-radius: 18px;
+}
+
+body[data-theme="orchid"] .modal-card {
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .52), 0 0 0 1px rgba(255, 199, 122, .08);
+}
+
+body[data-theme="orchid"] .pricing-card,
+body[data-theme="orchid"] .tt-profile-header {
+    border-color: rgba(255, 199, 122, .27);
+}
+
+/* The live data cards get depth at the image boundary, while text is never
+   obscured by decorative art. */
+body[data-theme="orchid"] .user-card-rich {
+    border-radius: 19px;
+}
+
+body[data-theme="orchid"] .user-card-rich img {
+    transform: scale(1.001);
+    transition: transform .55s cubic-bezier(.2, .7, .2, 1), filter .35s ease;
+}
+
+body[data-theme="orchid"] .user-card-rich:hover img {
+    transform: scale(1.035);
+    filter: saturate(1.07) contrast(1.02);
+}
+
+body[data-theme="orchid"] .user-card-rich::after {
+    z-index: 1;
+}
+
+body[data-theme="orchid"] .user-card-rich > * {
+    position: relative;
+    z-index: 2;
+}
+
+body[data-theme="orchid"] .user-card-name {
+    letter-spacing: -.02em;
+}
+
+body[data-theme="orchid"] .user-card-tag {
+    background: rgba(15, 19, 42, .66);
+    backdrop-filter: blur(7px);
+}
+
+body[data-theme="orchid"] .g-card,
+body[data-theme="orchid"] .post-card {
+    border-radius: 18px;
+}
+
+body[data-theme="orchid"] .g-card::before,
+body[data-theme="orchid"] .post-card::before {
+    opacity: .17;
+}
+
+/* Page headers carry one large decorative gesture, not a wallpaper pattern. */
+body[data-theme="orchid"] .tt-page-head {
+    min-height: 152px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 2.55rem 2rem;
+}
+
+body[data-theme="orchid"] .tt-page-head::before {
+    opacity: .27;
+    filter: saturate(.78) contrast(1.08);
+}
+
+body[data-theme="orchid"] .tt-page-head::after {
+    opacity: .58;
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder::before {
+    opacity: .38;
+}
+
+/* Contextual UI: strong sent messages, quiet received messages, and no
+   needless full-card glow in the conversation list. */
+body[data-theme="orchid"] .conversation-item {
+    border-left: 2px solid transparent;
+}
+
+body[data-theme="orchid"] .conversation-item.active {
+    border-left-color: #ff5db1;
+    background: linear-gradient(90deg, rgba(122, 60, 255, .2), rgba(255, 93, 177, .06));
+}
+
+body[data-theme="orchid"] .message-bubble.sent,
+body[data-theme="orchid"] .g-msg-row.mine .g-msg-bubble {
+    box-shadow: 0 7px 18px rgba(85, 38, 163, .22);
+}
+
+body[data-theme="orchid"] .message-bubble.received,
+body[data-theme="orchid"] .g-msg-bubble {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+body[data-theme="orchid"] .toggle-slider {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .34);
+}
+
+@media (max-width: 760px) {
+    body[data-theme="orchid"] .tt-page-head {
+        min-height: 132px;
+        padding-block: 1.7rem 1.35rem;
+    }
+
+    body[data-theme="orchid"] .tt-page-head::after {
+        width: 92vw;
+        right: -42vw;
+        opacity: .36;
+    }
+
+    body[data-theme="orchid"] .nav-link.active {
+        background: transparent;
+    }
+}
+
+/* =====================================================================
+   TT editorial depth — profile and private chat
+   These are intentionally CSS-only refinements: the existing profile and
+   message DOM, API hooks and interaction targets stay exactly as they are.
+   ===================================================================== */
+body[data-theme="orchid"] .tt-profile-header {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(255, 199, 122, .34);
+    background:
+        linear-gradient(145deg, rgba(20, 25, 54, .98), rgba(10, 14, 31, .99));
+    box-shadow: 0 24px 58px rgba(0, 0, 0, .34), inset 0 1px 0 rgba(255, 255, 255, .045);
+}
+
+/* A real composition rather than a large anonymous colour block: the city /
+   lantern linework stays faint enough that a member photo remains the hero
+   when a cover image is added later. */
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder {
+    height: clamp(218px, 19vw, 278px);
+    min-height: 0;
+    isolation: isolate;
+    background:
+        radial-gradient(ellipse 48% 125% at 88% 12%, rgba(255, 93, 177, .3), transparent 67%),
+        radial-gradient(ellipse 46% 105% at 13% 104%, rgba(0, 240, 255, .2), transparent 69%),
+        linear-gradient(111deg, #09182b 0%, #17174a 47%, #35153c 100%);
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: .72;
+    background:
+        linear-gradient(90deg, rgba(7, 14, 29, .24), transparent 48%, rgba(8, 11, 27, .18)),
+        url('/static/img/tt-ornament.svg') 79% 72% / min(78vw, 930px) auto no-repeat;
+    mix-blend-mode: screen;
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder::after {
+    top: 1.2rem;
+    right: 1.65rem;
+    color: rgba(255, 221, 171, .8);
+    font-family: var(--font-body);
+    font-size: .61rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-shadow: 0 0 18px rgba(255, 199, 122, .22);
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-info {
+    align-items: flex-end;
+    gap: 1.15rem;
+    margin: -64px 1.15rem 0;
+    padding: .9rem 1.2rem 1.05rem;
+    border: 1px solid rgba(255, 255, 255, .055);
+    border-bottom: 0;
+    border-radius: 19px 19px 0 0;
+    background:
+        linear-gradient(104deg, rgba(9, 13, 30, .98), rgba(20, 16, 45, .94) 65%, rgba(56, 23, 65, .82));
+    box-shadow: 0 -9px 28px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .045);
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-info::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 1.1rem;
+    left: 8.5rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, .22), rgba(255, 199, 122, .32), transparent);
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-avatar,
+body[data-theme="orchid"] .tt-profile-header .profile-avatar-placeholder {
+    border-color: #11162d;
+    box-shadow: 0 0 0 2px rgba(255, 93, 177, .62), 0 0 0 4px rgba(0, 240, 255, .14), 0 14px 30px rgba(0, 0, 0, .52);
+}
+
+body[data-theme="orchid"] .tt-profile-header .tt-kicker {
+    color: #ffd18d;
+    font-size: .59rem;
+    letter-spacing: .16em;
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-name {
+    margin-top: .1rem;
+    font-size: clamp(1.48rem, 2.15vw, 1.95rem);
+    text-shadow: 0 2px 16px rgba(255, 93, 177, .14);
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-meta {
+    color: #c0b4ca;
+}
+
+body[data-theme="orchid"] #tabInfo > .card {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(140, 109, 232, .25);
+    background:
+        radial-gradient(460px 230px at 96% 4%, rgba(255, 93, 177, .06), transparent 72%),
+        linear-gradient(140deg, rgba(23, 28, 58, .98), rgba(14, 18, 39, .98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 16px 38px rgba(0, 0, 0, .16);
+}
+
+body[data-theme="orchid"] #tabInfo > .card:first-child::before {
+    content: "";
+    position: absolute;
+    width: 210px;
+    height: 210px;
+    right: -72px;
+    bottom: -112px;
+    border: 1px solid rgba(255, 199, 122, .16);
+    border-radius: 50%;
+    box-shadow: 0 0 0 28px rgba(122, 60, 255, .025), 0 0 0 56px rgba(0, 240, 255, .018);
+    pointer-events: none;
+}
+
+/* The conversation canvas uses the same night-city depth as the board, but
+   it is deliberately almost tonal.  Messages retain the highest contrast. */
+body[data-theme="orchid"] .chat-area,
+body[data-theme="orchid"] .g-chat-main {
+    position: relative;
+    isolation: isolate;
+    background-color: #0b1022;
+    background-image:
+        linear-gradient(180deg, rgba(10, 14, 31, .18), rgba(10, 14, 31, .08)),
+        radial-gradient(680px 390px at 99% -8%, rgba(255, 93, 177, .105), transparent 67%),
+        radial-gradient(620px 400px at -8% 112%, rgba(0, 240, 255, .075), transparent 67%),
+        url('/static/img/tt-ornament.svg');
+    background-repeat: no-repeat;
+    background-position: 0 0, 100% 0, 0 100%, 75% calc(100% + 68px);
+    background-size: auto, auto, auto, min(77vw, 930px) auto;
+}
+
+body[data-theme="orchid"] .chat-header,
+body[data-theme="orchid"] .g-chat-header {
+    position: relative;
+    z-index: 1;
+    min-height: 68px;
+    padding-inline: clamp(1.15rem, 2.2vw, 2rem);
+    background: linear-gradient(100deg, rgba(15, 20, 43, .985), rgba(29, 19, 53, .94));
+    box-shadow: 0 8px 22px rgba(3, 5, 15, .16), inset 0 -1px 0 rgba(117, 81, 205, .21);
+}
+
+body[data-theme="orchid"] .chat-header::after,
+body[data-theme="orchid"] .g-chat-header::after {
+    content: "";
+    position: absolute;
+    right: 1.3rem;
+    bottom: -1px;
+    left: 1.3rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, .18), rgba(255, 199, 122, .22), transparent);
+}
+
+body[data-theme="orchid"] .chat-messages {
+    gap: .86rem;
+    padding: 1.55rem clamp(1.2rem, 3vw, 3.8rem) 2rem;
+}
+
+body[data-theme="orchid"] .message-row {
+    max-width: min(66%, 34rem);
+}
+
+/* A generous but intentional outer gutter stops a short outgoing message from
+   sticking to the browser edge.  It resets on mobile to preserve usable room. */
+body[data-theme="orchid"] .message-row-sent {
+    margin-right: clamp(.8rem, 2.8vw, 3.4rem);
+}
+
+body[data-theme="orchid"] .message-bubble.message-sent {
+    padding: .74rem .95rem .68rem;
+    border: 1px solid rgba(183, 222, 255, .22);
+    border-bottom-right-radius: 7px;
+    background: linear-gradient(122deg, #116f91 0%, #5538ce 49%, #c94898 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 10px 23px rgba(73, 39, 156, .23);
+}
+
+body[data-theme="orchid"] .message-bubble.message-received {
+    padding: .72rem .92rem .67rem;
+    border-color: rgba(130, 116, 208, .28);
+    border-bottom-left-radius: 7px;
+    background: linear-gradient(135deg, rgba(29, 36, 70, .98), rgba(20, 25, 51, .98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045), 0 8px 18px rgba(0, 0, 0, .09);
+}
+
+body[data-theme="orchid"] .message-sent .message-time {
+    color: rgba(250, 242, 255, .69);
+}
+
+body[data-theme="orchid"] .chat-input-area,
+body[data-theme="orchid"] .g-chat-input-area {
+    position: relative;
+    z-index: 1;
+    padding-inline: clamp(1rem, 2vw, 1.7rem);
+    background: linear-gradient(100deg, rgba(14, 18, 40, .985), rgba(23, 18, 49, .96));
+    box-shadow: 0 -10px 24px rgba(2, 4, 14, .15), inset 0 1px 0 rgba(123, 90, 207, .19);
+}
+
+@media (max-width: 760px) {
+    body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder {
+        height: 184px;
+    }
+
+    body[data-theme="orchid"] .tt-profile-header .profile-info {
+        margin-inline: .65rem;
+        padding-inline: .85rem;
+    }
+
+    body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder::after {
+        right: .9rem;
+        font-size: .52rem;
+    }
+
+    body[data-theme="orchid"] .chat-messages {
+        padding-inline: 1rem;
+    }
+
+    body[data-theme="orchid"] .message-row {
+        max-width: 84%;
+    }
+
+    body[data-theme="orchid"] .message-row-sent {
+        margin-right: 0;
+    }
+}

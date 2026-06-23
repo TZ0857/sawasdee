@@ -2,19 +2,73 @@
 {% block title %}探索會員{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content"><div class="container">
-  <header class="tt-page-head">
-    <div class="tt-kicker">DISCOVER · TAIWAN × THAILAND</div>
-    <h1 class="tt-page-title">遇見與你同頻的人</h1>
-    <p class="tt-page-subtitle">從台北的夜色到曼谷的熱情，下一段連結正在這裡發生。</p>
-    <div class="explore-hero-stats"><div class="hero-stat"><div class="hero-stat-num" id="heroVerifiedCount">—</div><div class="hero-stat-label">精選會員</div></div><div class="hero-stat-divider"></div><div class="hero-stat"><div class="hero-stat-num" id="heroOnlineCount">—</div><div class="hero-stat-label">正在上線</div></div><div class="hero-stat-divider"></div><div class="hero-stat"><div class="hero-stat-num">24/7</div><div class="hero-stat-label">AI 翻譯</div></div></div>
-  </header>
-  <section class="premium-banner hidden" id="premiumBanner"><div class="premium-banner-glow"></div><div class="premium-banner-icon">✦</div><div class="premium-banner-body"><div class="premium-banner-title">解鎖更多心動可能</div><div class="premium-banner-desc">升級 Premium，享有無限探索、優先訊息與進階篩選。</div></div><a href="/subscription" class="btn btn-primary premium-banner-cta">查看 Premium</a></section>
-  <div class="tt-toolbar"><label class="tt-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" class="form-input" id="searchInput" placeholder="搜尋名字、城市或興趣"></label><button class="btn btn-secondary" onclick="toggleFilters()">篩選條件</button></div>
-  <div class="filter-chips" id="filterChips"><button class="chip active" data-filter="" onclick="quickFilter('')">為你推薦</button><button class="chip" data-filter="online" onclick="quickFilter('online')">現在上線</button><button class="chip" data-filter="new" onclick="quickFilter('new')">新加入</button><button class="chip" data-filter="verified" onclick="quickFilter('verified')">已驗證</button></div>
-  <section class="filter-drawer hidden" id="filterDrawer"><div class="filter-drawer-grid"><div class="filter-group"><label class="filter-label">年齡</label><div class="filter-range"><input type="number" class="form-input" id="filterMinAge" placeholder="最小" min="18"><span class="filter-range-sep">—</span><input type="number" class="form-input" id="filterMaxAge" placeholder="最大" max="80"></div></div><div class="filter-group"><label class="filter-label">身高（cm）</label><div class="filter-range"><input type="number" class="form-input" id="filterMinHeight" placeholder="最小"><span class="filter-range-sep">—</span><input type="number" class="form-input" id="filterMaxHeight" placeholder="最大"></div></div><div class="filter-group"><label class="filter-label">所在城市</label><input type="text" class="form-input" id="filterLocation" placeholder="Taipei、Bangkok…"></div></div><div class="filter-drawer-foot"><button class="btn btn-ghost btn-sm" onclick="resetFilters()">清除</button><button class="btn btn-primary btn-sm" onclick="applyFilters()">套用篩選</button></div></section>
-  <div class="tt-toolbar"><div class="tt-orchid-rule" id="resultCount">為你精選</div></div>
-  <section class="user-grid" id="userGrid"><div class="flex-center" style="grid-column:1/-1;padding:4rem"><div class="spinner"></div></div></section><div class="flex-center mt-4 mb-3 gap-2" id="pagination"></div>
-</div></main>
+<main class="main-content">
+  <div class="container">
+    <header class="tt-page-head">
+      <div class="tt-kicker">DISCOVER · TAIWAN × THAILAND</div>
+      <h1 class="tt-page-title">遇見與你同頻的人</h1>
+      <p class="tt-page-subtitle">從台北的夜色到曼谷的熱情，下一段連結正在這裡發生。</p>
+      <div class="explore-hero-stats" aria-label="社群即時狀態">
+        <div class="hero-stat"><div class="hero-stat-num" id="heroVerifiedCount">—</div><div class="hero-stat-label">精選會員</div></div>
+        <div class="hero-stat-divider" aria-hidden="true"></div>
+        <div class="hero-stat"><div class="hero-stat-num" id="heroOnlineCount">—</div><div class="hero-stat-label">正在上線</div></div>
+        <div class="hero-stat-divider" aria-hidden="true"></div>
+        <div class="hero-stat"><div class="hero-stat-num">24/7</div><div class="hero-stat-label">AI 翻譯</div></div>
+      </div>
+    </header>
+
+    <section class="premium-banner hidden" id="premiumBanner" aria-label="Premium 會員方案">
+      <div class="premium-banner-glow" aria-hidden="true"></div>
+      <div class="premium-banner-icon" aria-hidden="true">✦</div>
+      <div class="premium-banner-body">
+        <div class="premium-banner-title">讓對的人先看見你</div>
+        <div class="premium-banner-desc">升級 Premium，解鎖無限喜歡、精準篩選與更多跨文化連結。</div>
+      </div>
+      <a href="/subscription" class="btn btn-primary premium-banner-cta">探索 Premium</a>
+    </section>
+
+    <section aria-label="搜尋與篩選會員">
+      <div class="tt-toolbar">
+        <label class="tt-search" for="searchInput">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="form-input" id="searchInput" placeholder="搜尋名字、城市或興趣">
+        </label>
+        <button class="btn btn-secondary" type="button" onclick="toggleFilters()">篩選條件</button>
+      </div>
+      <div class="filter-chips" id="filterChips" aria-label="快速篩選">
+        <button class="chip active" type="button" data-filter="" onclick="quickFilter('')">為你推薦</button>
+        <button class="chip" type="button" data-filter="online" onclick="quickFilter('online')">現在上線</button>
+        <button class="chip" type="button" data-filter="new" onclick="quickFilter('new')">新加入</button>
+        <button class="chip" type="button" data-filter="verified" onclick="quickFilter('verified')">已驗證</button>
+      </div>
+
+      <section class="filter-drawer hidden" id="filterDrawer" aria-label="進階篩選">
+        <div class="filter-drawer-grid">
+          <div class="filter-group">
+            <label class="filter-label" for="filterMinAge">年齡</label>
+            <div class="filter-range"><input type="number" class="form-input" id="filterMinAge" placeholder="最小" min="18"><span class="filter-range-sep">至</span><input type="number" class="form-input" id="filterMaxAge" placeholder="最大" max="80"></div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="filterMinHeight">身高（cm）</label>
+            <div class="filter-range"><input type="number" class="form-input" id="filterMinHeight" placeholder="最小"><span class="filter-range-sep">至</span><input type="number" class="form-input" id="filterMaxHeight" placeholder="最大"></div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label" for="filterLocation">所在城市</label>
+            <input type="text" class="form-input" id="filterLocation" placeholder="Taipei、Bangkok…">
+          </div>
+        </div>
+        <div class="filter-drawer-foot"><button class="btn btn-ghost btn-sm" type="button" onclick="resetFilters()">重設</button><button class="btn btn-primary btn-sm" type="button" onclick="applyFilters()">套用篩選</button></div>
+      </section>
+    </section>
+
+    <div class="tt-toolbar">
+      <div class="tt-orchid-rule" id="resultCount">正在尋找同頻會員</div>
+    </div>
+    <section class="user-grid" id="userGrid" aria-live="polite">
+      <div class="flex-center" style="grid-column:1/-1;padding:4rem"><div class="spinner"></div></div>
+    </section>
+    <div class="flex-center mt-4 mb-3 gap-2" id="pagination" aria-label="會員列表分頁"></div>
+  </div>
+</main>
 {% endblock %}
 {% block scripts %}<script src="/static/js/explore.js?v=20260623"></script>{% endblock %}

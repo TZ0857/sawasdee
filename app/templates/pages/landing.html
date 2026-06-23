@@ -1,12 +1,76 @@
 {% extends "components/base.html" %}
-{% block title %}Connect beyond borders{% endblock %}
+{% block title %}TT — 台灣 × 泰國的跨境相遇{% endblock %}
 {% block mobile_nav %}{% endblock %}
-{% block navbar %}<nav class="navbar landing-navbar"><a href="/" class="nav-brand" aria-label="TT"><svg class="tt-logo" viewBox="0 0 98 58" aria-hidden="true"><defs><linearGradient id="ttGradHero" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00F0FF"/><stop offset=".52" stop-color="#7A3CFF"/><stop offset="1" stop-color="#FF4D9B"/></linearGradient></defs><path d="M8 12C29 2 55 8 88 6 77 16 64 20 51 20H35L20 52V21H8Z" fill="none" stroke="url(#ttGradHero)" stroke-width="3"/><path d="M47 20H78L67 52V25H51Z" fill="none" stroke="url(#ttGradHero)" stroke-width="3"/></svg><span class="nav-brand-name">Sawasdee</span></a><div class="nav-links" style="gap:.65rem"><a href="/login" class="btn btn-ghost btn-sm">登入</a><a href="/register" class="btn btn-primary btn-sm">加入 TT</a></div></nav>{% endblock %}
-{% block content %}<main class="tt-site-home">
- <section class="tt-hero-web">
-  <div class="tt-line-art tt-line-art-left"></div><div class="tt-orchid-art"></div><div class="tt-skyline"><span class="taipei">101</span><span class="temple">♜</span></div>
-  <div class="tt-hero-copy-web"><div class="tt-eyebrow">PREMIUM SOCIAL · TAIWAN × THAILAND</div><div class="tt-hero-monogram">TT<span>✦</span></div><h1>Connect.<br>Flirt.<br><i>Beyond borders.</i></h1><div class="tt-gold-rule"></div><p>在台灣與泰國之間，遇見願意真誠交流的人。從一句訊息到一場相聚，讓距離成為心動的起點。</p><div class="tt-hero-ctas"><a href="/register" class="btn btn-primary btn-lg">開始探索 <span>→</span></a><a href="/login" class="btn btn-secondary btn-lg">會員登入</a></div><div class="tt-hero-note"><span>✦ 真人社群</span><span>✦ AI 中泰翻譯</span><span>✦ 精選聚會</span></div></div>
-  <div class="tt-hero-members"><article class="tt-member-card tt-member-back"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=85" alt=""><div><b>Jay, 27</b><small>Taipei, Taiwan</small></div></article><article class="tt-member-card tt-member-main"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=720&q=85" alt=""><div class="tt-online">● Online</div><div class="tt-member-info"><h2>Vivi, 24 <em>✓</em></h2><p>Bangkok, Thailand</p><div><span>Nightlife</span><span>Travel</span><span>Music</span></div></div><button aria-label="like">♥</button></article><article class="tt-member-card tt-member-front"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=85" alt=""><div><b>Nicha, 23</b><small>Chiang Mai, Thailand</small></div></article></div>
- </section>
- <section class="tt-home-features"><article><div class="tt-feature-icon">◎</div><h2>Cross-cultural<br>connections</h2><p>遇見橫跨台灣與泰國、與你共享頻率的人。</p><a href="/explore">探索會員 →</a></article><article><div class="tt-feature-icon">文</div><h2>AI translation</h2><p>即時中泰翻譯，讓每一句靠近都自然流動。</p><a href="/messages">開始對話 →</a></article><article><div class="tt-feature-icon">♧</div><h2>Curated gatherings</h2><p>從城市裡精選一場剛剛好的真實相遇。</p><a href="/gatherings">查看聚會 →</a></article></section>
-</main>{% endblock %}
+{% block navbar %}
+<nav class="navbar landing-navbar">
+    <a href="/" class="nav-brand" aria-label="TT Sawasdee 首頁">
+        <svg class="tt-logo" viewBox="0 0 98 58" aria-hidden="true">
+            <defs><linearGradient id="ttGradHero" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00F0FF"/><stop offset=".52" stop-color="#7A3CFF"/><stop offset="1" stop-color="#FF4D9B"/></linearGradient></defs>
+            <path d="M8 12C29 2 55 8 88 6 77 16 64 20 51 20H35L20 52V21H8Z" fill="none" stroke="url(#ttGradHero)" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M47 20H78L67 52V25H51Z" fill="none" stroke="url(#ttGradHero)" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M81 26c7-9 17 1 7 9-9 7-15-2-7-9Z" fill="none" stroke="#FFC77A" stroke-width="1.5"/>
+        </svg>
+        <span class="nav-brand-name">TT <small>SAWASDEE</small></span>
+    </a>
+    <div class="nav-links" style="gap:.65rem">
+        <a href="/login" class="btn btn-ghost btn-sm">登入</a>
+        <a href="/register" class="btn btn-primary btn-sm">加入 TT</a>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+<main class="tt-site-home">
+    <section class="tt-hero-web" aria-labelledby="hero-title">
+        <div class="tt-line-art tt-line-art-left" aria-hidden="true"></div>
+        <div class="tt-orchid-art" aria-hidden="true"></div>
+        <div class="tt-skyline" aria-hidden="true"><span class="taipei">101</span><span class="temple">✦</span></div>
+
+        <div class="tt-hero-copy-web">
+            <p class="tt-eyebrow">TT SOCIAL CLUB · TAIWAN × THAILAND</p>
+            <div class="tt-hero-monogram" aria-hidden="true">TT<span>✦</span></div>
+            <h1 id="hero-title">Connect.<br>Flirt.<br><i>Beyond borders.</i></h1>
+            <div class="tt-gold-rule" aria-hidden="true"></div>
+            <p>從台北的霓虹街景到曼谷的微醺夜色，遇見願意分享故事、城市與下一段冒險的人。這裡，讓心動不必受距離限制。</p>
+            <div class="tt-hero-ctas">
+                <a href="/register" class="btn btn-primary btn-lg">開始探索 <span aria-hidden="true">→</span></a>
+                <a href="/login" class="btn btn-secondary btn-lg">我已有帳號</a>
+            </div>
+            <div class="tt-hero-note" aria-label="TT 特色">
+                <span>✦ 跨文化相遇</span><span>✦ AI 即時翻譯</span><span>✦ 精選線下聚會</span>
+            </div>
+        </div>
+
+        <div class="tt-hero-members" aria-label="TT 會員預覽">
+            <article class="tt-member-card tt-member-back">
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=600&amp;q=85" alt="Jay 的會員照片">
+                <div><b>Jay, 27</b><small>Taipei · Taiwan</small></div>
+            </article>
+            <article class="tt-member-card tt-member-main">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=720&amp;q=85" alt="Vivi 的會員照片">
+                <div class="tt-online">● 現在在線</div>
+                <div class="tt-member-info"><h2>Vivi, 24 <em>✓ 已驗證</em></h2><p>⌖ Bangkok · Thailand</p><div><span>Nightlife</span><span>Travel</span><span>Music</span></div></div>
+                <button type="button" aria-label="喜歡 Vivi">♥</button>
+            </article>
+            <article class="tt-member-card tt-member-front">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&amp;fit=crop&amp;w=600&amp;q=85" alt="Nicha 的會員照片">
+                <div><b>Nicha, 23</b><small>Chiang Mai · Thailand</small></div>
+            </article>
+        </div>
+    </section>
+
+    <section class="tt-home-features" aria-label="TT 的相遇方式">
+        <article>
+            <div class="tt-feature-icon" aria-hidden="true">✦</div><h2>跨越文化，<br>自然靠近</h2>
+            <p>依照城市、興趣和此刻的心情，認識與你同頻的台灣與泰國會員。</p><a href="/explore">探索會員 →</a>
+        </article>
+        <article>
+            <div class="tt-feature-icon" aria-hidden="true">⌁</div><h2>說自己的話，<br>聊彼此的世界</h2>
+            <p>內建即時翻譯，讓每一次問候都保有原本的語氣與溫度。</p><a href="/messages">開始聊天 →</a>
+        </article>
+        <article>
+            <div class="tt-feature-icon" aria-hidden="true">◌</div><h2>從線上默契，<br>走進真實相遇</h2>
+            <p>精選城市聚會、主題晚餐與週末活動，為好奇心留一個位置。</p><a href="/gatherings">查看聚會 →</a>
+        </article>
+    </section>
+</main>
+{% endblock %}

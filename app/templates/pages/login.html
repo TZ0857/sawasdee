@@ -2,8 +2,14 @@
 {% block title %}登入{% endblock %}
 {% block mobile_nav %}{% endblock %}
 {% block content %}
-<main class="auth-page"><section class="auth-card" style="border-color:rgba(122,60,255,.35)"><div class="tt-kicker">WELCOME BACK</div><h1 class="auth-title"><span class="tt-mark">TT</span>Sawasdee</h1><p class="auth-subtitle">回到屬於你的台泰連結。</p><form id="loginForm" autocomplete="off"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail" name="sw_email" placeholder="your@email.com" required></div><div class="form-group"><label class="form-label">密碼</label><input type="password" class="form-input" id="loginPassword" name="sw_pw" placeholder="輸入密碼" required></div><button type="submit" class="btn btn-primary btn-block btn-lg mt-2">登入</button></form><p class="auth-footer">還沒有帳號？ <a href="/register">免費加入 TT</a></p></section></main>
+<main class="auth-page"><section class="auth-card" style="border-color:rgba(122,60,255,.35)">
+  <div class="tt-kicker">WELCOME BACK · TAIWAN × THAILAND</div>
+  <h1 class="auth-title"><span class="tt-mark">TT</span>Sawasdee</h1>
+  <p class="auth-subtitle">回到你的夜色裡，看看誰正在與你同頻。</p>
+  <form id="loginForm" autocomplete="off"><div class="form-group"><label class="form-label" for="loginEmail">Email</label><input type="email" class="form-input" id="loginEmail" name="sw_email" placeholder="your@email.com" required></div><div class="form-group"><label class="form-label" for="loginPassword">密碼</label><input type="password" class="form-input" id="loginPassword" name="sw_pw" placeholder="輸入密碼" required></div><button type="submit" class="btn btn-primary btn-block btn-lg mt-2">登入 TT</button></form>
+  <p class="auth-footer">還沒有帳號嗎？ <a href="/register">現在加入 TT</a></p>
+</section></main>
 {% endblock %}
 {% block scripts %}<script>
-document.getElementById('loginForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; btn.textContent='登入中…'; try { const data=await api.post('/api/auth/login',{email:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value}); localStorage.setItem('token',data.access_token); localStorage.setItem('user',JSON.stringify(data.user)); showToast('登入成功，歡迎回來！','success'); setTimeout(()=>window.location.href='/explore',500); } catch(err) { showToast(err.message||'登入失敗，請再試一次。','error'); btn.disabled=false; btn.textContent='登入'; } });
+document.getElementById('loginForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; btn.textContent='登入中…'; try { const data=await api.post('/api/auth/login',{email:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value}); localStorage.setItem('token',data.access_token); localStorage.setItem('user',JSON.stringify(data.user)); showToast('登入成功，歡迎回來！','success'); setTimeout(()=>window.location.href='/explore',500); } catch(err) { showToast(err.message||'登入失敗，請稍後再試。','error'); btn.disabled=false; btn.textContent='登入 TT'; } });
 </script>{% endblock %}
