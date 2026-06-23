@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title>{% block title %}Sawasdee{% endblock %} — Sawasdee</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=20260504ab">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260623">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
     {% block head %}{% endblock %}
 </head>
-<body>
+<body data-theme="orchid">
     {% block navbar %}{% endblock %}
     <div class="toast-container" id="toastContainer"></div>
     {% block content %}{% endblock %}
@@ -252,6 +252,16 @@
             }
         });
     })();
+    </script>
+    <script>
+      /* The original templates were authored with an incompatible encoding.
+         Keep mobile navigation readable while legacy page templates are moved
+         to UTF-8 incrementally. */
+      document.querySelectorAll('.mobile-nav-link').forEach((link) => {
+        const label = ({explore:'探索', gatherings:'聚會', feed:'動態', messages:'訊息', me:'我的'})[link.dataset.page];
+        const text = link.querySelector('span:not(.mobile-nav-badge)');
+        if (text && label) text.textContent = label;
+      });
     </script>
     {% block scripts %}{% endblock %}
 </body>
