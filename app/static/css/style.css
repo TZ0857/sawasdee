@@ -3509,3 +3509,21 @@ body[data-theme="orchid"] .g-chat-input-area {
         margin-right: 0;
     }
 }
+
+/* ============================================================
+   Mobile navbar declutter — fixes the cramped top bar where the
+   "TT SAWASDEE" wordmark wrapped to two lines and 5 icon links
+   duplicated the bottom .mobile-nav.
+   On phones the bottom nav already covers 探索/聚會/動態/訊息/我的,
+   so the top bar keeps only brand + Premium + bell + avatar.
+   ============================================================ */
+@media (max-width: 640px) {
+    .navbar .nav-link[data-page="explore"],
+    .navbar .nav-link[data-page="feed"],
+    .navbar .nav-link[data-page="messages"],
+    .navbar .nav-link[data-page="gatherings"] {
+        display: none !important;
+    }
+    /* Keep the wordmark on a single line now that there is room. */
+    .nav-brand-name { white-space: nowrap; }
+}

@@ -14,3 +14,7 @@ build/
 
 # Claude Code 個人設定（每台電腦自己的權限白名單，不該共用）
 .claude/settings.local.json
+
+# 本機產生的 Playwright 截圖與快取（不該進版控）
+.playwright-mcp/
+railway-*.png
