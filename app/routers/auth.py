@@ -68,7 +68,6 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
             "nationality": user.nationality.value,
             "avatar_url": user.avatar_url,
             "is_subscribed": user.is_subscribed,
-            "is_admin": getattr(user, "is_admin", False),
         },
     }
 
@@ -92,6 +91,5 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
             "nationality": user.nationality.value,
             "avatar_url": user.avatar_url,
             "is_subscribed": user.is_subscribed,
-            "is_admin": getattr(user, "is_admin", False),
         },
     }
