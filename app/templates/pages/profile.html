@@ -2,7 +2,7 @@
 {% block title %}會員檔案{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content">
+<main class="main-content tt-profile-page">
   <div class="container">
     <section class="profile-header tt-profile-header" aria-label="會員檔案">
       <div class="profile-cover-placeholder" id="profileCover"></div>
@@ -28,7 +28,7 @@
     </nav>
 
     <section id="tabInfo" class="tab-content">
-      <div class="card"><div class="card-body" id="profileDetails"><div class="flex-center" style="padding:2rem"><div class="spinner"></div></div></div></div>
+      <div class="card"><div class="card-body tt-profile-details" id="profileDetails"><div class="flex-center" style="padding:2rem"><div class="spinner"></div></div></div></div>
       <div class="card mt-2" id="relationshipSection" style="display:none"><div class="card-body"><div class="tt-orchid-rule" style="margin-bottom:1rem">LOOKING FOR</div><div style="display:flex;flex-wrap:wrap;gap:.5rem" id="relationshipChips"></div></div></div>
       <div class="card mt-2" id="atmosphereSection" style="display:none"><div class="card-body"><div class="tt-orchid-rule" style="margin-bottom:1rem">VIBE</div><div style="display:flex;flex-wrap:wrap;gap:.5rem" id="atmosphereChips"></div></div></div>
     </section>

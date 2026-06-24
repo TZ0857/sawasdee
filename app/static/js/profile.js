@@ -104,7 +104,7 @@ function renderProfile() {
 
     // Details
     const details = document.getElementById('profileDetails');
-    let detailHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">';
+    let detailHtml = '<div class="tt-profile-vitals">';
     const fields = [
         { label: '身高', value: profileData.height ? profileData.height + ' cm' : '-' },
         { label: '體重', value: profileData.weight ? profileData.weight + ' kg' : '-' },
@@ -113,15 +113,15 @@ function renderProfile() {
         fields.push({ label: '罩杯', value: profileData.cup_size });
     }
     fields.forEach(f => {
-        detailHtml += `<div><div class="text-muted" style="font-size:0.8rem">${f.label}</div><div style="font-weight:600">${f.value}</div></div>`;
+        detailHtml += `<div class="tt-profile-vital"><div class="text-muted">${f.label}</div><div>${f.value}</div></div>`;
     });
     detailHtml += '</div>';
     if (profileData.interests) {
-        detailHtml += `<div class="mt-3"><div class="text-muted" style="font-size:0.8rem; margin-bottom:0.5rem">興趣</div>
-            <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">${profileData.interests.split(',').map(i => `<span style="background:var(--bg-elevated); padding:0.3rem 0.8rem; border-radius:var(--radius-full); font-size:0.85rem;">${i.trim()}</span>`).join('')}</div></div>`;
+        detailHtml += `<div class="tt-profile-section mt-3"><div class="text-muted">興趣</div>
+            <div class="tt-profile-interest-list">${profileData.interests.split(',').map(i => `<span>${i.trim()}</span>`).join('')}</div></div>`;
     }
     if (profileData.bio) {
-        detailHtml += `<div class="mt-3"><div class="text-muted" style="font-size:0.8rem; margin-bottom:0.5rem">自我介紹</div><p style="line-height:1.6">${profileData.bio}</p></div>`;
+        detailHtml += `<div class="tt-profile-section tt-profile-bio mt-3"><div class="text-muted">自我介紹</div><p>${profileData.bio}</p></div>`;
     }
     details.innerHTML = detailHtml;
 }
