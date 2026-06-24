@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 from contextlib import asynccontextmanager
 import os
 
-from sqlalchemy import select, text
+from sqlalchemy import select, text, update
 from app.database import init_db, async_session, engine
 from app.models.user import User
 from app.seed import (
@@ -14,7 +14,7 @@ from app.seed import (
     generate_seed_gatherings,
 )
 from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings, blocks, notifications, translate, poll, admin, reports
-from app.config import ADMIN_EMAILS
+from app.config import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL
 # Import models so SQLAlchemy registers them on Base before init_db()
 from app.models.block import BlockedUser  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
@@ -197,20 +197,46 @@ async def seed_demo_data():
         print(f"✅ Seeded {len(seed_users)} users, {len(seed_posts)} posts, {len(seed_albums)} albums, {len(seed_stories)} stories, {len(seed_g)} gatherings")
 
 
-async def grant_admins():
-    """Mark the emails in ADMIN_EMAILS as admins. Idempotent — runs every
-    startup so a newly-registered owner account becomes admin on next deploy."""
-    if not ADMIN_EMAILS:
-        return
-    async with engine.begin() as conn:
-        placeholders = ",".join(f":e{i}" for i in range(len(ADMIN_EMAILS)))
-        params = {f"e{i}": e for i, e in enumerate(ADMIN_EMAILS)}
-        try:
-            await conn.execute(text(
-                f"UPDATE users SET is_admin = TRUE WHERE LOWER(email) IN ({placeholders})"
-            ), params)
-        except Exception as e:
-            print(f"[grant_admins] skipped: {e}")
+async def ensure_admin_account():
+    """Create / refresh the dedicated back-office admin account used by the
+    separate /admin login (NOT member login). Credentials come from env
+    (ADMIN_USERNAME / ADMIN_PASSWORD). is_active=False keeps it out of the
+    explore dating pool. Any *other* account that somehow has is_admin set
+    is demoted, so the back office has exactly one owner."""
+    from app.services.auth import get_password_hash
+    from app.models.user import User, Gender, Nationality
+
+    async with async_session() as session:
+        existing = (await session.execute(
+            select(User).where((User.username == ADMIN_USERNAME) | (User.email == ADMIN_EMAIL))
+        )).scalar_one_or_none()
+
+        if existing is not None:
+            existing.hashed_password = get_password_hash(ADMIN_PASSWORD)
+            existing.is_admin = True
+            existing.is_active = False
+            admin_id = existing.id
+        else:
+            u = User(
+                email=ADMIN_EMAIL,
+                username=ADMIN_USERNAME,
+                hashed_password=get_password_hash(ADMIN_PASSWORD),
+                display_name="管理員",
+                gender=Gender.male,
+                nationality=Nationality.taiwanese,
+                is_admin=True,
+                is_active=False,
+            )
+            session.add(u)
+            await session.flush()
+            admin_id = u.id
+
+        # Exactly one admin: revoke is_admin from everyone else (e.g. the demo
+        # account temporarily granted during earlier testing).
+        await session.execute(
+            update(User).where(User.id != admin_id, User.is_admin.is_(True)).values(is_admin=False)
+        )
+        await session.commit()
 
 
 @asynccontextmanager
@@ -219,7 +245,7 @@ async def lifespan(app: FastAPI):
     await run_lightweight_migrations()
     await seed_demo_data()
     await upgrade_demo_data()
-    await grant_admins()
+    await ensure_admin_account()
     yield
 
 

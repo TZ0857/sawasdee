@@ -26,17 +26,12 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY", "")
 
-# Comma-separated list of emails that should be granted admin access to the
-# /admin dashboard on startup. Override in Railway env. The kevin_tw demo
-# account is included so the panel can be tested immediately.
-ADMIN_EMAILS = [
-    e.strip().lower()
-    for e in os.getenv(
-        "ADMIN_EMAILS",
-        "tommytiktok0857@gmail.com,kevin_tw@sawasdee.demo",
-    ).split(",")
-    if e.strip()
-]
+# Dedicated back-office admin login (separate from member login). Credentials
+# come from env so the password is not hard-coded in the repo; the defaults
+# let the panel work out of the box and can be overridden in Railway.
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "ADMIN")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "800101")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@sawasdee.internal")
 
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)

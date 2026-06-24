@@ -17,7 +17,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.post import Post
 from app.models.report import Report, ReportStatus
-from app.services.auth import get_current_user
+from app.services.auth import get_current_user, verify_password, create_access_token
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -26,6 +26,34 @@ async def require_admin(user: User = Depends(get_current_user)) -> User:
     if not getattr(user, "is_admin", False):
         raise HTTPException(status_code=403, detail="需要管理員權限")
     return user
+
+
+# ─────────────────── Dedicated back-office login ───────────────────────
+# Separate from member login (/api/auth/login). Only an account with
+# is_admin = TRUE can obtain a token here. Accepts the admin username or
+# email, case-insensitively.
+class AdminLoginReq(BaseModel):
+    username: str
+    password: str
+
+
+@router.post("/login")
+async def admin_login(req: AdminLoginReq, db: AsyncSession = Depends(get_db)):
+    ident = (req.username or "").strip().lower()
+    user = (await db.execute(select(User).where(or_(
+        func.lower(User.username) == ident,
+        func.lower(User.email) == ident,
+    )))).scalar_one_or_none()
+    if user is None or not verify_password(req.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="帳號或密碼錯誤")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="此帳號沒有後台權限")
+    token = create_access_token(data={"sub": str(user.id)})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "admin": {"username": user.username, "display_name": user.display_name},
+    }
 
 
 # ─────────────────────────── Dashboard stats ───────────────────────────

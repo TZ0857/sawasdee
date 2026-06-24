@@ -84,11 +84,23 @@
         </section>
     </div>
 
-    <div id="adminDenied" class="admin-empty hidden">
-        <div style="font-size:2.5rem">🔒</div>
-        <h3 style="margin:.5rem 0">沒有管理員權限</h3>
-        <p>這個帳號不是管理員，無法進入後台。</p>
-        <a href="/explore" class="btn btn-primary btn-sm" style="margin-top:1rem">回 App</a>
+    <div id="adminLogin" class="hidden" style="max-width:380px;margin:2.5rem auto">
+        <div class="card" style="padding:1.8rem">
+            <div class="tt-kicker" style="margin-bottom:.3rem">SAWASDEE BACK OFFICE</div>
+            <h2 style="margin:.1rem 0 1.2rem">後台登入</h2>
+            <form id="adminLoginForm" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label" for="adminUser">管理員帳號</label>
+                    <input class="form-input" id="adminUser" autocapitalize="none" autocomplete="off" placeholder="ADMIN" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="adminPass">密碼</label>
+                    <input class="form-input" id="adminPass" type="password" autocomplete="off" placeholder="輸入密碼" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top:.6rem">登入後台</button>
+            </form>
+            <p id="adminLoginErr" style="margin-top:.8rem;font-size:.82rem;color:#ff5d7d;min-height:1em"></p>
+        </div>
     </div>
   </div>
 </main>
@@ -222,19 +234,52 @@ async function resolveReport(id, action){
     catch(e){ showToast(e.message,'error'); }
 }
 
-// ── Boot ──
-(async function init(){
-    if (!requireAuth()) return;
+// ── Auth (dedicated back-office login, separate from member /login) ──
+async function showDashboard(){
+    await loadStats();                       // throws 401/403 if not an admin token
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminBody').classList.remove('hidden');
+    loadUsers();
+}
+function showLogin(){
+    document.getElementById('adminWho').textContent = '請先登入後台';
+    document.getElementById('adminBody').classList.add('hidden');
+    document.getElementById('adminLogin').classList.remove('hidden');
+}
+
+document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const err = document.getElementById('adminLoginErr');
+    err.textContent = '';
+    btn.disabled = true; btn.textContent = '登入中…';
     try {
-        await loadStats();                       // 403 here ⇒ not admin
-        const u = getUser();
-        document.getElementById('adminWho').textContent = `管理員：${u.display_name || u.username || ''}`;
-        document.getElementById('adminBody').classList.remove('hidden');
-        loadUsers();
-    } catch (e) {
-        document.getElementById('adminWho').textContent = '';
-        document.getElementById('adminDenied').classList.remove('hidden');
+        const data = await api.post('/api/admin/login', {
+            username: document.getElementById('adminUser').value.trim(),
+            password: document.getElementById('adminPass').value,
+        });
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('user', JSON.stringify({ username: data.admin.username, display_name: data.admin.display_name, is_admin: true }));
+        document.getElementById('adminWho').textContent = `管理員：${data.admin.display_name || data.admin.username}`;
+        await showDashboard();
+    } catch (e2) {
+        err.textContent = e2.message || '登入失敗';
+        btn.disabled = false; btn.textContent = '登入後台';
     }
+});
+
+(async function init(){
+    // Reuse an existing admin token if present; otherwise show the back-office
+    // login form. Never redirect to the member /login page.
+    if (localStorage.getItem('token')) {
+        try {
+            const u = getUser();
+            document.getElementById('adminWho').textContent = `管理員：${u.display_name || u.username || ''}`;
+            await showDashboard();
+            return;
+        } catch (e) { /* not an admin token → show login form */ }
+    }
+    showLogin();
 })();
 </script>
 {% endblock %}
