@@ -18,3 +18,7 @@ build/
 # 本機產生的 Playwright 截圖與快取（不該進版控）
 .playwright-mcp/
 railway-*.png
+audit-*.png
+verify-*.png
+sh-*.png
+navfix-*.png
