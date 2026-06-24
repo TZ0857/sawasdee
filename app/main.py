@@ -13,11 +13,13 @@ from app.seed import (
     generate_seed_albums, generate_seed_stories,
     generate_seed_gatherings,
 )
-from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings, blocks, notifications, translate, poll
+from app.routers import auth, users, posts, messages, albums, subscriptions, gatherings, blocks, notifications, translate, poll, admin, reports
+from app.config import ADMIN_EMAILS
 # Import models so SQLAlchemy registers them on Base before init_db()
 from app.models.block import BlockedUser  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
 from app.models.translation import MessageTranslation  # noqa: F401
+from app.models.report import Report  # noqa: F401
 
 
 # --- Demo avatar set ----------------------------------------------------
@@ -96,6 +98,8 @@ async def run_lightweight_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_gatherings BOOLEAN DEFAULT TRUE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_language VARCHAR(10) DEFAULT 'zh-TW'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS auto_translate_msgs BOOLEAN DEFAULT TRUE",
+        # users.is_admin gates access to the /admin moderation dashboard.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE",
         # One-time cleanup — drop translation rows that were poisoned with
         # the legacy "[🇹🇼→🇹🇭] xxx" / "[🇹🇭→🇹🇼] xxx" fallback string. Those
         # weren't real translations; they were the failure-indicator that
@@ -193,12 +197,29 @@ async def seed_demo_data():
         print(f"✅ Seeded {len(seed_users)} users, {len(seed_posts)} posts, {len(seed_albums)} albums, {len(seed_stories)} stories, {len(seed_g)} gatherings")
 
 
+async def grant_admins():
+    """Mark the emails in ADMIN_EMAILS as admins. Idempotent — runs every
+    startup so a newly-registered owner account becomes admin on next deploy."""
+    if not ADMIN_EMAILS:
+        return
+    async with engine.begin() as conn:
+        placeholders = ",".join(f":e{i}" for i in range(len(ADMIN_EMAILS)))
+        params = {f"e{i}": e for i, e in enumerate(ADMIN_EMAILS)}
+        try:
+            await conn.execute(text(
+                f"UPDATE users SET is_admin = TRUE WHERE LOWER(email) IN ({placeholders})"
+            ), params)
+        except Exception as e:
+            print(f"[grant_admins] skipped: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
     await run_lightweight_migrations()
     await seed_demo_data()
     await upgrade_demo_data()
+    await grant_admins()
     yield
 
 
@@ -276,6 +297,8 @@ app.include_router(blocks.router)
 app.include_router(notifications.router)
 app.include_router(translate.router)
 app.include_router(poll.router)
+app.include_router(admin.router)
+app.include_router(reports.router)
 
 
 # Page routes
@@ -359,3 +382,10 @@ async def subscription_page(request: Request):
 @app.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):
     return templates.TemplateResponse("pages/settings.html", {"request": request})
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    """Moderation dashboard. The page is public but contains no data — all
+    content loads from /api/admin/* which require an admin token."""
+    return templates.TemplateResponse("pages/admin.html", {"request": request})

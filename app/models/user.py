@@ -50,6 +50,9 @@ class User(Base):
     # Verification (✓ badge on profiles)
     is_verified = Column(Boolean, default=False)
 
+    # Admin / moderation access (can open the /admin dashboard)
+    is_admin = Column(Boolean, default=False)
+
     # --- Privacy settings (settings page → 隱私設定) ---
     show_online = Column(Boolean, default=True)
     show_last_seen = Column(Boolean, default=True)

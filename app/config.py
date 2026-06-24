@@ -26,5 +26,17 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY", "")
 
+# Comma-separated list of emails that should be granted admin access to the
+# /admin dashboard on startup. Override in Railway env. The kevin_tw demo
+# account is included so the panel can be tested immediately.
+ADMIN_EMAILS = [
+    e.strip().lower()
+    for e in os.getenv(
+        "ADMIN_EMAILS",
+        "tommytiktok0857@gmail.com,kevin_tw@sawasdee.demo",
+    ).split(",")
+    if e.strip()
+]
+
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
