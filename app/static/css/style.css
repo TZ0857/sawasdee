@@ -5396,3 +5396,20 @@ body[data-theme="orchid"] .tt-messages-empty .tt-empty-center a.btn.btn-primary 
         opacity: .72;
     }
 }
+
+/* Messages empty-state ornament: use the exact orchid lifted from the design
+   reference. Inherits content/position/mix-blend-mode:screen from the shared
+   ::after rule, so the dark backing of the crop drops out and only the neon
+   linework shows. Positioned to sit where the reference orchid sits. */
+@media (min-width: 901px) {
+    body[data-theme="orchid"] .tt-messages-empty::after {
+        background-image: url('/static/img/tt-orchid-corner.png');
+        background-position: right bottom;
+        background-size: contain;
+        right: 0;
+        bottom: 0;
+        width: 25vw;
+        height: 40vh;
+        opacity: .92;
+    }
+}
