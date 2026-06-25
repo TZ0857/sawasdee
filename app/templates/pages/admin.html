@@ -1,290 +1,306 @@
 {% extends "components/base.html" %}
 {% block title %}管理後台{% endblock %}
-{% block navbar %}
-<nav class="navbar">
-    <a href="/explore" class="nav-brand" aria-label="返回 App">Sawasdee <span style="font-size:.6em;letter-spacing:.2em;color:var(--gold);">ADMIN</span></a>
-    <div class="nav-links" style="gap:.6rem">
-        <a href="/explore" class="btn btn-secondary btn-sm">← 回 App</a>
-        <a href="#" class="btn btn-secondary btn-sm" onclick="doLogout(); return false;">登出</a>
-    </div>
-</nav>
-{% endblock %}
+{% block navbar %}{% endblock %}
 {% block mobile_nav %}{% endblock %}
 
 {% block head %}
 <style>
-    .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
-    .admin-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: .8rem; margin-bottom: 1.5rem; }
-    .admin-stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; text-align: center; }
-    .admin-stat .num { font-size: 1.7rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-heading); }
-    .admin-stat .lbl { font-size: .72rem; color: var(--text-muted); letter-spacing: .04em; margin-top: .2rem; }
-    .admin-tabs { display: flex; gap: .5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
-    .admin-tab { padding: .5rem 1.1rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: .85rem; }
-    .admin-tab.active { background: var(--gradient-gold); color: #1a1407; font-weight: 600; border-color: transparent; }
-    /* Self-contained header styles (black-gold theme has no .tt-page-* classes). */
-    .tt-page-head { padding: 1.5rem 0 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
-    .tt-kicker { color: var(--gold); font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: .55rem; }
-    .tt-page-title { font-family: var(--font-heading); color: var(--text-primary); font-size: clamp(2rem,4vw,2.8rem); letter-spacing: .01em; }
-    .tt-page-subtitle { color: var(--text-secondary); margin-top: .4rem; }
-    .admin-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-    .admin-table th, .admin-table td { text-align: left; padding: .6rem .5rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .admin-table th { color: var(--text-muted); font-weight: 600; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
-    .admin-table tr:hover td { background: rgba(255,255,255,.02); }
-    .admin-av { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: .5rem; }
-    .pill { display: inline-block; padding: .12rem .5rem; border-radius: 999px; font-size: .68rem; font-weight: 600; }
-    .pill-on { background: rgba(85,216,139,.16); color: #55d88b; }
-    .pill-off { background: rgba(255,93,125,.16); color: #ff5d7d; }
-    .pill-muted { background: rgba(150,150,170,.16); color: var(--text-muted); }
-    .admin-act { padding: .28rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-secondary); cursor: pointer; font-size: .74rem; margin-right: .25rem; }
-    .admin-act:hover { border-color: var(--gold); color: var(--text-primary); }
-    .admin-act.danger:hover { border-color: #ff5d7d; color: #ff5d7d; }
-    .admin-search { padding: .55rem .9rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-input,#0d1124); color: var(--text-primary); width: 280px; max-width: 100%; margin-bottom: 1rem; }
-    .admin-card-list { display: grid; gap: .7rem; }
-    .admin-pcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: .9rem; display: flex; gap: .8rem; align-items: flex-start; }
-    .admin-pcard img.thumb { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; flex: none; }
-    .admin-empty { text-align: center; color: var(--text-muted); padding: 3rem 1rem; }
-    @media (max-width: 720px) {
-        .admin-stats { grid-template-columns: repeat(3, 1fr); }
-        .admin-table .hide-sm { display: none; }
-    }
+  body { margin:0; }
+  .ad-login-wrap { max-width:380px; margin:3rem auto; padding:0 1rem; }
+  .ad-layout { display:grid; grid-template-columns:232px 1fr; min-height:100vh; }
+  /* Sidebar */
+  .ad-side { background:var(--bg-card); border-right:1px solid var(--border); padding:1.4rem 1rem; display:flex; flex-direction:column; gap:.25rem; position:sticky; top:0; height:100vh; }
+  .ad-brand { font-family:var(--font-heading); font-size:1.4rem; color:var(--text-primary); padding:0 .6rem 1.3rem; }
+  .ad-brand b { background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .ad-brand small { display:block; font-size:.6rem; letter-spacing:.32em; color:var(--gold); font-family:var(--font-body); margin-top:.2rem; }
+  .ad-nav { display:flex; align-items:center; gap:.7rem; padding:.65rem .8rem; border-radius:10px; color:var(--text-secondary); font-size:.88rem; cursor:pointer; text-decoration:none; border:0; background:transparent; width:100%; text-align:left; }
+  .ad-nav svg { width:18px; height:18px; opacity:.85; flex:none; }
+  .ad-nav:hover { background:var(--bg-elevated); color:var(--text-primary); }
+  .ad-nav.active { background:var(--gradient-gold); color:#1a1407; font-weight:600; }
+  .ad-nav .cnt { margin-left:auto; font-size:.68rem; background:rgba(255,93,125,.18); color:#ff7d92; padding:.05rem .45rem; border-radius:999px; }
+  .ad-nav.active .cnt { background:rgba(0,0,0,.18); color:#3a2c08; }
+  .ad-side-foot { margin-top:auto; border-top:1px solid var(--border); padding-top:.7rem; }
+  /* Main */
+  .ad-main { padding:1.7rem 2rem 4rem; overflow:auto; }
+  .ad-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.3rem; flex-wrap:wrap; gap:.5rem; }
+  .ad-title { font-family:var(--font-heading); font-size:1.8rem; color:var(--text-primary); }
+  .ad-title span { color:var(--text-muted); font-size:.9rem; font-family:var(--font-body); margin-left:.5rem; }
+  .ad-who { color:var(--text-muted); font-size:.84rem; }
+  .ad-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.8rem; margin-bottom:1.4rem; }
+  .ad-stat { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:1rem; }
+  .ad-stat .n { font-size:1.55rem; font-weight:700; font-family:var(--font-heading); color:var(--gold); }
+  .ad-stat .l { font-size:.71rem; color:var(--text-muted); margin-top:.15rem; }
+  .ad-toolbar { display:flex; gap:.7rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap; }
+  .ad-search { flex:1; min-width:240px; display:flex; align-items:center; gap:.55rem; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:.62rem .9rem; color:var(--gold); }
+  .ad-search input { flex:1; background:transparent; border:0; outline:0; color:var(--text-primary); font-size:.95rem; }
+  .ad-search input::placeholder { color:var(--text-muted); }
+  .ad-filter { display:flex; gap:.45rem; flex-wrap:wrap; }
+  .ad-chip { padding:.5rem .95rem; border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--text-secondary); font-size:.8rem; cursor:pointer; }
+  .ad-chip.on { border-color:var(--gold); color:var(--gold); background:var(--gold-glow); }
+  /* Table */
+  .ad-table { width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .ad-table th { text-align:left; padding:.8rem 1rem; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--border); font-weight:600; }
+  .ad-table td { padding:.7rem 1rem; border-bottom:1px solid var(--border); font-size:.85rem; color:var(--text-secondary); vertical-align:middle; }
+  .ad-table tr:last-child td { border-bottom:0; }
+  .ad-table tr:hover td { background:rgba(200,169,106,.04); }
+  .ad-u { display:flex; align-items:center; gap:.65rem; }
+  .ad-u img, .ad-av { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--gold-dark); flex:none; }
+  .ad-u b { color:var(--text-primary); }
+  .ad-u .h { color:var(--text-muted); font-size:.76rem; }
+  .pill { display:inline-block; padding:.13rem .5rem; border-radius:999px; font-size:.68rem; font-weight:600; }
+  .pill.on { background:rgba(85,216,139,.15); color:#5fd98e; }
+  .pill.off { background:rgba(255,93,125,.15); color:#ff7d92; }
+  .pill.g { background:var(--gold-glow); color:var(--gold); }
+  .pill.muted { background:rgba(150,150,170,.14); color:var(--text-muted); }
+  .act { padding:.3rem .65rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-secondary); font-size:.75rem; cursor:pointer; margin:0 .2rem .2rem 0; }
+  .act:hover { border-color:var(--gold); color:var(--text-primary); }
+  .act.d:hover { border-color:#ff7d92; color:#ff7d92; }
+  .ad-cards { display:grid; gap:.7rem; }
+  .ad-pcard { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:.9rem; display:flex; gap:.8rem; align-items:flex-start; }
+  .ad-pcard .thumb { width:64px; height:64px; border-radius:8px; object-fit:cover; flex:none; background:var(--bg-elevated); }
+  .ad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.8rem; }
+  .ad-tile { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .ad-tile .img { width:100%; aspect-ratio:1; object-fit:cover; background:var(--bg-elevated); display:block; }
+  .ad-tile .meta { padding:.55rem .65rem; }
+  .ad-tile .meta b { color:var(--text-primary); font-size:.8rem; }
+  .ad-tile .meta .h { color:var(--text-muted); font-size:.7rem; }
+  .ad-empty { text-align:center; color:var(--text-muted); padding:3rem 1rem; }
+  .ad-sub-tabs { display:flex; gap:.4rem; margin-bottom:.9rem; }
+  .hidden { display:none !important; }
+  @media (max-width:820px){ .ad-layout{ grid-template-columns:1fr; } .ad-side{ position:static; height:auto; flex-direction:row; flex-wrap:wrap; gap:.3rem; } .ad-side-foot{ margin:0; border:0; padding:0; display:flex; } .ad-brand{ width:100%; padding-bottom:.6rem; } .ad-main{ padding:1.2rem; } .ad-table .hide-sm{ display:none; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-content">
-  <div class="admin-wrap">
-    <header class="tt-page-head" style="padding-top:1rem">
-        <div class="tt-kicker">SAWASDEE ADMIN</div>
-        <h1 class="tt-page-title">管理後台</h1>
-        <p class="tt-page-subtitle" id="adminWho">載入中…</p>
-    </header>
-
-    <div id="adminBody" class="hidden">
-        <div class="admin-stats" id="statsRow"></div>
-
-        <div class="admin-tabs">
-            <button class="admin-tab active" data-tab="users" onclick="switchTab('users', this)">👤 用戶</button>
-            <button class="admin-tab" data-tab="posts" onclick="switchTab('posts', this)">📝 動態審核</button>
-            <button class="admin-tab" data-tab="reports" onclick="switchTab('reports', this)">🚨 檢舉處理</button>
-        </div>
-
-        <section id="tab-users">
-            <input class="admin-search" id="userSearch" placeholder="搜尋名稱 / 帳號 / Email…" oninput="onUserSearch()">
-            <div style="overflow-x:auto"><table class="admin-table"><thead><tr>
-                <th>使用者</th><th class="hide-sm">Email</th><th>狀態</th><th>標記</th><th>操作</th>
-            </tr></thead><tbody id="usersBody"></tbody></table></div>
-        </section>
-
-        <section id="tab-posts" class="hidden">
-            <div class="admin-card-list" id="postsBody"></div>
-        </section>
-
-        <section id="tab-reports" class="hidden">
-            <div class="admin-tabs">
-                <button class="admin-tab active" data-rs="pending" onclick="switchReportStatus('pending', this)">待處理</button>
-                <button class="admin-tab" data-rs="resolved" onclick="switchReportStatus('resolved', this)">已處理</button>
-                <button class="admin-tab" data-rs="dismissed" onclick="switchReportStatus('dismissed', this)">已忽略</button>
-            </div>
-            <div class="admin-card-list" id="reportsBody"></div>
-        </section>
-    </div>
-
-    <div id="adminLogin" class="hidden" style="max-width:380px;margin:2.5rem auto">
-        <div class="card" style="padding:1.8rem">
-            <div class="tt-kicker" style="margin-bottom:.3rem">SAWASDEE BACK OFFICE</div>
-            <h2 style="margin:.1rem 0 1.2rem">後台登入</h2>
-            <form id="adminLoginForm" autocomplete="off">
-                <div class="form-group">
-                    <label class="form-label" for="adminUser">管理員帳號</label>
-                    <input class="form-input" id="adminUser" autocapitalize="none" autocomplete="off" placeholder="ADMIN" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="adminPass">密碼</label>
-                    <input class="form-input" id="adminPass" type="password" autocomplete="off" placeholder="輸入密碼" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block" style="margin-top:.6rem">登入後台</button>
-            </form>
-            <p id="adminLoginErr" style="margin-top:.8rem;font-size:.82rem;color:#ff5d7d;min-height:1em"></p>
-        </div>
-    </div>
+<!-- Login -->
+<div id="adminLogin" class="ad-login-wrap hidden">
+  <div class="card" style="padding:1.8rem">
+    <div style="font-family:var(--font-heading);font-size:1.5rem;color:var(--text-primary)"><b style="background:var(--gradient-gold);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Sawasdee</b></div>
+    <div style="font-size:.62rem;letter-spacing:.3em;color:var(--gold);margin:.2rem 0 1.3rem">BACK OFFICE</div>
+    <form id="adminLoginForm" autocomplete="off">
+      <div class="form-group"><label class="form-label" for="adminUser">管理員帳號</label><input class="form-input" id="adminUser" autocapitalize="none" autocomplete="off" placeholder="ADMIN" required></div>
+      <div class="form-group"><label class="form-label" for="adminPass">密碼</label><input class="form-input" id="adminPass" type="password" autocomplete="off" placeholder="輸入密碼" required></div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:.6rem">登入後台</button>
+    </form>
+    <p id="adminLoginErr" style="margin-top:.8rem;font-size:.82rem;color:#ff7d92;min-height:1em"></p>
   </div>
-</main>
+</div>
+
+<!-- Dashboard layout -->
+<div id="adminApp" class="ad-layout hidden">
+  <aside class="ad-side">
+    <div class="ad-brand"><b>Sawasdee</b><small>BACK OFFICE</small></div>
+    <button class="ad-nav" data-sec="dashboard" onclick="switchSection('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg> 數據總覽</button>
+    <button class="ad-nav active" data-sec="users" onclick="switchSection('users',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 用戶管理</button>
+    <button class="ad-nav" data-sec="posts" onclick="switchSection('posts',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg> 動態管理</button>
+    <button class="ad-nav" data-sec="stories" onclick="switchSection('stories',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg> 限時動態</button>
+    <button class="ad-nav" data-sec="photos" onclick="switchSection('photos',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg> 相簿審核 <span class="cnt hidden" id="badge-photos">0</span></button>
+    <button class="ad-nav" data-sec="gatherings" onclick="switchSection('gatherings',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 組局管理</button>
+    <button class="ad-nav" data-sec="subscriptions" onclick="switchSection('subscriptions',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 15.1 8.3 22 9.3l-5 4.9 1.2 6.9L12 17.8 5.8 21 7 14.1 2 9.3l6.9-1z"/></svg> 訂閱管理</button>
+    <button class="ad-nav" data-sec="reports" onclick="switchSection('reports',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg> 檢舉處理 <span class="cnt hidden" id="badge-reports">0</span></button>
+    <div class="ad-side-foot">
+      <a class="ad-nav" href="/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> 回 App</a>
+      <button class="ad-nav" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg> 登出</button>
+    </div>
+  </aside>
+
+  <main class="ad-main">
+    <div class="ad-head">
+      <div class="ad-title" id="secTitle">用戶管理</div>
+      <div class="ad-who" id="adminWho"></div>
+    </div>
+    <div id="secBody"></div>
+  </main>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(s){ if(!s) return '—'; try{ return new Date(s.endsWith('Z')?s:s+'Z').toLocaleDateString('zh-TW'); }catch(_){ return '—'; } }
+const GENDER = {male:'男',female:'女'}, NAT = {taiwanese:'🇹🇼台',thai:'🇹🇭泰'};
+const GTYPE = {meal:'飯局',drinks:'小酌',karaoke:'KTV',movie:'電影',nightlife:'夜生活'};
+const REASON = {spam:'垃圾訊息',nudity:'裸露/色情',harassment:'騷擾',scam:'詐騙',fake:'假帳號',other:'其他','':'未分類'};
 
-let _userTimer = null;
+let _timer=null;
+function debounce(fn){ clearTimeout(_timer); _timer=setTimeout(fn,300); }
 
-async function loadStats(){
-    const s = await api.get('/api/admin/stats');
-    const cards = [
-        ['總用戶', s.total_users], ['付費', s.subscribed], ['在線', s.online],
-        ['停權', s.banned], ['動態', s.total_posts], ['待處理檢舉', s.pending_reports],
-    ];
-    document.getElementById('statsRow').innerHTML = cards.map(([l,n]) =>
-        `<div class="admin-stat"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join('');
+// ───────── section registry ─────────
+const SECTIONS = {
+  dashboard:{title:'數據總覽', load:loadDashboard},
+  users:{title:'用戶管理', load:loadUsers},
+  posts:{title:'動態管理', load:loadPosts},
+  stories:{title:'限時動態', load:loadStories},
+  photos:{title:'相簿審核', load:loadPhotos},
+  gatherings:{title:'組局管理', load:loadGatherings},
+  subscriptions:{title:'訂閱管理', load:loadSubscriptions},
+  reports:{title:'檢舉處理', load:loadReports},
+};
+const state = { users:{q:'',filter:'all'}, posts:{q:''}, stories:{filter:'active'}, photos:{filter:'all'}, gatherings:{q:'',filter:'active'}, subscriptions:{q:'',filter:'active'}, reports:{status:'pending'} };
+
+function switchSection(key, btn){
+  currentSec = key;
+  document.querySelectorAll('.ad-nav[data-sec]').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active'); else document.querySelector(`.ad-nav[data-sec="${key}"]`)?.classList.add('active');
+  document.getElementById('secTitle').textContent = SECTIONS[key].title;
+  document.getElementById('secBody').innerHTML = '<div class="ad-empty"><div class="spinner"></div></div>';
+  SECTIONS[key].load();
 }
 
-function switchTab(tab, btn){
-    document.querySelectorAll('.admin-tabs .admin-tab[data-tab]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    ['users','posts','reports'].forEach(t => document.getElementById('tab-'+t).classList.toggle('hidden', t!==tab));
-    if (tab==='users') loadUsers();
-    if (tab==='posts') loadPosts();
-    if (tab==='reports') loadReports(currentReportStatus);
+function chips(options, current, onclick){
+  return `<div class="ad-filter">${options.map(([v,l])=>`<button class="ad-chip ${v===current?'on':''}" onclick="${onclick}('${v}')">${l}</button>`).join('')}</div>`;
+}
+function searchBar(id, ph, oninput, value){ return `<div class="ad-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="${id}" placeholder="${ph}" oninput="${oninput}" value="${esc(value||'')}"></div>`; }
+
+let currentSec = 'users';
+function reloadCurrent(){ return SECTIONS[currentSec].load(); }
+function searchReload(){
+  const a=document.activeElement, id=(a&&a.tagName==='INPUT')?a.id:null;
+  reloadCurrent().then(()=>{ if(id){ const el=document.getElementById(id); if(el){ el.focus(); try{ el.setSelectionRange(el.value.length,el.value.length);}catch(_){} } } });
 }
 
-// ── Users ──
-async function loadUsers(q){
-    const rows = await api.get('/api/admin/users' + (q ? '?q='+encodeURIComponent(q) : ''));
-    const body = document.getElementById('usersBody');
-    if (!rows.length){ body.innerHTML = '<tr><td colspan="5" class="admin-empty">沒有符合的用戶</td></tr>'; return; }
-    body.innerHTML = rows.map(u => {
-        const status = u.is_active ? '<span class="pill pill-on">正常</span>' : '<span class="pill pill-off">已停權</span>';
-        const tags = [
-            u.is_admin ? '<span class="pill pill-muted">管理員</span>' : '',
-            u.is_verified ? '<span class="pill pill-on">✓認證</span>' : '',
-            u.is_subscribed ? '<span class="pill pill-muted">Premium</span>' : '',
-        ].filter(Boolean).join(' ') || '<span class="text-muted">—</span>';
-        const av = u.avatar_url ? `<img class="admin-av" src="${esc(u.avatar_url)}">` : '';
-        let acts = '';
-        if (!u.is_admin){
-            acts = `
-                <button class="admin-act" onclick="toggleBan('${u.id}')">${u.is_active?'停權':'解封'}</button>
-                <button class="admin-act" onclick="toggleVerify('${u.id}')">${u.is_verified?'取消認證':'認證'}</button>
-                <button class="admin-act danger" onclick="delUser('${u.id}','${esc(u.username)}')">刪除</button>`;
-        } else {
-            acts = '<span class="text-muted">—</span>';
-        }
-        return `<tr>
-            <td>${av}<b>${esc(u.display_name)}</b> <span class="text-muted">@${esc(u.username)}</span></td>
-            <td class="hide-sm text-muted">${esc(u.email)}</td>
-            <td>${status}</td>
-            <td>${tags}</td>
-            <td style="white-space:nowrap">${acts}</td>
-        </tr>`;
-    }).join('');
+// ───────── Dashboard ─────────
+async function loadDashboard(){
+  const s = await api.get('/api/admin/stats');
+  const cards = [['總用戶',s.total_users],['付費會員',s.subscribed],['在線中',s.online],['已停權',s.banned],['動態',s.total_posts],['限時動態',s.active_stories],['照片',s.total_photos],['進行中組局',s.active_gatherings],['待處理相簿申請',s.pending_album_requests],['待處理檢舉',s.pending_reports]];
+  document.getElementById('secBody').innerHTML = `<div class="ad-stats">${cards.map(([l,n])=>`<div class="ad-stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('')}</div>
+    <p class="text-muted" style="margin-top:1rem">點左側選單管理各模組。紅點代表有待處理項目。</p>`;
 }
-function onUserSearch(){
-    clearTimeout(_userTimer);
-    const q = document.getElementById('userSearch').value.trim();
-    _userTimer = setTimeout(() => loadUsers(q), 300);
-}
-async function toggleBan(id){ try { await api.post(`/api/admin/users/${id}/toggle-ban`); loadUsers(document.getElementById('userSearch').value.trim()); loadStats(); } catch(e){ showToast(e.message,'error'); } }
-async function toggleVerify(id){ try { await api.post(`/api/admin/users/${id}/toggle-verify`); loadUsers(document.getElementById('userSearch').value.trim()); } catch(e){ showToast(e.message,'error'); } }
-async function delUser(id, name){ if(!confirm(`確定刪除使用者 @${name}？此動作無法復原。`)) return; try { await api.delete(`/api/admin/users/${id}`); showToast('已刪除','success'); loadUsers(document.getElementById('userSearch').value.trim()); loadStats(); } catch(e){ showToast(e.message,'error'); } }
 
-// ── Posts ──
+// ───────── Users ─────────
+async function loadUsers(){
+  const st = state.users;
+  const rows = await api.get(`/api/admin/users?q=${encodeURIComponent(st.q)}&filter=${st.filter}`);
+  const head = `<div class="ad-toolbar">${searchBar('uSearch','搜尋名稱、帳號或 Email…','onUserSearch(this.value)',st.q)}${chips([['all','全部'],['subscribed','付費'],['online','在線'],['banned','已停權'],['verified','已認證']],st.filter,'userFilter')}</div>`;
+  let body;
+  if(!rows.length){ body = '<div class="ad-empty">沒有符合的用戶</div>'; }
+  else body = `<div style="overflow-x:auto"><table class="ad-table"><thead><tr><th>使用者</th><th class="hide-sm">Email</th><th>性別/地區</th><th>狀態</th><th>標記</th><th>操作</th></tr></thead><tbody>${rows.map(u=>{
+    const av = u.avatar_url?`<img src="${esc(u.avatar_url)}">`:'<div class="ad-av"></div>';
+    const tags=[u.is_admin?'<span class="pill muted">管理員</span>':'',u.is_verified?'<span class="pill g">✓認證</span>':'',u.is_subscribed?'<span class="pill g">Premium</span>':''].filter(Boolean).join(' ')||'—';
+    let acts='—';
+    if(!u.is_admin){ acts=`<button class="act" onclick="uBan('${u.id}')">${u.is_active?'停權':'解封'}</button><button class="act" onclick="uVerify('${u.id}')">${u.is_verified?'取消認證':'認證'}</button>${u.is_subscribed?`<button class="act" onclick="uRevoke('${u.id}')">取消Premium</button>`:`<button class="act" onclick="uGrant('${u.id}')">開通Premium</button>`}<button class="act d" onclick="uDel('${u.id}','${esc(u.username)}')">刪除</button>`; }
+    return `<tr><td><div class="ad-u">${av}<div><b>${esc(u.display_name)}</b><div class="h">@${esc(u.username)}${u.is_online?' <span style="color:#5fd98e">●</span>':''}</div></div></div></td><td class="hide-sm">${esc(u.email)}</td><td>${GENDER[u.gender]||''} ${NAT[u.nationality]||''}${u.age?' · '+u.age:''}</td><td>${u.is_active?'<span class="pill on">正常</span>':'<span class="pill off">已停權</span>'}</td><td>${tags}</td><td style="white-space:nowrap">${acts}</td></tr>`;
+  }).join('')}</tbody></table></div>`;
+  document.getElementById('secBody').innerHTML = head + body;
+}
+function onUserSearch(v){ state.users.q=v.trim(); debounce(searchReload); }
+function userFilter(f){ state.users.filter=f; reloadCurrent(); }
+async function uBan(id){ try{ await api.post(`/api/admin/users/${id}/toggle-ban`); reloadCurrent(); }catch(e){ showToast(e.message,'error'); } }
+async function uVerify(id){ try{ await api.post(`/api/admin/users/${id}/toggle-verify`); reloadCurrent(); }catch(e){ showToast(e.message,'error'); } }
+async function uGrant(id){ try{ await api.post(`/api/admin/users/${id}/grant-premium`,{days:30}); showToast('已開通 30 天 Premium','success'); reloadCurrent(); }catch(e){ showToast(e.message,'error'); } }
+async function uRevoke(id){ try{ await api.post(`/api/admin/users/${id}/revoke-premium`,{}); showToast('已取消 Premium','success'); reloadCurrent(); }catch(e){ showToast(e.message,'error'); } }
+async function uDel(id,name){ if(!confirm(`確定刪除 @${name}？無法復原。`))return; try{ await api.delete(`/api/admin/users/${id}`); showToast('已刪除','success'); reloadCurrent(); }catch(e){ showToast(e.message,'error'); } }
+
+// ───────── Posts ─────────
 async function loadPosts(){
-    const rows = await api.get('/api/admin/posts');
-    const body = document.getElementById('postsBody');
-    if (!rows.length){ body.innerHTML = '<div class="admin-empty">目前沒有動態</div>'; return; }
-    body.innerHTML = rows.map(p => {
-        const thumb = p.image_url ? `<img class="thumb" src="${esc(p.image_url)}">` : (p.video_url ? '<div class="thumb" style="display:flex;align-items:center;justify-content:center;background:var(--bg-elevated)">🎬</div>' : '');
-        return `<div class="admin-pcard">
-            ${thumb}
-            <div style="flex:1;min-width:0">
-                <div><b>${esc(p.author.display_name)}</b> <span class="text-muted">@${esc(p.author.username)} · ${timeAgo(p.created_at)}</span></div>
-                <div style="margin:.3rem 0;color:var(--text-secondary);word-break:break-word">${esc(p.content) || '<span class="text-muted">（無文字）</span>'}</div>
-                <div class="text-muted" style="font-size:.74rem">❤ ${p.likes_count} · 💬 ${p.comments_count}</div>
-            </div>
-            <button class="admin-act danger" onclick="delPost('${p.id}')">刪除</button>
-        </div>`;
-    }).join('');
+  const rows = await api.get(`/api/admin/posts?q=${encodeURIComponent(state.posts.q)}`);
+  const head=`<div class="ad-toolbar">${searchBar('pSearch','搜尋作者或內容…','onPostSearch(this.value)',state.posts.q)}</div>`;
+  const body = !rows.length?'<div class="ad-empty">沒有動態</div>':`<div class="ad-cards">${rows.map(p=>{
+    const thumb=p.image_url?`<img class="thumb" src="${esc(p.image_url)}">`:(p.video_url?'<div class="thumb" style="display:flex;align-items:center;justify-content:center">🎬</div>':'');
+    return `<div class="ad-pcard">${thumb}<div style="flex:1;min-width:0"><div><b style="color:var(--text-primary)">${esc(p.author.display_name)}</b> <span class="text-muted">@${esc(p.author.username)} · ${fmtDate(p.created_at)}</span></div><div style="margin:.3rem 0;color:var(--text-secondary);word-break:break-word">${esc(p.content)||'<span class="text-muted">（無文字）</span>'}</div><div class="text-muted" style="font-size:.74rem">❤ ${p.likes_count} · 💬 ${p.comments_count}</div></div><button class="act d" onclick="delPost('${p.id}')">刪除</button></div>`;
+  }).join('')}</div>`;
+  document.getElementById('secBody').innerHTML = head+body;
 }
-async function delPost(id){ if(!confirm('確定刪除這則動態？')) return; try { await api.delete(`/api/admin/posts/${id}`); showToast('已刪除','success'); loadPosts(); loadStats(); } catch(e){ showToast(e.message,'error'); } }
+function onPostSearch(v){ state.posts.q=v.trim(); debounce(searchReload); }
+async function delPost(id){ if(!confirm('確定刪除這則動態？'))return; try{ await api.delete(`/api/admin/posts/${id}`); showToast('已刪除','success'); loadPosts(); }catch(e){ showToast(e.message,'error'); } }
 
-// ── Reports ──
-let currentReportStatus = 'pending';
-function switchReportStatus(st, btn){
-    currentReportStatus = st;
-    document.querySelectorAll('.admin-tab[data-rs]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    loadReports(st);
+// ───────── Stories ─────────
+async function loadStories(){
+  const rows = await api.get(`/api/admin/stories?filter=${state.stories.filter}`);
+  const head=`<div class="ad-toolbar">${chips([['active','進行中'],['expired','已過期']],state.stories.filter,'storyFilter')}</div>`;
+  const body = !rows.length?'<div class="ad-empty">沒有限時動態</div>':`<div class="ad-grid">${rows.map(s=>`<div class="ad-tile"><img class="img" src="${esc(s.image_url)}"><div class="meta"><b>${esc(s.author.display_name)}</b><div class="h">@${esc(s.author.username)} · ${fmtDate(s.created_at)}</div><div style="margin-top:.4rem">${s.is_active?'<span class="pill on">進行中</span>':'<span class="pill muted">已過期</span>'} <button class="act d" onclick="delStory('${s.id}')">刪除</button></div></div></div>`).join('')}</div>`;
+  document.getElementById('secBody').innerHTML = head+body;
 }
-const REASON_LABEL = { spam:'垃圾訊息', nudity:'裸露/色情', harassment:'騷擾', scam:'詐騙', fake:'假帳號', other:'其他', '':'未分類' };
-async function loadReports(st){
-    const rows = await api.get('/api/admin/reports?status=' + st);
-    const body = document.getElementById('reportsBody');
-    if (!rows.length){ body.innerHTML = '<div class="admin-empty">沒有檢舉</div>'; return; }
-    body.innerHTML = rows.map(r => {
-        const typeLabel = {user:'使用者',post:'動態',message:'訊息'}[r.target_type] || r.target_type;
-        let acts = '';
-        if (r.status === 'pending'){
-            const tgt = r.target_type === 'post'
-                ? `<button class="admin-act danger" onclick="resolveReport('${r.id}','delete_target')">刪除動態</button>`
-                : (r.target_type === 'user'
-                    ? `<button class="admin-act danger" onclick="resolveReport('${r.id}','ban_target')">停權用戶</button>` : '');
-            acts = `${tgt}
-                <button class="admin-act" onclick="resolveReport('${r.id}','resolve')">標記完成</button>
-                <button class="admin-act" onclick="resolveReport('${r.id}','dismiss')">忽略</button>`;
-        } else {
-            acts = `<span class="text-muted">${esc(r.resolution || r.status)}</span>`;
-        }
-        return `<div class="admin-pcard" style="flex-direction:column;align-items:stretch">
-            <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
-                <div><span class="pill pill-off">${esc(REASON_LABEL[r.reason] ?? r.reason)}</span>
-                    <span class="text-muted">檢舉${esc(typeLabel)} · 來自 @${esc(r.reporter)} · ${timeAgo(r.created_at)}</span></div>
-            </div>
-            ${r.detail ? `<div style="margin:.4rem 0;color:var(--text-secondary)">${esc(r.detail)}</div>` : ''}
-            <div class="text-muted" style="font-size:.72rem">對象 ID：${esc(r.target_id)}</div>
-            <div style="margin-top:.5rem">${acts}</div>
-        </div>`;
-    }).join('');
+function storyFilter(f){ state.stories.filter=f; loadStories(); }
+async function delStory(id){ if(!confirm('確定刪除這則限時動態？'))return; try{ await api.delete(`/api/admin/stories/${id}`); showToast('已刪除','success'); loadStories(); }catch(e){ showToast(e.message,'error'); } }
+
+// ───────── Photos / Albums ─────────
+async function loadPhotos(){
+  const [photos, reqs] = await Promise.all([
+    api.get(`/api/admin/photos?filter=${state.photos.filter}`),
+    api.get('/api/admin/album-requests?status=pending'),
+  ]);
+  const head=`<div class="ad-toolbar">${chips([['all','全部照片'],['public','公開'],['private','私密']],state.photos.filter,'photoFilter')}</div>`;
+  let reqHtml='';
+  if(reqs.length){ reqHtml = `<h3 style="margin:.4rem 0 .7rem;color:var(--gold)">私密相簿申請（${reqs.length}）</h3><div class="ad-cards" style="margin-bottom:1.6rem">${reqs.map(r=>`<div class="ad-pcard" style="align-items:center"><div class="ad-u" style="flex:1">${r.requester.avatar_url?`<img src="${esc(r.requester.avatar_url)}">`:'<div class="ad-av"></div>'}<div><b style="color:var(--text-primary)">${esc(r.requester.display_name)}</b><div class="h">@${esc(r.requester.username)} 申請看「${esc(r.album_title)}」· ${fmtDate(r.created_at)}</div></div></div><button class="act" onclick="albumReq('${r.id}','approve')">核准</button><button class="act d" onclick="albumReq('${r.id}','reject')">拒絕</button></div>`).join('')}</div>`; }
+  const grid = !photos.length?'<div class="ad-empty">沒有照片</div>':`<div class="ad-grid">${photos.map(p=>`<div class="ad-tile"><img class="img" src="${esc(p.image_url)}"><div class="meta"><b>${esc(p.owner.display_name)}</b><div class="h">@${esc(p.owner.username)} · ${p.album_type==='private'?'🔒私密':'公開'}</div><div style="margin-top:.4rem"><button class="act d" onclick="delPhoto('${p.id}')">刪除</button></div></div></div>`).join('')}</div>`;
+  document.getElementById('secBody').innerHTML = head + reqHtml + grid;
 }
-async function resolveReport(id, action){
-    try { await api.post(`/api/admin/reports/${id}/resolve`, { action }); showToast('已處理','success'); loadReports(currentReportStatus); loadStats(); }
-    catch(e){ showToast(e.message,'error'); }
+function photoFilter(f){ state.photos.filter=f; loadPhotos(); }
+async function delPhoto(id){ if(!confirm('確定刪除這張照片？'))return; try{ await api.delete(`/api/admin/photos/${id}`); showToast('已刪除','success'); loadPhotos(); }catch(e){ showToast(e.message,'error'); } }
+async function albumReq(id,action){ try{ await api.post(`/api/admin/album-requests/${id}/resolve`,{action}); showToast(action==='approve'?'已核准':'已拒絕','success'); loadPhotos(); refreshBadges(); }catch(e){ showToast(e.message,'error'); } }
+
+// ───────── Gatherings ─────────
+async function loadGatherings(){
+  const st=state.gatherings;
+  const rows = await api.get(`/api/admin/gatherings?q=${encodeURIComponent(st.q)}&filter=${st.filter}`);
+  const head=`<div class="ad-toolbar">${searchBar('gSearch','搜尋標題或地點…','onGatherSearch(this.value)',st.q)}${chips([['active','進行中'],['expired','已結束']],st.filter,'gatherFilter')}</div>`;
+  const body = !rows.length?'<div class="ad-empty">沒有組局</div>':`<div style="overflow-x:auto"><table class="ad-table"><thead><tr><th>組局</th><th>主辦</th><th class="hide-sm">地點</th><th>名額</th><th>狀態</th><th>操作</th></tr></thead><tbody>${rows.map(g=>`<tr><td><b style="color:var(--text-primary)">${esc(g.title)}</b><div class="h text-muted" style="font-size:.74rem">${GTYPE[g.type]||g.type} · 截止 ${fmtDate(g.expires_at)}</div></td><td>@${esc(g.host.username)}</td><td class="hide-sm">${esc(g.location)}</td><td>${g.current_slots}/${g.max_slots}</td><td>${g.is_active?'<span class="pill on">進行中</span>':'<span class="pill muted">已結束</span>'}</td><td style="white-space:nowrap"><button class="act" onclick="gToggle('${g.id}')">${g.is_active?'下架':'上架'}</button><button class="act d" onclick="gDel('${g.id}')">刪除</button></td></tr>`).join('')}</tbody></table></div>`;
+  document.getElementById('secBody').innerHTML = head+body;
+}
+function onGatherSearch(v){ state.gatherings.q=v.trim(); debounce(searchReload); }
+function gatherFilter(f){ state.gatherings.filter=f; loadGatherings(); }
+async function gToggle(id){ try{ await api.post(`/api/admin/gatherings/${id}/toggle-active`); loadGatherings(); }catch(e){ showToast(e.message,'error'); } }
+async function gDel(id){ if(!confirm('確定刪除這個組局？'))return; try{ await api.delete(`/api/admin/gatherings/${id}`); showToast('已刪除','success'); loadGatherings(); }catch(e){ showToast(e.message,'error'); } }
+
+// ───────── Subscriptions ─────────
+async function loadSubscriptions(){
+  const st=state.subscriptions;
+  const rows = await api.get(`/api/admin/subscriptions?q=${encodeURIComponent(st.q)}&filter=${st.filter}`);
+  const head=`<div class="ad-toolbar">${searchBar('sSearch','搜尋會員…','onSubSearch(this.value)',st.q)}${chips([['active','有效'],['expired','已過期'],['all','全部']],st.filter,'subFilter')}</div>`;
+  const body = !rows.length?'<div class="ad-empty">沒有資料</div>':`<div style="overflow-x:auto"><table class="ad-table"><thead><tr><th>會員</th><th class="hide-sm">Email</th><th>狀態</th><th>到期日</th><th>操作</th></tr></thead><tbody>${rows.map(u=>`<tr><td><div class="ad-u">${u.avatar_url?`<img src="${esc(u.avatar_url)}">`:'<div class="ad-av"></div>'}<div><b>${esc(u.display_name)}</b><div class="h">@${esc(u.username)}</div></div></div></td><td class="hide-sm">${esc(u.email)}</td><td>${u.is_subscribed?'<span class="pill g">Premium</span>':'<span class="pill muted">未訂閱</span>'}</td><td>${fmtDate(u.subscription_expires_at)}</td><td style="white-space:nowrap"><button class="act" onclick="uGrant('${u.id}')">+30天</button>${u.is_subscribed?`<button class="act d" onclick="uRevoke('${u.id}')">取消</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+  document.getElementById('secBody').innerHTML = head+body;
+}
+function onSubSearch(v){ state.subscriptions.q=v.trim(); debounce(searchReload); }
+function subFilter(f){ state.subscriptions.filter=f; loadSubscriptions(); }
+
+// ───────── Reports ─────────
+async function loadReports(){
+  const rows = await api.get(`/api/admin/reports?status=${state.reports.status}`);
+  const head=`<div class="ad-toolbar">${chips([['pending','待處理'],['resolved','已處理'],['dismissed','已忽略']],state.reports.status,'reportFilter')}</div>`;
+  const body = !rows.length?'<div class="ad-empty">沒有檢舉</div>':`<div class="ad-cards">${rows.map(r=>{
+    const tlabel={user:'使用者',post:'動態',message:'訊息'}[r.target_type]||r.target_type;
+    let acts='';
+    if(r.status==='pending'){ const tgt=r.target_type==='post'?`<button class="act d" onclick="resolveReport('${r.id}','delete_target')">刪除動態</button>`:(r.target_type==='user'?`<button class="act d" onclick="resolveReport('${r.id}','ban_target')">停權用戶</button>`:''); acts=`${tgt}<button class="act" onclick="resolveReport('${r.id}','resolve')">標記完成</button><button class="act" onclick="resolveReport('${r.id}','dismiss')">忽略</button>`; }
+    else acts=`<span class="text-muted">${esc(r.resolution||r.status)}</span>`;
+    return `<div class="ad-pcard" style="flex-direction:column;align-items:stretch"><div><span class="pill off">${esc(REASON[r.reason]??r.reason)}</span> <span class="text-muted">檢舉${esc(tlabel)} · 來自 @${esc(r.reporter)} · ${fmtDate(r.created_at)}</span></div>${r.detail?`<div style="margin:.4rem 0;color:var(--text-secondary)">${esc(r.detail)}</div>`:''}<div class="text-muted" style="font-size:.72rem">對象 ID：${esc(r.target_id)}</div><div style="margin-top:.5rem">${acts}</div></div>`;
+  }).join('')}</div>`;
+  document.getElementById('secBody').innerHTML = head+body;
+}
+function reportFilter(s){ state.reports.status=s; loadReports(); }
+async function resolveReport(id,action){ try{ await api.post(`/api/admin/reports/${id}/resolve`,{action}); showToast('已處理','success'); loadReports(); refreshBadges(); }catch(e){ showToast(e.message,'error'); } }
+
+// ───────── badges ─────────
+async function refreshBadges(){
+  try{ const s=await api.get('/api/admin/stats');
+    const setB=(id,n)=>{ const el=document.getElementById(id); if(!el)return; if(n>0){el.textContent=n>99?'99+':n; el.classList.remove('hidden');} else el.classList.add('hidden'); };
+    setB('badge-photos', s.pending_album_requests); setB('badge-reports', s.pending_reports);
+  }catch(_){}
 }
 
-// ── Auth (dedicated back-office login, separate from member /login) ──
-async function showDashboard(){
-    await loadStats();                       // throws 401/403 if not an admin token
-    document.getElementById('adminLogin').classList.add('hidden');
-    document.getElementById('adminBody').classList.remove('hidden');
-    loadUsers();
-}
-function showLogin(){
-    document.getElementById('adminWho').textContent = '請先登入後台';
-    document.getElementById('adminBody').classList.add('hidden');
-    document.getElementById('adminLogin').classList.remove('hidden');
-}
+// ───────── auth boot ─────────
+function showApp(){ document.getElementById('adminLogin').classList.add('hidden'); document.getElementById('adminApp').classList.remove('hidden'); }
+function showLogin(){ document.getElementById('adminApp').classList.add('hidden'); document.getElementById('adminLogin').classList.remove('hidden'); }
 
-document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = e.target.querySelector('button');
-    const err = document.getElementById('adminLoginErr');
-    err.textContent = '';
-    btn.disabled = true; btn.textContent = '登入中…';
-    try {
-        const data = await api.post('/api/admin/login', {
-            username: document.getElementById('adminUser').value.trim(),
-            password: document.getElementById('adminPass').value,
-        });
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify({ username: data.admin.username, display_name: data.admin.display_name, is_admin: true }));
-        document.getElementById('adminWho').textContent = `管理員：${data.admin.display_name || data.admin.username}`;
-        await showDashboard();
-    } catch (e2) {
-        err.textContent = e2.message || '登入失敗';
-        btn.disabled = false; btn.textContent = '登入後台';
-    }
+document.getElementById('adminLoginForm').addEventListener('submit', async (e)=>{
+  e.preventDefault(); const btn=e.target.querySelector('button'), err=document.getElementById('adminLoginErr');
+  err.textContent=''; btn.disabled=true; btn.textContent='登入中…';
+  try{
+    const data=await api.post('/api/admin/login',{username:document.getElementById('adminUser').value.trim(),password:document.getElementById('adminPass').value});
+    localStorage.setItem('token',data.access_token);
+    localStorage.setItem('user',JSON.stringify({username:data.admin.username,display_name:data.admin.display_name,is_admin:true}));
+    await boot();
+  }catch(e2){ err.textContent=e2.message||'登入失敗'; btn.disabled=false; btn.textContent='登入後台'; }
 });
 
-(async function init(){
-    // Reuse an existing admin token if present; otherwise show the back-office
-    // login form. Never redirect to the member /login page.
-    if (localStorage.getItem('token')) {
-        try {
-            const u = getUser();
-            document.getElementById('adminWho').textContent = `管理員：${u.display_name || u.username || ''}`;
-            await showDashboard();
-            return;
-        } catch (e) { /* not an admin token → show login form */ }
-    }
-    showLogin();
-})();
+async function boot(){
+  try{
+    await api.get('/api/admin/stats');          // 401/403 if not admin
+    const u=getUser(); document.getElementById('adminWho').textContent=`管理員：${u.display_name||u.username||''}`;
+    showApp(); refreshBadges();
+    switchSection('users', document.querySelector('.ad-nav[data-sec="users"]'));
+  }catch(e){ showLogin(); }
+}
+(function init(){ if(localStorage.getItem('token')) boot(); else showLogin(); })();
 </script>
 {% endblock %}
