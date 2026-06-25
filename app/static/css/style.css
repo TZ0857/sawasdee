@@ -4948,6 +4948,17 @@ body[data-theme="orchid"] .conversation-item:hover {
         border-radius: 14px;
     }
 
+    body[data-theme="orchid"] .tt-feed-page .tt-feed-stories {
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        overflow: hidden !important;
+        opacity: 0;
+        pointer-events: none;
+    }
+
     body[data-theme="orchid"] .tt-feed-page .post-card {
         border-radius: 14px;
         border-color: rgba(223, 138, 32, .42) !important;
@@ -5176,6 +5187,51 @@ body[data-theme="orchid"] .conversation-item:hover {
         color: #ff9ac8;
     }
 
+    body[data-theme="orchid"] .tt-events-page #gatheringEmpty .empty-state-card {
+        position: relative;
+        width: min(100%, 900px);
+        max-width: none !important;
+        min-height: 360px;
+        margin: 1.2rem auto 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid rgba(223, 138, 32, .38);
+        border-radius: 18px;
+        background:
+            linear-gradient(90deg, rgba(4,8,18,.92), rgba(7,12,26,.78)),
+            url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1100&q=75') center / cover;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 22px 48px rgba(0,0,0,.28);
+    }
+
+    body[data-theme="orchid"] .tt-events-page #gatheringEmpty .empty-state-card::after {
+        content: "ROOFTOP VIBES\A TAIPEI × BANGKOK";
+        white-space: pre;
+        position: absolute;
+        right: 2rem;
+        bottom: 1.6rem;
+        color: rgba(255, 212, 155, .72);
+        font: 700 .72rem/1.8 var(--font-body);
+        letter-spacing: .22em;
+        text-align: right;
+    }
+
+    body[data-theme="orchid"] .tt-events-page #gatheringEmpty .empty-icon {
+        color: #ff7eb7;
+        text-shadow: 0 0 22px rgba(255, 77, 155, .32);
+    }
+
+    body[data-theme="orchid"] .tt-events-page #gatheringEmpty .empty-title {
+        color: #f3c982;
+        font: 600 2rem var(--font-heading);
+    }
+
+    body[data-theme="orchid"] .tt-events-page #gatheringEmpty .btn-primary {
+        border-color: rgba(255,105,173,.86) !important;
+        background: rgba(4,8,18,.62) !important;
+        color: #ff9ac8;
+    }
+
     .tt-events-wrap::after {
         right: -2vw;
         bottom: -5vh;
@@ -5320,5 +5376,23 @@ body[data-theme="orchid"] .conversation-item:hover {
 
     body[data-theme="orchid"] .tt-events-page .g-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Reference-shell overrides that must win over legacy button/card rules. */
+body[data-theme="orchid"] .tt-messages-empty .tt-empty-center a.btn.btn-primary {
+    border: 1px solid rgba(223, 138, 32, .95) !important;
+    color: #ffd49b !important;
+    background: rgba(4, 8, 18, .72) !important;
+    box-shadow: 0 0 22px rgba(223, 138, 32, .10) !important;
+}
+
+@media (min-width: 901px) {
+    body[data-theme="orchid"] .tt-messages-empty::after {
+        right: -2vw;
+        bottom: -8vh;
+        width: 50vw;
+        height: 58vh;
+        opacity: .72;
     }
 }
