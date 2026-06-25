@@ -99,8 +99,7 @@
     <button class="ad-nav" data-sec="subscriptions" onclick="switchSection('subscriptions',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 15.1 8.3 22 9.3l-5 4.9 1.2 6.9L12 17.8 5.8 21 7 14.1 2 9.3l6.9-1z"/></svg> 訂閱管理</button>
     <button class="ad-nav" data-sec="reports" onclick="switchSection('reports',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg> 檢舉處理 <span class="cnt hidden" id="badge-reports">0</span></button>
     <div class="ad-side-foot">
-      <a class="ad-nav" href="/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> 回 App</a>
-      <button class="ad-nav" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg> 登出</button>
+      <button class="ad-nav" onclick="adminLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg> 登出</button>
     </div>
   </aside>
 
@@ -281,6 +280,7 @@ async function refreshBadges(){
 // ───────── auth boot ─────────
 function showApp(){ document.getElementById('adminLogin').classList.add('hidden'); document.getElementById('adminApp').classList.remove('hidden'); }
 function showLogin(){ document.getElementById('adminApp').classList.add('hidden'); document.getElementById('adminLogin').classList.remove('hidden'); }
+function adminLogout(){ localStorage.removeItem('token'); localStorage.removeItem('user'); showLogin(); }
 
 document.getElementById('adminLoginForm').addEventListener('submit', async (e)=>{
   e.preventDefault(); const btn=e.target.querySelector('button'), err=document.getElementById('adminLoginErr');
