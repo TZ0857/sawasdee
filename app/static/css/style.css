@@ -3763,3 +3763,560 @@ body[data-theme="orchid"] .g-chat-input-area {
     /* Keep the wordmark on a single line now that there is room. */
     .nav-brand-name { white-space: nowrap; }
 }
+
+/* =====================================================================
+   TT Black Orchid lockup — final approved direction
+   UI-only layer. It keeps all existing hooks/IDs intact and pushes every
+   surface toward the selected board: midnight lacquer, precise TT mark,
+   antique-gold hairlines, cyan/violet/orchid neon used only as light.
+   ===================================================================== */
+body[data-theme="orchid"] {
+    --tt-ink: #070b18;
+    --tt-ink-2: #0a0f21;
+    --tt-panel: rgba(10, 14, 31, .88);
+    --tt-panel-solid: #0d1227;
+    --tt-lacquer: rgba(4, 7, 18, .72);
+    --tt-gold: #ffc77a;
+    --tt-gold-soft: rgba(255, 199, 122, .34);
+    --tt-cyan-soft: rgba(0, 240, 255, .34);
+    --tt-orchid-soft: rgba(255, 77, 155, .38);
+    --tt-violet-soft: rgba(122, 60, 255, .34);
+    --tt-line: rgba(255, 199, 122, .18);
+    --text-primary: #f8f1e8;
+    --text-secondary: #c9bfd1;
+    --text-muted: #8f879f;
+    --border: rgba(255, 199, 122, .14);
+    --border-light: rgba(255, 199, 122, .32);
+    background:
+        radial-gradient(900px 480px at 8% 0%, rgba(0, 240, 255, .065), transparent 68%),
+        radial-gradient(780px 460px at 96% 12%, rgba(255, 77, 155, .09), transparent 66%),
+        linear-gradient(142deg, #070b18 0%, #080d1d 47%, #120c25 100%) !important;
+}
+
+body[data-theme="orchid"]::before {
+    opacity: .76;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255,255,255,.014) 1px, transparent 1px),
+        radial-gradient(700px 360px at 78% 110%, rgba(255, 199, 122, .05), transparent 70%);
+    background-size: 72px 72px, 72px 72px, auto;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.18) 55%, transparent);
+}
+
+body[data-theme="orchid"] .navbar {
+    height: 72px;
+    background: rgba(5, 9, 22, .88) !important;
+    border-bottom: 1px solid rgba(255, 199, 122, .2);
+    box-shadow: 0 16px 42px rgba(0,0,0,.24);
+}
+
+body[data-theme="orchid"] .tt-logo {
+    width: 62px;
+    height: 42px;
+    filter:
+        drop-shadow(0 0 9px rgba(0, 240, 255, .34))
+        drop-shadow(0 0 14px rgba(255, 77, 155, .22));
+}
+
+body[data-theme="orchid"] .nav-brand-name {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .34rem;
+    color: #f9e3c2;
+    font-family: var(--font-heading);
+    font-size: 1.08rem;
+    letter-spacing: .065em;
+    text-transform: uppercase;
+}
+
+body[data-theme="orchid"] .nav-brand-name small {
+    color: #ff69ad;
+    font-family: var(--font-body);
+    font-size: .72em;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+
+body[data-theme="orchid"] .nav-link {
+    color: #b3aac4;
+    border: 1px solid transparent;
+    background: transparent !important;
+}
+
+body[data-theme="orchid"] .nav-link:hover,
+body[data-theme="orchid"] .nav-link.active {
+    color: #fff2df;
+    border-color: rgba(255, 199, 122, .18);
+    background: linear-gradient(100deg, rgba(122,60,255,.18), rgba(255,77,155,.08)) !important;
+}
+
+body[data-theme="orchid"] .nav-link.active::after {
+    bottom: 5px;
+    width: 18px;
+    height: 2px;
+    background: var(--tt-gold);
+    box-shadow: 0 0 14px rgba(255,199,122,.55);
+}
+
+body[data-theme="orchid"] .nav-bell,
+body[data-theme="orchid"] .nav-avatar,
+body[data-theme="orchid"] .mobile-nav {
+    border-color: rgba(255,199,122,.2);
+}
+
+body[data-theme="orchid"] .main-content {
+    padding-top: 90px;
+}
+
+body[data-theme="orchid"] .container,
+body[data-theme="orchid"] .container-sm {
+    position: relative;
+}
+
+body[data-theme="orchid"] .tt-page-head {
+    min-height: 178px;
+    margin-bottom: 1.45rem;
+    padding: clamp(2rem, 4vw, 3.2rem);
+    overflow: hidden;
+    border: 1px solid rgba(255,199,122,.17);
+    border-radius: 26px;
+    background:
+        linear-gradient(112deg, rgba(6, 11, 25, .98) 0%, rgba(8, 13, 29, .94) 54%, rgba(27, 14, 43, .86) 100%),
+        radial-gradient(640px 260px at 82% 18%, rgba(255,77,155,.16), transparent 70%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 20px 48px rgba(0,0,0,.24);
+}
+
+body[data-theme="orchid"] .tt-page-head::before {
+    opacity: .18 !important;
+    filter: saturate(.9) contrast(1.08);
+}
+
+body[data-theme="orchid"] .tt-page-head::after {
+    width: min(47vw, 660px);
+    right: -3.5rem;
+    bottom: -1rem;
+    top: auto;
+    opacity: .54 !important;
+    background: url('/static/img/tt-ornament.svg') right bottom / contain no-repeat !important;
+}
+
+body[data-theme="orchid"] .tt-kicker,
+body[data-theme="orchid"] .tt-orchid-rule {
+    color: #00e8f6;
+    text-shadow: 0 0 16px rgba(0,240,255,.22);
+}
+
+body[data-theme="orchid"] .tt-page-title,
+body[data-theme="orchid"] .profile-name {
+    color: #fff7ed;
+    font-family: var(--font-heading);
+    letter-spacing: -.045em;
+    text-shadow: 0 12px 36px rgba(0,0,0,.28);
+}
+
+body[data-theme="orchid"] .tt-page-subtitle {
+    color: #c7bdd0;
+}
+
+body[data-theme="orchid"] .card,
+body[data-theme="orchid"] .modal-card,
+body[data-theme="orchid"] .filter-drawer,
+body[data-theme="orchid"] .post-card,
+body[data-theme="orchid"] .create-post,
+body[data-theme="orchid"] .settings-panel,
+body[data-theme="orchid"] .pricing-card,
+body[data-theme="orchid"] .user-card-rich,
+body[data-theme="orchid"] .g-card,
+body[data-theme="orchid"] .conversations-list,
+body[data-theme="orchid"] .chat-container,
+body[data-theme="orchid"] .auth-card {
+    border: 1px solid rgba(255,199,122,.18) !important;
+    background:
+        linear-gradient(145deg, rgba(14, 18, 38, .92), rgba(5, 8, 20, .94)) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.045),
+        0 18px 48px rgba(0,0,0,.28) !important;
+}
+
+body[data-theme="orchid"] .card:hover,
+body[data-theme="orchid"] .post-card:hover,
+body[data-theme="orchid"] .user-card-rich:hover,
+body[data-theme="orchid"] .g-card:hover {
+    border-color: rgba(255,199,122,.34) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 24px 58px rgba(0,0,0,.36),
+        0 0 26px rgba(255,77,155,.08) !important;
+}
+
+body[data-theme="orchid"] .btn.btn-primary {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.2);
+    background:
+        linear-gradient(105deg, #00dce8 0%, #6f38ea 48%, #ff4d9b 100%) !important;
+    box-shadow: 0 10px 26px rgba(122,60,255,.28), 0 0 18px rgba(255,77,155,.10);
+}
+
+body[data-theme="orchid"] .btn.btn-secondary,
+body[data-theme="orchid"] .btn.btn-ghost,
+body[data-theme="orchid"] .chip,
+body[data-theme="orchid"] .g-filter,
+body[data-theme="orchid"] .g-tab {
+    color: #ded5e7;
+    border: 1px solid rgba(255,199,122,.18) !important;
+    background: rgba(5, 8, 20, .52) !important;
+}
+
+body[data-theme="orchid"] .btn.btn-secondary:hover,
+body[data-theme="orchid"] .btn.btn-ghost:hover,
+body[data-theme="orchid"] .chip:hover,
+body[data-theme="orchid"] .g-filter:hover,
+body[data-theme="orchid"] .g-tab:hover {
+    color: #fff;
+    border-color: rgba(255,77,155,.48) !important;
+    box-shadow: 0 0 20px rgba(255,77,155,.1);
+}
+
+body[data-theme="orchid"] .chip.active,
+body[data-theme="orchid"] .g-filter.active,
+body[data-theme="orchid"] .g-tab.active {
+    color: #080b18;
+    border-color: transparent !important;
+    background: linear-gradient(100deg, #ffc77a 0%, #ff88bd 54%, #9c6aff 100%) !important;
+    box-shadow: 0 8px 18px rgba(255,77,155,.18);
+}
+
+body[data-theme="orchid"] .form-input,
+body[data-theme="orchid"] .form-select,
+body[data-theme="orchid"] .form-textarea,
+body[data-theme="orchid"] .chat-input {
+    border: 1px solid rgba(255,199,122,.16) !important;
+    background: rgba(4, 7, 18, .76) !important;
+    color: #fbf4ec;
+}
+
+body[data-theme="orchid"] .form-input:focus,
+body[data-theme="orchid"] .form-select:focus,
+body[data-theme="orchid"] .form-textarea:focus,
+body[data-theme="orchid"] .chat-input:focus {
+    border-color: rgba(0,240,255,.62) !important;
+    box-shadow: 0 0 0 3px rgba(0,240,255,.09), 0 0 24px rgba(0,240,255,.08) !important;
+}
+
+/* Explore */
+body[data-theme="orchid"] .tt-explore-page .tt-page-head {
+    background:
+        linear-gradient(112deg, rgba(6, 11, 25, .98) 0%, rgba(7, 12, 27, .96) 58%, rgba(24, 13, 39, .9) 100%),
+        radial-gradient(620px 230px at 5% 12%, rgba(0,240,255,.08), transparent 70%) !important;
+}
+
+body[data-theme="orchid"] .explore-hero-stats {
+    border-color: rgba(255,199,122,.22);
+    background: rgba(4, 7, 18, .54);
+}
+
+body[data-theme="orchid"] .hero-stat-num {
+    color: #ffd49b;
+}
+
+body[data-theme="orchid"] .user-card-rich {
+    border-radius: 24px;
+}
+
+body[data-theme="orchid"] .user-card-photo {
+    background: #060a16;
+}
+
+body[data-theme="orchid"] .user-card-overlay {
+    padding-top: 4.2rem;
+    background:
+        linear-gradient(0deg, rgba(3, 6, 16, .98) 0%, rgba(4, 7, 18, .78) 48%, transparent 100%) !important;
+}
+
+body[data-theme="orchid"] .user-card-name {
+    color: #fff5ea;
+    font-size: 1.45rem;
+}
+
+body[data-theme="orchid"] .user-card-actions {
+    grid-template-columns: .9fr 1.1fr;
+}
+
+/* Feed */
+body[data-theme="orchid"] .stories-bar {
+    padding: .85rem;
+    border: 1px solid rgba(255,199,122,.16);
+    border-radius: 20px;
+    background: rgba(4, 7, 18, .48) !important;
+}
+
+body[data-theme="orchid"] .create-post {
+    border-radius: 24px;
+}
+
+body[data-theme="orchid"] .post-card {
+    border-radius: 22px;
+}
+
+body[data-theme="orchid"] .post-header,
+body[data-theme="orchid"] .post-actions {
+    border-color: rgba(255,199,122,.12);
+}
+
+/* Gatherings */
+body[data-theme="orchid"] .g-grid {
+    gap: 1.15rem;
+}
+
+body[data-theme="orchid"] .g-card {
+    border-radius: 24px;
+}
+
+body[data-theme="orchid"] .g-type-badge {
+    border-color: rgba(255,199,122,.34);
+    color: #ffd49b;
+    background: rgba(255,199,122,.08);
+}
+
+body[data-theme="orchid"] .g-progress {
+    background: rgba(255,199,122,.08);
+}
+
+body[data-theme="orchid"] .g-progress-bar,
+body[data-theme="orchid"] .g-bar-ok {
+    background: linear-gradient(90deg, #00e8f6, #7a3cff 52%, #ff4d9b) !important;
+}
+
+body[data-theme="orchid"] .inspiration-card {
+    border-color: rgba(255,199,122,.18);
+    background: rgba(4,7,18,.56);
+}
+
+/* Profile */
+body[data-theme="orchid"] .tt-profile-header {
+    border-radius: 28px;
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-cover-placeholder {
+    background:
+        radial-gradient(ellipse 58% 100% at 88% 12%, rgba(255,77,155,.30), transparent 70%),
+        radial-gradient(ellipse 48% 96% at 15% 100%, rgba(0,240,255,.18), transparent 72%),
+        linear-gradient(111deg, #081322 0%, #111849 48%, #2a1337 100%) !important;
+}
+
+body[data-theme="orchid"] .tt-profile-header .profile-info {
+    border-color: rgba(255,199,122,.18);
+    background:
+        linear-gradient(105deg, rgba(4,7,18,.98), rgba(14,13,35,.96) 62%, rgba(37,17,48,.86)) !important;
+}
+
+body[data-theme="orchid"] .profile-tabs {
+    gap: .35rem;
+    border-bottom: 1px solid rgba(255,199,122,.14);
+}
+
+body[data-theme="orchid"] .profile-tab {
+    border: 1px solid transparent;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+}
+
+body[data-theme="orchid"] .profile-tab.active {
+    color: #ffd49b;
+    border-color: rgba(255,199,122,.18);
+    background: rgba(4,7,18,.54);
+}
+
+/* Messages list */
+body[data-theme="orchid"] .messages-layout,
+body[data-theme="orchid"] .chat-desktop-wrap {
+    max-width: 1320px;
+    margin-inline: auto;
+}
+
+body[data-theme="orchid"] .messages-layout {
+    padding-inline: clamp(1rem, 3vw, 2rem);
+}
+
+body[data-theme="orchid"] .conversations-list {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+body[data-theme="orchid"] .conversation-item {
+    margin: .18rem .45rem;
+    border: 1px solid transparent;
+    border-radius: 16px;
+}
+
+body[data-theme="orchid"] .conversation-item:hover,
+body[data-theme="orchid"] .conversation-item.active {
+    border-color: rgba(255,77,155,.32);
+    background: rgba(255,77,155,.07) !important;
+}
+
+body[data-theme="orchid"] .conversation-unread,
+body[data-theme="orchid"] .nav-badge,
+body[data-theme="orchid"] .mobile-nav-badge,
+body[data-theme="orchid"] .badge {
+    color: #07101d;
+    background: linear-gradient(120deg, #ffc77a, #ff77b4) !important;
+}
+
+/* Private chat — black lacquer bubbles with fine outlines, as approved. */
+body[data-theme="orchid"] .chat-desktop-wrap {
+    padding-inline: clamp(1rem, 3vw, 2rem);
+}
+
+body[data-theme="orchid"] .chat-desktop-wrap > .container-sm.chat-container {
+    border-radius: 0 24px 24px 0;
+}
+
+body[data-theme="orchid"] .chat-area,
+body[data-theme="orchid"] .g-chat-main,
+body[data-theme="orchid"] .chat-container {
+    background:
+        radial-gradient(760px 380px at 100% -8%, rgba(255,77,155,.075), transparent 70%),
+        radial-gradient(640px 400px at -8% 108%, rgba(0,240,255,.055), transparent 70%),
+        linear-gradient(145deg, #080d1d, #0a0f21 64%, #120d26) !important;
+}
+
+body[data-theme="orchid"] .chat-header,
+body[data-theme="orchid"] .g-chat-header,
+body[data-theme="orchid"] .chat-input-area,
+body[data-theme="orchid"] .g-chat-input-area {
+    border-color: rgba(255,199,122,.15) !important;
+    background: rgba(4, 7, 18, .86) !important;
+}
+
+body[data-theme="orchid"] .message-row {
+    max-width: min(68%, 35rem);
+}
+
+body[data-theme="orchid"] .message-bubble,
+body[data-theme="orchid"] .g-msg-bubble {
+    color: #f8f1e8;
+    border-radius: 18px;
+}
+
+body[data-theme="orchid"] .message-bubble.message-sent,
+body[data-theme="orchid"] .message-bubble.sent,
+body[data-theme="orchid"] .g-msg-row.mine .g-msg-bubble {
+    position: relative;
+    border: 1px solid rgba(255,77,155,.58) !important;
+    border-bottom-right-radius: 7px;
+    background:
+        linear-gradient(135deg, rgba(11, 15, 32, .98), rgba(5, 8, 20, .98)) !important;
+    box-shadow:
+        inset -2px 0 0 rgba(255,77,155,.32),
+        0 10px 24px rgba(0,0,0,.18),
+        0 0 16px rgba(255,77,155,.08) !important;
+}
+
+body[data-theme="orchid"] .message-bubble.message-sent::after,
+body[data-theme="orchid"] .message-bubble.sent::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 15px;
+    height: 15px;
+    background: linear-gradient(135deg, transparent 0 50%, rgba(255,77,155,.7) 51% 55%, rgba(5,8,20,.98) 56%);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    border-bottom-right-radius: 7px;
+}
+
+body[data-theme="orchid"] .message-bubble.message-received,
+body[data-theme="orchid"] .message-bubble.received,
+body[data-theme="orchid"] .g-msg-bubble {
+    border: 1px solid rgba(255,199,122,.28) !important;
+    border-bottom-left-radius: 7px;
+    background:
+        linear-gradient(135deg, rgba(12, 17, 36, .98), rgba(5, 8, 20, .98)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 8px 20px rgba(0,0,0,.12) !important;
+}
+
+body[data-theme="orchid"] .message-time,
+body[data-theme="orchid"] .message-sent .message-time {
+    color: rgba(255, 199, 122, .62) !important;
+}
+
+body[data-theme="orchid"] .msg-receipt {
+    color: #ff8fc3;
+}
+
+body[data-theme="orchid"] .chat-input-area > .btn-primary,
+body[data-theme="orchid"] .chat-input-area > button[onclick*="sendMessage"],
+body[data-theme="orchid"] .g-chat-input-area #gChatSendBtn {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 !important;
+    border-color: rgba(255,77,155,.55) !important;
+    background: rgba(4,7,18,.78) !important;
+    color: #ff8fc3;
+    box-shadow: 0 0 18px rgba(255,77,155,.12);
+}
+
+body[data-theme="orchid"] .chat-media-btn {
+    color: #bfb5ca !important;
+    border-color: rgba(255,199,122,.16) !important;
+    background: rgba(4,7,18,.46) !important;
+}
+
+body[data-theme="orchid"] .chat-media-btn:hover {
+    color: #ffc77a !important;
+}
+
+/* Auth / settings / premium */
+body[data-theme="orchid"] .auth-page {
+    background:
+        radial-gradient(640px 420px at 16% 10%, rgba(0,240,255,.08), transparent 70%),
+        radial-gradient(620px 420px at 86% 88%, rgba(255,77,155,.11), transparent 70%),
+        linear-gradient(145deg, #070b18, #100d25) !important;
+}
+
+body[data-theme="orchid"] .auth-card {
+    border-radius: 28px;
+}
+
+body[data-theme="orchid"] .settings-sidebar {
+    border-color: rgba(255,199,122,.18);
+    background: rgba(4,7,18,.58) !important;
+}
+
+body[data-theme="orchid"] .settings-menu-item.active {
+    color: #ffd49b !important;
+    border-left-color: #ff4d9b !important;
+}
+
+body[data-theme="orchid"] .pricing-amount {
+    color: #fff4e5;
+    text-shadow: 0 0 24px rgba(255,199,122,.2);
+}
+
+body[data-theme="orchid"] .mobile-nav {
+    background: rgba(4,7,18,.92) !important;
+}
+
+body[data-theme="orchid"] .mobile-nav-link.active {
+    color: #ffd49b;
+    text-shadow: 0 0 14px rgba(255,199,122,.28);
+}
+
+@media (max-width: 900px) {
+    body[data-theme="orchid"] .navbar { height: 64px; }
+    body[data-theme="orchid"] .main-content { padding-top: 76px; }
+    body[data-theme="orchid"] .tt-logo { width: 54px; height: 38px; }
+    body[data-theme="orchid"] .tt-page-head { border-radius: 22px; }
+}
+
+@media (max-width: 760px) {
+    body[data-theme="orchid"] .tt-page-head {
+        margin-inline: 0;
+        padding: 1.6rem 1.15rem;
+        min-height: 142px;
+    }
+    body[data-theme="orchid"] .message-row { max-width: 86%; }
+    body[data-theme="orchid"] .chat-desktop-wrap { padding-inline: 0; }
+}
