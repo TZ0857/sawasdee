@@ -30,13 +30,6 @@ async function loadChatUser() {
         const avatar = document.getElementById('chatAvatar');
         if (user.avatar_url) avatar.src = user.avatar_url;
         else avatar.style.background = 'var(--gradient-gold)';
-        const sideAvatar = document.getElementById('chatSideAvatar');
-        if (sideAvatar) {
-            if (user.avatar_url) sideAvatar.src = user.avatar_url;
-            else sideAvatar.style.background = 'var(--gradient-gold)';
-        }
-        const sideProfile = document.getElementById('chatSideProfileLink');
-        if (sideProfile) sideProfile.href = `/profile/${encodeURIComponent(user.username)}`;
         // Tap avatar / name to open the partner's profile
         const goProfile = () => { window.location.href = `/profile/${encodeURIComponent(user.username)}`; };
         avatar.style.cursor = 'pointer';

@@ -2,41 +2,38 @@
 {% block title %}訊息{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content tt-shell-page tt-messages-page">
-  <div class="messages-layout tt-messages-layout">
-    <aside class="conversations-list tt-shell-sidebar" id="conversationsList">
-      <a href="/explore" class="tt-shell-brand" aria-label="TT Sawasdee">
-        <span class="tt-shell-monogram">TT</span>
-        <span>TT SAWASDEE</span>
-      </a>
-      <h1 class="tt-shell-title">訊息</h1>
-      <label class="tt-shell-search" for="convSearch">
-        <span>⌕</span>
-        <input type="text" class="form-input" id="convSearch" placeholder="搜尋訊息…">
-        <span>≡</span>
-      </label>
-      <div class="tt-shell-filter-row">
-        <button class="chip active" onclick="filterConv('all',this)">全部</button>
-        <button class="chip" onclick="filterConv('unread',this)">未讀</button>
-        <button class="chip" onclick="filterConv('all',this)">收藏</button>
-      </div>
-      <div id="convListContent"><div class="flex-center" style="padding:2rem"><div class="spinner"></div></div></div>
-    </aside>
-    <section class="chat-area tt-messages-empty" id="chatArea">
-      <div class="tt-top-icons" aria-hidden="true"><span>♕</span><span>●</span><span>♧</span><span class="tt-top-avatar"></span><span>⌄</span></div>
-      <div class="tt-empty-mark">TT</div>
-      <div class="tt-empty-center">
-        <h2>今晚，想和誰聊聊？</h2>
-        <div class="tt-empty-rule"><span></span><i>✦</i><span></span></div>
-        <p>探索同頻的人，展開真實又有趣的對話。</p>
-        <div class="tt-empty-portraits" aria-hidden="true">
-          <div></div><div></div><div></div>
+<div class="main-content">
+    <div class="messages-layout">
+        <div class="conversations-list" id="conversationsList">
+            <h3 style="padding:0.5rem; margin-bottom:0.5rem; font-family:var(--font-heading)">訊息</h3>
+            <!-- Search -->
+            <div style="padding:0 0.5rem 0.75rem;">
+                <input type="text" class="form-input" id="convSearch" placeholder="搜尋對話..." style="font-size:0.85rem; padding:0.5rem 0.75rem;">
+            </div>
+            <!-- Tabs -->
+            <div style="display:flex; gap:0.25rem; padding:0 0.5rem 0.75rem;">
+                <button class="chip active" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConv('all', this)">全部</button>
+                <button class="chip" style="font-size:0.75rem; padding:0.3rem 0.75rem;" onclick="filterConv('unread', this)">未讀</button>
+            </div>
+            <div id="convListContent">
+                <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
+            </div>
         </div>
-        <a href="/explore" class="btn btn-primary">探索同頻的人</a>
-      </div>
-      <div class="tt-corner-ornament" aria-hidden="true"></div>
-    </section>
-  </div>
-</main>
+        <div class="chat-area" id="chatArea">
+            <div class="flex-center" style="flex:1; color:var(--text-muted)">
+                <div class="empty-state" style="border:none; background:none;">
+                    <div class="empty-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color:var(--text-muted)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="empty-title">還沒有開始對話</div>
+                    <div class="empty-desc">去探索頁找到感興趣的人，送出第一句招呼。</div>
+                    <a href="/explore" class="btn btn-primary btn-sm">前往探索</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-{% block scripts %}<script src="/static/js/messages.js?v=20260623"></script>{% endblock %}
+{% block scripts %}
+<script src="/static/js/messages.js?v=20260504d"></script>
+{% endblock %}

@@ -1,61 +1,61 @@
 {% extends "components/base.html" %}
-{% block title %}聚會聊天室{% endblock %}
+{% block title %}局聊天{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
-
 {% block content %}
-<main class="main-content">
+<div class="main-content">
     <div class="g-chat-layout">
-        <aside class="g-chat-sidebar" id="gChatSidebar" aria-label="聚會聊天室列表">
+        <!-- Sidebar: my gathering chats -->
+        <aside class="g-chat-sidebar" id="gChatSidebar">
             <div class="g-chat-sidebar-header">
-                <a href="/gatherings" class="btn btn-ghost btn-sm">← 聚會</a>
+                <a href="/gatherings" class="btn btn-ghost btn-sm">← 返回組局</a>
             </div>
-            <div class="tt-orchid-rule" style="padding:.85rem;">MY GATHERINGS</div>
+            <div class="g-chat-sidebar-title">我的局聊天</div>
             <div id="gChatList">
                 <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
             </div>
         </aside>
 
-        <section class="g-chat-main" aria-label="聚會聊天室">
+        <!-- Main chat panel -->
+        <section class="g-chat-main">
             <header class="g-chat-header" id="gChatHeader">
-                <a href="/gatherings" class="btn btn-ghost btn-sm g-chat-back" aria-label="返回聚會">←</a>
+                <a href="/gatherings" class="btn btn-ghost btn-sm g-chat-back">← 返回</a>
                 <div style="flex:1; min-width:0;">
-                    <div class="g-chat-title" id="gChatTitle">載入中…</div>
+                    <div class="g-chat-title" id="gChatTitle">載入中...</div>
                     <div class="g-chat-subtitle" id="gChatSubtitle"></div>
                 </div>
-                <button class="btn btn-ghost btn-sm" id="gAutoTrToggle" onclick="toggleGatheringAutoTranslate()" title="切換自動翻譯" type="button" aria-label="切換自動翻譯">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <button class="btn btn-ghost btn-sm" id="gAutoTrToggle" onclick="toggleGatheringAutoTranslate()" title="自動翻譯">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 </button>
-                <button class="btn btn-ghost btn-sm" onclick="toggleMembersPanel()" title="成員清單" type="button" aria-label="查看成員">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <button class="btn btn-ghost btn-sm" onclick="toggleMembersPanel()" title="成員清單">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </button>
-                <button class="btn btn-ghost btn-sm" onclick="loadMessages(true)" title="重新整理" type="button" aria-label="重新整理訊息">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>
+                <button class="btn btn-ghost btn-sm" onclick="loadMessages(true)" title="重新整理">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
                 </button>
             </header>
 
+            <!-- Members panel (hidden by default, slides down from header) -->
             <div class="g-members-panel hidden" id="gMembersPanel">
                 <div class="g-members-panel-header">
-                    <strong>聚會成員（<span id="gMemberCount">0</span>）</strong>
-                    <button class="btn btn-ghost btn-sm" onclick="toggleMembersPanel()" type="button" aria-label="關閉成員清單">×</button>
+                    <strong>成員 (<span id="gMemberCount">0</span>)</strong>
+                    <button class="btn btn-ghost btn-sm" onclick="toggleMembersPanel()" type="button">×</button>
                 </div>
                 <div id="gMembersList"></div>
             </div>
-
-            <div class="g-chat-messages" id="gChatMessages" aria-live="polite">
+            <div class="g-chat-messages" id="gChatMessages">
                 <div class="flex-center" style="flex:1"><div class="spinner"></div></div>
             </div>
             <div class="g-chat-input-area">
-                <input type="text" class="chat-input" id="gChatInput" placeholder="跟聚會裡的人說點什麼…" maxlength="2000" autocomplete="off">
-                <button class="btn btn-primary" onclick="sendMessage()" id="gChatSendBtn" type="button" aria-label="傳送訊息">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                <input type="text" class="chat-input" id="gChatInput" placeholder="跟局裡的人說點什麼..." maxlength="2000">
+                <button class="btn btn-primary" onclick="sendMessage()" id="gChatSendBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
             </div>
         </section>
     </div>
-</main>
+</div>
 {% endblock %}
-
 {% block scripts %}
 <script>const gatheringId = "{{ gathering_id }}";</script>
-<script src="/static/js/gathering_chat.js?v=20260623"></script>
+<script src="/static/js/gathering_chat.js?v=20260504g"></script>
 {% endblock %}

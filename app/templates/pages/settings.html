@@ -1,123 +1,228 @@
 {% extends "components/base.html" %}
 {% block title %}設定{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
-
 {% block content %}
-<main class="main-content">
+<div class="main-content">
     <div class="container" style="padding-top:2rem;">
-        <header class="tt-page-head">
-            <div class="tt-kicker">YOUR TT SPACE</div>
-            <h1 class="tt-page-title">設定</h1>
-            <p class="tt-page-subtitle">把你的 TT 空間調整成最自在、最剛好的模樣。</p>
-        </header>
+        <h2 style="font-family:var(--font-heading); margin-bottom:1.5rem;">設定</h2>
+        <div style="display:grid; grid-template-columns:220px 1fr; gap:1.5rem;">
+            <!-- Settings Menu -->
+            <div class="card" style="height:fit-content; position:sticky; top:5rem;">
+                <div class="card-body" style="padding:0.5rem 0;">
+                    <a href="#account" class="settings-menu-item active" onclick="switchSettings('account', this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        帳號設定
+                    </a>
+                    <a href="#privacy" class="settings-menu-item" onclick="switchSettings('privacy', this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        隱私設定
+                    </a>
+                    <a href="#notifications" class="settings-menu-item" onclick="switchSettings('notifications', this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        通知設定
+                    </a>
+                    <a href="#language" class="settings-menu-item" onclick="switchSettings('language', this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        語言設定
+                    </a>
+                    <a href="#payment" class="settings-menu-item" onclick="switchSettings('payment', this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        付款與訂閱
+                    </a>
+                    <a href="#blocked" class="settings-menu-item" onclick="switchSettings('blocked', this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                        封鎖名單
+                    </a>
+                    <div style="border-top:1px solid var(--border); margin:0.5rem 0;"></div>
+                    <a href="#" class="settings-menu-item" onclick="logout(); return false;" style="color:var(--danger);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        登出
+                    </a>
+                </div>
+            </div>
 
-        <div class="settings-layout">
-            <aside class="card settings-sidebar" aria-label="設定選單">
-                <a href="#account" class="settings-menu-item active" onclick="switchSettings('account', this)">個人檔案</a>
-                <a href="#privacy" class="settings-menu-item" onclick="switchSettings('privacy', this)">隱私與連結</a>
-                <a href="#notifications" class="settings-menu-item" onclick="switchSettings('notifications', this)">通知</a>
-                <a href="#language" class="settings-menu-item" onclick="switchSettings('language', this)">語言與翻譯</a>
-                <a href="#payment" class="settings-menu-item" onclick="switchSettings('payment', this)">Premium</a>
-                <a href="#blocked" class="settings-menu-item" onclick="switchSettings('blocked', this)">已封鎖名單</a>
-                <a href="#" class="settings-menu-item" onclick="logout(); return false;" style="color:var(--danger);">登出</a>
-            </aside>
-
+            <!-- Settings Content -->
             <div>
-                <section class="card settings-panel" id="panel-account">
+                <!-- Account Settings -->
+                <div class="card settings-panel" id="panel-account">
                     <div class="card-body">
-                        <div class="tt-orchid-rule">YOUR PROFILE</div>
-                        <h3>個人檔案</h3>
-                        <p class="text-muted" style="margin:-.75rem 0 1.4rem;">這些資訊會顯示在你的個人頁面。</p>
+                        <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">帳號設定</h3>
                         <form id="settingsForm">
                             <div class="form-group">
-                                <label class="form-label" for="setName">顯示名稱</label>
-                                <input type="text" class="form-input" id="setName" autocomplete="nickname">
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label" for="setHeight">身高（cm）</label>
-                                    <input type="number" class="form-input" id="setHeight" step=".1" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="setWeight">體重（kg）</label>
-                                    <input type="number" class="form-input" id="setWeight" step=".1" min="0">
-                                </div>
+                                <label class="form-label">顯示名稱</label>
+                                <input type="text" class="form-input" id="setName">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="setInterests">興趣</label>
-                                <input type="text" class="form-input" id="setInterests" placeholder="例如：旅行、咖啡、攝影">
+                                <label class="form-label">身高 (cm)</label>
+                                <input type="number" class="form-input" id="setHeight" step="0.1">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="setBio">關於我</label>
-                                <textarea class="form-textarea" id="setBio" rows="4" placeholder="用幾句話讓新朋友認識你。"></textarea>
+                                <label class="form-label">體重 (kg)</label>
+                                <input type="number" class="form-input" id="setWeight" step="0.1">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="setLocation">所在城市</label>
-                                <input type="text" class="form-input" id="setLocation" placeholder="例如：台北、曼谷">
+                                <label class="form-label">興趣</label>
+                                <input type="text" class="form-input" id="setInterests">
                             </div>
-                            <button type="submit" class="btn btn-primary">儲存變更</button>
+                            <div class="form-group">
+                                <label class="form-label">自我介紹</label>
+                                <textarea class="form-textarea" id="setBio" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">地點</label>
+                                <input type="text" class="form-input" id="setLocation">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">儲存變更</button>
                         </form>
                     </div>
-                </section>
+                </div>
 
-                <section class="card settings-panel hidden" id="panel-privacy">
+                <!-- Privacy Settings -->
+                <div class="card settings-panel hidden" id="panel-privacy">
                     <div class="card-body">
-                        <div class="tt-orchid-rule">YOUR BOUNDARIES</div>
-                        <h3>隱私與連結</h3>
-                        <p class="text-muted" style="margin:-.75rem 0 1.1rem;">決定其他會員能看見什麼，以及誰能與你展開對話。</p>
-                        <div class="settings-row"><div><strong>顯示我的上線狀態</strong><div class="text-muted">讓其他會員知道你目前是否在線。</div></div><label class="toggle"><input type="checkbox" data-setting="show_online"><span class="toggle-slider"></span></label></div>
-                        <div class="settings-row"><div><strong>顯示最後上線時間</strong><div class="text-muted">分享你最近一次活躍的時間。</div></div><label class="toggle"><input type="checkbox" data-setting="show_last_seen"><span class="toggle-slider"></span></label></div>
-                        <div class="settings-row"><div><strong>允許非 Premium 會員傳訊息</strong><div class="text-muted">關閉後，只有 Premium 會員能直接傳訊息給你。</div></div><label class="toggle"><input type="checkbox" data-setting="allow_msg_from_non_premium"><span class="toggle-slider"></span></label></div>
+                        <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">隱私設定</h3>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">顯示在線狀態</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">讓其他會員看到你是否在線</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="show_online"><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">顯示最後上線時間</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">其他人可以看到你上次活躍的時間</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="show_last_seen"><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">允許非 Premium 會員傳訊息</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">關閉後只有 Premium 會員可以傳送訊息給你</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="allow_msg_from_non_premium"><span class="toggle-slider"></span></label>
+                        </div>
                     </div>
-                </section>
+                </div>
 
-                <section class="card settings-panel hidden" id="panel-notifications">
+                <!-- Notification Settings -->
+                <div class="card settings-panel hidden" id="panel-notifications">
                     <div class="card-body">
-                        <div class="tt-orchid-rule">STAY IN THE VIBE</div>
-                        <h3>通知</h3>
-                        <p class="text-muted" style="margin:-.75rem 0 1.1rem;">只保留你想即時收到的心動提醒。</p>
-                        <div class="settings-row"><div><strong>新訊息</strong><div class="text-muted">有人傳來新訊息時通知你。</div></div><label class="toggle"><input type="checkbox" data-setting="notify_new_message"><span class="toggle-slider"></span></label></div>
-                        <div class="settings-row"><div><strong>新的喜歡</strong><div class="text-muted">有人對你的檔案按下喜歡時通知你。</div></div><label class="toggle"><input type="checkbox" data-setting="notify_likes"><span class="toggle-slider"></span></label></div>
-                        <div class="settings-row"><div><strong>聚會更新</strong><div class="text-muted">你參加的聚會有新動態時通知你。</div></div><label class="toggle"><input type="checkbox" data-setting="notify_gatherings"><span class="toggle-slider"></span></label></div>
+                        <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">通知設定</h3>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">新訊息通知</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">收到新訊息時通知你</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="notify_new_message"><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">有人喜歡你</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">當有人對你的檔案按讚時通知你</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="notify_likes"><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">組局提醒</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">你參加的組局有更新時通知你</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="notify_gatherings"><span class="toggle-slider"></span></label>
+                        </div>
                     </div>
-                </section>
+                </div>
 
-                <section class="card settings-panel hidden" id="panel-language">
+                <!-- Language Settings -->
+                <div class="card settings-panel hidden" id="panel-language">
                     <div class="card-body">
-                        <div class="tt-orchid-rule">BEYOND BORDERS</div>
-                        <h3>語言與翻譯</h3>
+                        <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">語言設定</h3>
                         <div class="form-group">
-                            <label class="form-label" for="setUiLanguage">介面語言</label>
+                            <label class="form-label">介面語言</label>
                             <select class="form-input" id="setUiLanguage" data-setting="ui_language">
-                                <option value="zh-TW">繁體中文</option><option value="th">ไทย</option><option value="en">English</option>
+                                <option value="zh-TW">繁體中文</option>
+                                <option value="th">ภาษาไทย</option>
+                                <option value="en">English</option>
                             </select>
                         </div>
-                        <div class="settings-row"><div><strong>自動翻譯訊息</strong><div class="text-muted">自動翻譯收到的訊息，讓對話不被語言打斷。</div></div><label class="toggle"><input type="checkbox" data-setting="auto_translate_msgs"><span class="toggle-slider"></span></label></div>
+                        <div class="settings-row">
+                            <div>
+                                <div style="font-weight:500;">自動翻譯訊息</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">使用 AI 自動翻譯收到的訊息</div>
+                            </div>
+                            <label class="toggle"><input type="checkbox" data-setting="auto_translate_msgs"><span class="toggle-slider"></span></label>
+                        </div>
                     </div>
-                </section>
+                </div>
 
-                <section class="card settings-panel hidden" id="panel-payment">
+                <!-- Payment Settings -->
+                <div class="card settings-panel hidden" id="panel-payment">
                     <div class="card-body">
-                        <div class="tt-orchid-rule">TT AFTER DARK</div>
-                        <h3>Premium</h3>
-                        <div class="settings-row"><div><strong id="subStatus">免費會員</strong><div class="text-muted">升級後解鎖更多連結方式與專屬功能。</div></div><a class="btn btn-primary btn-sm" href="/subscription">查看方案</a></div>
+                        <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">付款與訂閱</h3>
+                        <div class="card" style="background:var(--bg-elevated); border:1px solid var(--border);">
+                            <div class="card-body">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <div style="font-weight:500;" id="subStatus">免費會員</div>
+                                        <div style="font-size:0.85rem; color:var(--text-muted);">升級以解鎖更多功能</div>
+                                    </div>
+                                    <a href="/subscription" class="btn btn-primary btn-sm">管理訂閱</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
 
-                <section class="card settings-panel hidden" id="panel-blocked">
+                <!-- Blocked List -->
+                <div class="card settings-panel hidden" id="panel-blocked">
                     <div class="card-body">
-                        <div class="tt-orchid-rule">YOUR SPACE, YOUR RULES</div>
-                        <h3>已封鎖名單</h3>
-                        <p class="text-muted" style="margin:-.75rem 0 1.1rem;">你可以隨時解除封鎖，重新開放對方與你互動。</p>
-                        <div id="blockedListContainer"><div class="flex-center" style="padding:2rem"><div class="spinner"></div></div></div>
+                        <h3 style="font-family:var(--font-heading); margin-bottom:1.5rem;">封鎖名單</h3>
+                        <div id="blockedListContainer">
+                            <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
+                        </div>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
     </div>
-</main>
-{% endblock %}
+</div>
 
+<style>
+.settings-menu-item {
+    display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1.25rem;
+    color:var(--text-secondary); text-decoration:none; font-size:0.9rem;
+    transition:all 0.2s;
+}
+.settings-menu-item:hover { color:var(--text-primary); background:var(--bg-elevated); }
+.settings-menu-item.active { color:var(--gold); background:rgba(200,169,106,0.08); border-right:2px solid var(--gold); }
+.settings-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:1rem 0; border-bottom:1px solid var(--border);
+}
+.settings-row:last-child { border-bottom:none; }
+.toggle { position:relative; display:inline-block; width:44px; height:24px; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider {
+    position:absolute; cursor:pointer; inset:0;
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-radius:24px; transition:0.3s;
+}
+.toggle-slider::before {
+    content:""; position:absolute; height:18px; width:18px;
+    left:2px; bottom:2px; background:var(--text-muted);
+    border-radius:50%; transition:0.3s;
+}
+.toggle input:checked + .toggle-slider { background:var(--gold); border-color:var(--gold); }
+.toggle input:checked + .toggle-slider::before { transform:translateX(20px); background:#1a1a1a; }
+@media (max-width:768px) {
+    .settings-menu-item.active { border-right:none; border-bottom:2px solid var(--gold); }
+    div[style*="grid-template-columns:220px"] { grid-template-columns:1fr !important; }
+    .card[style*="position:sticky"] { position:static !important; }
+    .card[style*="position:sticky"] .card-body { display:flex; flex-wrap:wrap; gap:0; padding:0.25rem !important; }
+    .settings-menu-item { padding:0.5rem 0.75rem; font-size:0.8rem; }
+}
+</style>
+{% endblock %}
 {% block scripts %}
 <script>
 requireAuth();
@@ -125,9 +230,10 @@ function switchSettings(panel, el) {
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.add('hidden'));
     document.querySelectorAll('.settings-menu-item').forEach(a => a.classList.remove('active'));
     document.getElementById('panel-' + panel).classList.remove('hidden');
-    if (el) el.classList.add('active');
+    if(el) el.classList.add('active');
     if (panel === 'blocked') loadBlockedList();
 }
+
 async function loadBlockedList() {
     const container = document.getElementById('blockedListContainer');
     if (!container) return;
@@ -135,21 +241,44 @@ async function loadBlockedList() {
     try {
         const data = await api.get('/api/blocks');
         if (!data.blocks || data.blocks.length === 0) {
-            container.innerHTML = '<p class="text-muted">目前沒有封鎖任何人。</p>';
+            container.innerHTML = `
+                <div class="empty-state" style="border:none; background:none; padding:2rem 0;">
+                    <div class="empty-icon">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                    </div>
+                    <div class="empty-title" style="font-size:1rem;">沒有封鎖的會員</div>
+                    <div class="empty-desc">你目前沒有封鎖任何人。</div>
+                </div>`;
             return;
         }
         container.innerHTML = data.blocks.map(b => {
             const u = b.blocked_user;
-            const avatar = u.avatar_url
+            const av = u.avatar_url
                 ? `<img src="${u.avatar_url}" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;">`
-                : '<div style="width:42px;height:42px;border-radius:50%;background:var(--gradient-gold);"></div>';
-            return `<div class="settings-row">${avatar}<div style="flex:1;min-width:0;margin-left:.8rem;"><strong>${u.display_name || u.username}</strong><div class="text-muted">@${u.username}</div></div><button class="btn btn-ghost btn-sm" onclick="unblockUser('${u.id}')" type="button">解除封鎖</button></div>`;
+                : `<div style="width:42px;height:42px;border-radius:50%;background:var(--gradient-gold);"></div>`;
+            return `
+                <div style="display:flex; align-items:center; gap:0.8rem; padding:0.7rem 0; border-bottom:1px solid var(--border);">
+                    ${av}
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:500;">${u.display_name || u.username}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">@${u.username}</div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="unblockUser('${u.id}')">解除封鎖</button>
+                </div>`;
         }).join('');
-    } catch (e) { container.innerHTML = '<p class="text-muted">載入失敗，請稍後再試。</p>'; }
+    } catch (e) {
+        container.innerHTML = '<div class="text-muted" style="padding:1rem;">載入失敗</div>';
+    }
 }
+
 async function unblockUser(uid) {
-    try { await api.delete(`/api/blocks/${uid}`); showToast('已解除封鎖', 'success'); loadBlockedList(); }
-    catch (e) { showToast('操作失敗', 'error'); }
+    try {
+        await api.delete(`/api/blocks/${uid}`);
+        showToast('已解除封鎖', 'success');
+        loadBlockedList();
+    } catch (e) {
+        showToast('操作失敗', 'error');
+    }
 }
 (async () => {
     try {
@@ -160,28 +289,41 @@ async function unblockUser(uid) {
         document.getElementById('setInterests').value = user.interests || '';
         document.getElementById('setBio').value = user.bio || '';
         document.getElementById('setLocation').value = user.location || '';
-        if (user.is_subscribed) document.getElementById('subStatus').textContent = 'Premium 會員';
+        if(user.is_subscribed) {
+            document.getElementById('subStatus').textContent = 'Premium 會員';
+        }
+        // Hydrate setting toggles + selects from server values
         document.querySelectorAll('[data-setting]').forEach(el => {
-            const value = user[el.getAttribute('data-setting')];
-            if (el.type === 'checkbox') el.checked = value === undefined ? true : !!value;
-            else el.value = value ?? '';
+            const key = el.getAttribute('data-setting');
+            const v = user[key];
+            if (el.type === 'checkbox') {
+                el.checked = v === undefined ? true : !!v;
+            } else {
+                el.value = v ?? '';
+            }
         });
-    } catch (e) {}
+    } catch(e) {}
 })();
+
+// Auto-save settings on change (debounced per field)
 const _settingTimers = {};
 async function saveSetting(key, value) {
-    try { await api.put('/api/users/me/settings', { [key]: value }); showToast('已儲存', 'success'); }
-    catch (e) { showToast('儲存失敗', 'error'); }
+    try {
+        await api.put('/api/users/me/settings', { [key]: value });
+        showToast('已儲存', 'success');
+    } catch(e) {
+        showToast('儲存失敗', 'error');
+    }
 }
-document.addEventListener('change', e => {
-    const target = e.target;
-    if (!target.matches('[data-setting]')) return;
-    const key = target.getAttribute('data-setting');
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (!t.matches('[data-setting]')) return;
+    const key = t.getAttribute('data-setting');
+    const value = t.type === 'checkbox' ? t.checked : t.value;
     clearTimeout(_settingTimers[key]);
     _settingTimers[key] = setTimeout(() => saveSetting(key, value), 250);
 });
-document.getElementById('settingsForm').addEventListener('submit', async e => {
+document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
         await api.put('/api/users/me', {
@@ -193,8 +335,14 @@ document.getElementById('settingsForm').addEventListener('submit', async e => {
             location: document.getElementById('setLocation').value,
         });
         showToast('已儲存！', 'success');
-    } catch (e) { showToast('儲存失敗', 'error'); }
+    } catch(e) {
+        showToast('儲存失敗', 'error');
+    }
 });
-function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
 </script>
 {% endblock %}

@@ -1,76 +1,165 @@
 {% extends "components/base.html" %}
-{% block title %}TT — 台灣 × 泰國的跨境相遇{% endblock %}
+{% block title %}Welcome{% endblock %}
 {% block mobile_nav %}{% endblock %}
 {% block navbar %}
 <nav class="navbar landing-navbar">
-    <a href="/" class="nav-brand" aria-label="TT Sawasdee 首頁">
-        <svg class="tt-logo" viewBox="0 0 98 58" aria-hidden="true">
-            <defs><linearGradient id="ttGradHero" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00F0FF"/><stop offset=".52" stop-color="#7A3CFF"/><stop offset="1" stop-color="#FF4D9B"/></linearGradient></defs>
-            <path d="M8 12C29 2 55 8 88 6 77 16 64 20 51 20H35L20 52V21H8Z" fill="none" stroke="url(#ttGradHero)" stroke-width="3" stroke-linejoin="round"/>
-            <path d="M47 20H78L67 52V25H51Z" fill="none" stroke="url(#ttGradHero)" stroke-width="3" stroke-linejoin="round"/>
-            <path d="M81 26c7-9 17 1 7 9-9 7-15-2-7-9Z" fill="none" stroke="#FFC77A" stroke-width="1.5"/>
-        </svg>
-        <span class="nav-brand-name">TT <small>SAWASDEE</small></span>
-    </a>
-    <div class="nav-links" style="gap:.65rem">
-        <a href="/login" class="btn btn-ghost btn-sm">登入</a>
-        <a href="/register" class="btn btn-primary btn-sm">加入 TT</a>
+    <a href="/" class="nav-brand">Sawasdee</a>
+    <div class="nav-links" style="gap:0.5rem;">
+        <a href="/login" class="btn btn-secondary btn-sm">登入</a>
+        <a href="/register" class="btn btn-primary btn-sm">免費註冊</a>
     </div>
 </nav>
 {% endblock %}
 {% block content %}
-<main class="tt-site-home">
-    <section class="tt-hero-web" aria-labelledby="hero-title">
-        <div class="tt-line-art tt-line-art-left" aria-hidden="true"></div>
-        <div class="tt-orchid-art" aria-hidden="true"></div>
-        <div class="tt-skyline" aria-hidden="true"><span class="taipei">101</span><span class="temple">✦</span></div>
-
-        <div class="tt-hero-copy-web">
-            <p class="tt-eyebrow">TT SOCIAL CLUB · TAIWAN × THAILAND</p>
-            <div class="tt-hero-monogram" aria-hidden="true">TT<span>✦</span></div>
-            <h1 id="hero-title">Connect.<br>Flirt.<br><i>Beyond borders.</i></h1>
-            <div class="tt-gold-rule" aria-hidden="true"></div>
-            <p>從台北的霓虹街景到曼谷的微醺夜色，遇見願意分享故事、城市與下一段冒險的人。這裡，讓心動不必受距離限制。</p>
-            <div class="tt-hero-ctas">
-                <a href="/register" class="btn btn-primary btn-lg">開始探索 <span aria-hidden="true">→</span></a>
-                <a href="/login" class="btn btn-secondary btn-lg">我已有帳號</a>
-            </div>
-            <div class="tt-hero-note" aria-label="TT 特色">
-                <span>✦ 跨文化相遇</span><span>✦ AI 即時翻譯</span><span>✦ 精選線下聚會</span>
-            </div>
+<div class="landing-hero">
+    <div>
+        <h1 style="font-family:var(--font-heading); font-size:3rem; font-weight:700; margin-bottom:1rem; background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">
+            遇見更有質感的跨國關係
+        </h1>
+        <p style="font-size:1.15rem; color:var(--text-secondary); max-width:540px; margin:0 auto 2rem; line-height:1.8;">
+            連結台灣與泰國會員，從生活興趣、相處節奏與真誠交流開始。
+        </p>
+        <div class="flex-center gap-2">
+            <a href="/register" class="btn btn-primary btn-lg">開始探索</a>
+            <a href="/subscription" class="btn btn-secondary btn-lg">升級 Premium</a>
         </div>
 
-        <div class="tt-hero-members" aria-label="TT 會員預覽">
-            <article class="tt-member-card tt-member-back">
-                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=600&amp;q=85" alt="Jay 的會員照片">
-                <div><b>Jay, 27</b><small>Taipei · Taiwan</small></div>
-            </article>
-            <article class="tt-member-card tt-member-main">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=720&amp;q=85" alt="Vivi 的會員照片">
-                <div class="tt-online">● 現在在線</div>
-                <div class="tt-member-info"><h2>Vivi, 24 <em>✓ 已驗證</em></h2><p>⌖ Bangkok · Thailand</p><div><span>Nightlife</span><span>Travel</span><span>Music</span></div></div>
-                <button type="button" aria-label="喜歡 Vivi">♥</button>
-            </article>
-            <article class="tt-member-card tt-member-front">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&amp;fit=crop&amp;w=600&amp;q=85" alt="Nicha 的會員照片">
-                <div><b>Nicha, 23</b><small>Chiang Mai · Thailand</small></div>
-            </article>
+        <!-- Stats -->
+        <div class="landing-stats">
+            <div class="text-center">
+                <div class="landing-stat-number">1,000+</div>
+                <div class="landing-stat-label">活躍會員</div>
+            </div>
+            <div class="text-center">
+                <div class="landing-stat-number">500+</div>
+                <div class="landing-stat-label">成功配對</div>
+            </div>
+            <div class="text-center">
+                <div class="landing-stat-number">24/7</div>
+                <div class="landing-stat-label">AI 即時翻譯</div>
+            </div>
         </div>
-    </section>
+    </div>
+</div>
 
-    <section class="tt-home-features" aria-label="TT 的相遇方式">
-        <article>
-            <div class="tt-feature-icon" aria-hidden="true">✦</div><h2>跨越文化，<br>自然靠近</h2>
-            <p>依照城市、興趣和此刻的心情，認識與你同頻的台灣與泰國會員。</p><a href="/explore">探索會員 →</a>
-        </article>
-        <article>
-            <div class="tt-feature-icon" aria-hidden="true">⌁</div><h2>說自己的話，<br>聊彼此的世界</h2>
-            <p>內建即時翻譯，讓每一次問候都保有原本的語氣與溫度。</p><a href="/messages">開始聊天 →</a>
-        </article>
-        <article>
-            <div class="tt-feature-icon" aria-hidden="true">◌</div><h2>從線上默契，<br>走進真實相遇</h2>
-            <p>精選城市聚會、主題晚餐與週末活動，為好奇心留一個位置。</p><a href="/gatherings">查看聚會 →</a>
-        </article>
-    </section>
-</main>
+<!-- Trust Section -->
+<div class="trust-section">
+    <div class="container">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:2rem; text-align:center;">
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h4 style="color:var(--gold); margin-bottom:0.5rem;">真人驗證</h4>
+                <p style="color:var(--text-muted); font-size:0.9rem;">每位會員經過身份驗證</p>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h4 style="color:var(--gold); margin-bottom:0.5rem;">嚴格審核</h4>
+                <p style="color:var(--text-muted); font-size:0.9rem;">維持社群高品質標準</p>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <h4 style="color:var(--gold); margin-bottom:0.5rem;">隱私保護</h4>
+                <p style="color:var(--text-muted); font-size:0.9rem;">私密相簿與加密通訊</p>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <h4 style="color:var(--gold); margin-bottom:0.5rem;">跨國交流</h4>
+                <p style="color:var(--text-muted); font-size:0.9rem;">AI 即時翻譯打破語言隔閡</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features-section">
+    <div class="container">
+        <h2 style="font-family:var(--font-heading); text-align:center; margin-bottom:0.5rem; font-size:1.8rem;">
+            為高品質社交而生
+        </h2>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:3rem;">專為重視隱私與品質的會員設計</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+                <div class="feature-title">高品質會員探索</div>
+                <div class="feature-desc">瀏覽經過驗證的優質會員，找到與你生活頻率相近的人。</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div class="feature-title">AI 中泰英即時翻譯</div>
+                <div class="feature-desc">聊天自動翻譯，讓跨國交流像母語一樣流暢自然。</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                </div>
+                <div class="feature-title">私密相簿</div>
+                <div class="feature-desc">控制誰能看見你的私人照片，保護你的隱私。</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="feature-title">限時邀約</div>
+                <div class="feature-desc">發起限時組局，找到今天剛好有空、想出門的人。</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>
+                </div>
+                <div class="feature-title">Premium 優先曝光</div>
+                <div class="feature-desc">升級 Premium，讓更多高品質會員優先看見你。</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interest Tags -->
+<div style="padding:4rem 1rem; text-align:center;">
+    <div class="container">
+        <h3 style="font-family:var(--font-heading); margin-bottom:2rem; color:var(--text-primary);">熱門興趣與關係標籤</h3>
+        <div class="flex-center" style="flex-wrap:wrap; gap:0.75rem; max-width:600px; margin:0 auto;">
+            <span class="chip">旅行</span>
+            <span class="chip">咖啡慢聊</span>
+            <span class="chip">高品質相處</span>
+            <span class="chip">說走就走</span>
+            <span class="chip">微醺聊天</span>
+            <span class="chip">生活同頻</span>
+            <span class="chip">重視隱私</span>
+            <span class="chip">美食探索</span>
+            <span class="chip">夜生活</span>
+            <span class="chip">健身</span>
+            <span class="chip">音樂</span>
+            <span class="chip">Netflix</span>
+        </div>
+    </div>
+</div>
+
+<!-- Premium CTA -->
+<div style="padding:4rem 1rem; text-align:center; background:var(--bg-card); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+    <div class="container-sm">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">👑</div>
+        <h2 style="font-family:var(--font-heading); font-size:1.8rem; margin-bottom:0.5rem;">
+            升級 Premium，解鎖更高品質的社交體驗
+        </h2>
+        <p style="color:var(--text-muted); margin-bottom:2rem;">無限瀏覽、優先曝光、進階篩選、專屬客服支援</p>
+        <a href="/subscription" class="btn btn-primary btn-lg">立即升級</a>
+    </div>
+</div>
+
+<!-- Footer -->
+<div style="padding:2rem 1rem; text-align:center;">
+    <p style="color:var(--text-muted); font-size:0.85rem;">&copy; 2026 Sawasdee. All rights reserved.</p>
+</div>
 {% endblock %}

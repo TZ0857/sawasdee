@@ -2,9 +2,9 @@
 {% block title %}管理後台{% endblock %}
 {% block navbar %}
 <nav class="navbar">
-    <a href="/explore" class="nav-brand" aria-label="返回 App"><span class="nav-brand-name">TT <small>ADMIN</small></span></a>
+    <a href="/explore" class="nav-brand" aria-label="返回 App">Sawasdee <span style="font-size:.6em;letter-spacing:.2em;color:var(--gold);">ADMIN</span></a>
     <div class="nav-links" style="gap:.6rem">
-        <a href="/explore" class="btn btn-ghost btn-sm">← 回 App</a>
+        <a href="/explore" class="btn btn-secondary btn-sm">← 回 App</a>
         <a href="#" class="btn btn-secondary btn-sm" onclick="doLogout(); return false;">登出</a>
     </div>
 </nav>
@@ -20,7 +20,12 @@
     .admin-stat .lbl { font-size: .72rem; color: var(--text-muted); letter-spacing: .04em; margin-top: .2rem; }
     .admin-tabs { display: flex; gap: .5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
     .admin-tab { padding: .5rem 1.1rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: .85rem; }
-    .admin-tab.active { background: linear-gradient(100deg,#7A3CFF,#FF5DB1); color: #fff; border-color: transparent; }
+    .admin-tab.active { background: var(--gradient-gold); color: #1a1407; font-weight: 600; border-color: transparent; }
+    /* Self-contained header styles (black-gold theme has no .tt-page-* classes). */
+    .tt-page-head { padding: 1.5rem 0 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .tt-kicker { color: var(--gold); font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: .55rem; }
+    .tt-page-title { font-family: var(--font-heading); color: var(--text-primary); font-size: clamp(2rem,4vw,2.8rem); letter-spacing: .01em; }
+    .tt-page-subtitle { color: var(--text-secondary); margin-top: .4rem; }
     .admin-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
     .admin-table th, .admin-table td { text-align: left; padding: .6rem .5rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
     .admin-table th { color: var(--text-muted); font-weight: 600; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
