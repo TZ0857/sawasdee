@@ -4335,3 +4335,963 @@ body[data-theme="orchid"] .mobile-nav-link.active {
     body[data-theme="orchid"] .message-row { max-width: 86%; }
     body[data-theme="orchid"] .chat-desktop-wrap { padding-inline: 0; }
 }
+
+/* =====================================================================
+   Reference shell pass — matching 62501–62504.
+   Desktop becomes a full-bleed app: no generic top navbar, large TT brand,
+   left rail / middle canvas / right rail, and heavier Thai × Taiwan line art.
+   ===================================================================== */
+@media (min-width: 901px) {
+    body[data-theme="orchid"]:has(.tt-shell-page) .navbar,
+    body[data-theme="orchid"]:has(.tt-shell-page) .mobile-nav {
+        display: none !important;
+    }
+
+    body[data-theme="orchid"] .tt-shell-page {
+        min-height: 100vh;
+        padding-top: 0 !important;
+        overflow: hidden;
+        background:
+            radial-gradient(760px 420px at 74% 40%, rgba(0, 240, 255, .045), transparent 70%),
+            radial-gradient(740px 470px at 98% 74%, rgba(255, 77, 155, .095), transparent 70%),
+            linear-gradient(145deg, #050916 0%, #07101e 52%, #090d1d 100%) !important;
+    }
+
+    body[data-theme="orchid"] .tt-shell-page::before,
+    body[data-theme="orchid"] .tt-feed-right::after,
+    body[data-theme="orchid"] .tt-chat-profile-panel::after,
+    body[data-theme="orchid"] .tt-messages-empty::after,
+    body[data-theme="orchid"] .tt-events-wrap::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+        background: url('/static/img/tt-ornament.svg') right bottom / contain no-repeat;
+        opacity: .58;
+        mix-blend-mode: screen;
+        filter: saturate(1.18) contrast(1.08);
+    }
+
+    body[data-theme="orchid"] .tt-shell-page::before {
+        inset: auto -3vw -8vh auto;
+        width: min(46vw, 720px);
+        height: min(48vh, 520px);
+    }
+}
+
+.tt-shell-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #ffb31f;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+}
+
+.tt-shell-monogram {
+    position: relative;
+    display: inline-flex;
+    width: 104px;
+    height: 58px;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 4.1rem;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -.2em;
+    color: transparent;
+    -webkit-text-stroke: 1.7px transparent;
+    background: linear-gradient(115deg, #00f0ff 0%, #8c69ff 50%, #ffc77a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 12px rgba(0, 240, 255, .42)) drop-shadow(0 0 12px rgba(255, 77, 155, .22));
+}
+
+.tt-shell-title {
+    margin: 3.1rem 0 1.25rem;
+    color: #f6c77f;
+    font-family: var(--font-heading);
+    font-size: 2.05rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+}
+
+.tt-shell-search {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    min-height: 46px;
+    padding: 0 1rem;
+    border: 1px solid rgba(255, 181, 82, .55);
+    border-radius: 12px;
+    color: #ffd590;
+    background: rgba(3, 7, 18, .45);
+}
+
+.tt-shell-search .form-input {
+    min-height: 42px;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.tt-shell-filter-row {
+    display: flex;
+    gap: .75rem;
+    padding: 1.05rem 0 1.15rem;
+}
+
+.tt-shell-filter-row .chip {
+    min-width: 84px;
+    justify-content: center;
+}
+
+.tt-shell-sidebar {
+    border-radius: 0 !important;
+    border-width: 0 1px 0 0 !important;
+    border-color: rgba(255, 199, 122, .2) !important;
+    background:
+        radial-gradient(420px 240px at 10% 0%, rgba(0, 240, 255, .055), transparent 70%),
+        linear-gradient(180deg, rgba(5, 10, 23, .98), rgba(4, 8, 18, .96)) !important;
+    box-shadow: none !important;
+}
+
+.tt-top-icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.35rem;
+    color: #ffc05d;
+    font-size: 1.45rem;
+}
+
+.tt-top-avatar {
+    width: 42px;
+    height: 42px;
+    border: 1px solid #ffb31f;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255,199,122,.22), rgba(255,77,155,.16));
+}
+
+/* Messages empty page */
+@media (min-width: 901px) {
+    body[data-theme="orchid"] .tt-messages-page {
+        padding-top: 0 !important;
+    }
+
+    body[data-theme="orchid"] .tt-messages-layout {
+        display: grid;
+        grid-template-columns: 445px minmax(0, 1fr);
+        height: 100vh;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    body[data-theme="orchid"] .tt-messages-layout .tt-shell-sidebar {
+        padding: 1.55rem 1.65rem 2rem;
+        overflow-y: auto;
+    }
+
+    body[data-theme="orchid"] .tt-messages-empty {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+        border-radius: 0;
+        border: 0 !important;
+        background:
+            radial-gradient(720px 420px at 55% 45%, rgba(0, 240, 255, .035), transparent 72%),
+            linear-gradient(145deg, rgba(4, 9, 20, .98), rgba(5, 10, 23, .96)) !important;
+    }
+
+    body[data-theme="orchid"] .tt-messages-empty .tt-top-icons {
+        position: absolute;
+        top: 2.25rem;
+        right: 3.2rem;
+    }
+
+    .tt-empty-mark {
+        position: absolute;
+        top: 17vh;
+        left: 18%;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 77, 155, .18);
+        font: italic 700 11rem/.8 var(--font-heading);
+        letter-spacing: -.18em;
+    }
+
+    .tt-empty-center {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        width: min(620px, 60vw);
+        transform: translateX(-50%);
+        text-align: center;
+    }
+
+    .tt-empty-center h2 {
+        color: #ffd08e;
+        font-size: clamp(2.4rem, 4vw, 4.1rem);
+        letter-spacing: .04em;
+    }
+
+    .tt-empty-center p {
+        margin: 1.15rem 0 2rem;
+        color: #d1a96f;
+        font-size: 1.08rem;
+        letter-spacing: .08em;
+    }
+
+    .tt-empty-rule {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .8rem;
+        margin-top: 1.15rem;
+        color: #ff6fac;
+    }
+
+    .tt-empty-rule span {
+        width: 170px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #d77d45, transparent);
+    }
+
+    .tt-empty-portraits {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        margin: 0 auto 2rem;
+        height: 170px;
+    }
+
+    .tt-empty-portraits div {
+        width: 150px;
+        height: 145px;
+        border: 1px solid rgba(255,199,122,.55);
+        border-radius: 16px;
+        background:
+            linear-gradient(180deg, transparent, rgba(4,8,18,.25)),
+            url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=360&q=80') center/cover;
+        box-shadow: 0 16px 38px rgba(0,0,0,.28);
+        transform: rotate(-5deg);
+    }
+
+    .tt-empty-portraits div:nth-child(2) {
+        z-index: 2;
+        width: 185px;
+        height: 190px;
+        margin-inline: -16px;
+        border-color: rgba(255,77,155,.85);
+        background-image: linear-gradient(180deg, transparent, rgba(4,8,18,.2)), url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=420&q=80');
+        transform: rotate(0);
+    }
+
+    .tt-empty-portraits div:nth-child(3) {
+        background-image: linear-gradient(180deg, transparent, rgba(4,8,18,.25)), url('https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&w=360&q=80');
+        transform: rotate(5deg);
+    }
+
+    .tt-messages-empty::after {
+        right: -5vw;
+        bottom: -6vh;
+        width: 45vw;
+        height: 52vh;
+    }
+}
+
+/* Conversation list common */
+body[data-theme="orchid"] .conversation-item {
+    min-height: 86px;
+    margin: .2rem 0 !important;
+    padding: .75rem .85rem !important;
+    border-radius: 16px !important;
+}
+
+body[data-theme="orchid"] .conversation-avatar {
+    width: 58px;
+    height: 58px;
+    border: 1px solid #d88b26;
+    box-shadow: 0 0 0 2px rgba(255,199,122,.06);
+}
+
+body[data-theme="orchid"] .conversation-name {
+    color: #f7d89b;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+}
+
+body[data-theme="orchid"] .conversation-preview {
+    color: #d2a875;
+}
+
+body[data-theme="orchid"] .conversation-item.active,
+body[data-theme="orchid"] .conversation-item:hover {
+    border-color: rgba(255,105,173,.85) !important;
+    box-shadow: 0 0 20px rgba(255,77,155,.10);
+}
+
+/* Chat page */
+@media (min-width: 901px) {
+    body[data-theme="orchid"] .tt-chat-layout {
+        display: grid;
+        grid-template-columns: 335px minmax(0, 1fr) 335px;
+        height: 100vh;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    body[data-theme="orchid"] .tt-chat-layout .tt-shell-sidebar {
+        display: flex;
+        flex-direction: column;
+        padding: 1.55rem 1.35rem 1.9rem;
+    }
+
+    body[data-theme="orchid"] .tt-chat-layout .chat-container {
+        max-width: none;
+        height: 100vh;
+        border-radius: 0 !important;
+        border-width: 0 1px 0 0 !important;
+        background:
+            radial-gradient(700px 380px at 66% 28%, rgba(0, 240, 255, .04), transparent 72%),
+            linear-gradient(145deg, rgba(4,9,20,.98), rgba(5,10,23,.96)) !important;
+    }
+
+    body[data-theme="orchid"] .chat-header {
+        min-height: 104px;
+        padding: 1.65rem 2.4rem;
+        border-bottom: 0 !important;
+        background: transparent !important;
+    }
+
+    body[data-theme="orchid"] .chat-header .post-avatar {
+        width: 70px;
+        height: 70px;
+        border: 1px solid #ffb31f;
+        box-shadow: 0 0 0 2px rgba(255,77,155,.18);
+    }
+
+    body[data-theme="orchid"] #chatName {
+        color: #f4cf8b;
+        font-size: 1.8rem;
+        font-family: var(--font-heading);
+    }
+
+    body[data-theme="orchid"] #chatStatus {
+        color: #d9a36c;
+        font-size: .92rem;
+    }
+
+    body[data-theme="orchid"] #translateToggle {
+        align-self: flex-end;
+        margin-top: 2rem;
+        color: #f4cf8b;
+        border-color: #df8a20 !important;
+    }
+
+    body[data-theme="orchid"] .chat-messages {
+        padding: 1rem 2.2rem 2.1rem;
+        background:
+            url('/static/img/tt-ornament.svg') 78% 20% / min(46vw, 640px) auto no-repeat;
+    }
+
+    body[data-theme="orchid"] .message-row {
+        max-width: min(48%, 430px);
+    }
+
+    body[data-theme="orchid"] .message-row-sent {
+        margin-right: 0;
+    }
+
+    body[data-theme="orchid"] .message-bubble.message-received,
+    body[data-theme="orchid"] .message-bubble.received {
+        border-color: rgba(223, 138, 32, .92) !important;
+        color: #ffdf9e;
+        background: rgba(4, 8, 18, .76) !important;
+        border-radius: 16px 16px 16px 2px;
+        font-size: 1.08rem;
+    }
+
+    body[data-theme="orchid"] .message-bubble.message-sent,
+    body[data-theme="orchid"] .message-bubble.sent {
+        border-color: rgba(255,105,173,.92) !important;
+        color: #ffe1ad;
+        background: rgba(4, 8, 18, .78) !important;
+        border-radius: 16px 16px 2px 16px;
+        font-size: 1.08rem;
+    }
+
+    body[data-theme="orchid"] .chat-input-area {
+        margin: 0 1.35rem 1.05rem;
+        padding: .7rem .8rem;
+        border: 1px solid rgba(255,199,122,.28) !important;
+        border-radius: 16px;
+        background: rgba(4, 8, 18, .72) !important;
+    }
+
+    .tt-new-conversation {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 64px;
+        border: 1px solid rgba(223, 138, 32, .9);
+        border-radius: 12px;
+        color: #ffb31f;
+        font-weight: 700;
+    }
+
+    .tt-chat-profile-panel {
+        position: relative;
+        overflow: hidden;
+        padding: 1.55rem 1.55rem;
+        border-left: 1px solid rgba(255,199,122,.2);
+        background:
+            radial-gradient(380px 260px at 50% 16%, rgba(255,77,155,.08), transparent 70%),
+            linear-gradient(180deg, rgba(5,10,23,.98), rgba(4,8,18,.97));
+    }
+
+    .tt-chat-side-avatar {
+        width: 220px;
+        height: 220px;
+        margin: 3rem auto 1.35rem;
+        object-fit: cover;
+        border-radius: 999px;
+        border: 1px solid rgba(255,105,173,.95);
+        box-shadow: 0 0 0 2px rgba(0,240,255,.18), 0 18px 38px rgba(0,0,0,.35);
+    }
+
+    .tt-vibe-score {
+        display: flex;
+        justify-content: center;
+        gap: .8rem;
+        color: #ff91c5;
+        font-family: var(--font-heading);
+        font-size: 3.1rem;
+        line-height: 1;
+    }
+
+    .tt-vibe-score span { color: #ffc77a; }
+    .tt-vibe-label {
+        text-align: center;
+        color: #d9a36c;
+        margin-top: .45rem;
+    }
+    .tt-side-divider {
+        height: 1px;
+        margin: 1.6rem 0 1rem;
+        background: linear-gradient(90deg, transparent, rgba(223,138,32,.82), transparent);
+    }
+    .tt-side-kicker {
+        color: #d9a36c;
+        text-align: center;
+        font-size: .78rem;
+        letter-spacing: .18em;
+    }
+    .tt-side-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem;
+        margin-top: 1rem;
+    }
+    .tt-side-tags span {
+        padding: .45rem .9rem;
+        border: 1px solid rgba(223, 138, 32, .86);
+        border-radius: 999px;
+        color: #ffd49b;
+        background: rgba(3,7,18,.38);
+    }
+    .tt-side-profile-link {
+        display: inline-block;
+        margin-top: 1.6rem;
+        color: #ff8aaa;
+        font-weight: 700;
+    }
+    .tt-chat-profile-panel::after {
+        right: -4vw;
+        bottom: -3vh;
+        width: 330px;
+        height: 360px;
+    }
+}
+
+/* Feed page */
+@media (min-width: 901px) {
+    body[data-theme="orchid"] .tt-social-layout {
+        display: grid;
+        grid-template-columns: 330px minmax(0, 1fr) 365px;
+        gap: 2rem;
+        min-height: 100vh;
+        padding: 0 1.25rem 0 0;
+    }
+
+    .tt-social-sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 1.55rem 2rem;
+        border-right: 1px solid rgba(255,199,122,.18);
+        background: linear-gradient(180deg, rgba(5,10,23,.98), rgba(4,8,18,.96));
+    }
+
+    .tt-side-user {
+        margin: 3rem 0 1.8rem;
+        color: #ffd49b;
+    }
+
+    .tt-side-user img {
+        width: 86px;
+        height: 86px;
+        object-fit: cover;
+        border: 1px solid #ffb31f;
+        border-radius: 999px;
+        margin-bottom: .9rem;
+    }
+
+    .tt-side-user strong {
+        display: block;
+        font: 600 1.45rem var(--font-heading);
+    }
+
+    .tt-side-user a { color: #ffd49b; }
+
+    .tt-side-nav {
+        display: grid;
+        gap: .65rem;
+    }
+
+    .tt-side-nav a {
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        padding: 0 1rem;
+        color: #f3c982;
+        border-left: 2px solid transparent;
+        border-radius: 2px 12px 12px 2px;
+    }
+
+    .tt-side-nav a.active,
+    .tt-side-nav a:hover {
+        border-left-color: #ff6fac;
+        background: linear-gradient(90deg, rgba(255,105,173,.16), transparent);
+    }
+
+    .tt-share-moment {
+        width: 100%;
+        min-height: 52px;
+        margin-top: 1.8rem;
+        border: 1px solid rgba(255,105,173,.88);
+        border-radius: 18px;
+        color: #ff9ac8;
+        background: transparent;
+        font-weight: 700;
+    }
+
+    .tt-feed-main {
+        max-width: 680px;
+        padding: 1.6rem 0 2rem;
+    }
+
+    .tt-feed-tabs {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+        min-height: 42px;
+        margin-bottom: 1rem;
+        color: #d9a36c;
+        font-weight: 700;
+        letter-spacing: .12em;
+    }
+
+    .tt-feed-tabs button,
+    .tt-feed-tabs a,
+    .tt-feed-tabs span {
+        color: #d9a36c;
+        border: 0;
+        background: transparent;
+        font: inherit;
+        padding-bottom: .55rem;
+    }
+
+    .tt-feed-tabs .active {
+        color: #ffd49b;
+        border-bottom: 2px solid #ff6fac;
+    }
+
+    .tt-post-tools {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        color: #ffd49b;
+    }
+
+    .tt-post-tools label,
+    .tt-post-tools button:not(.btn-primary) {
+        border: 0;
+        background: transparent;
+        color: #ffd49b;
+        font-size: 1.05rem;
+        cursor: pointer;
+    }
+
+    body[data-theme="orchid"] .tt-feed-page .create-post {
+        border-radius: 14px;
+    }
+
+    body[data-theme="orchid"] .tt-feed-page .post-card {
+        border-radius: 14px;
+        border-color: rgba(223, 138, 32, .42) !important;
+    }
+
+    body[data-theme="orchid"] .tt-feed-page .post-image,
+    body[data-theme="orchid"] .tt-feed-page .post-video {
+        border-radius: 8px;
+        max-height: 330px;
+        object-fit: cover;
+    }
+
+    .tt-feed-right {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        padding: 1.55rem 1.4rem 2rem;
+        border-left: 1px solid rgba(255,199,122,.18);
+    }
+
+    .tt-right-card {
+        position: relative;
+        margin-top: 1.45rem;
+        padding: 1.15rem;
+        border: 1px solid rgba(223,138,32,.36);
+        border-radius: 14px;
+        background: rgba(4,8,18,.48);
+    }
+
+    .tt-right-card h3 {
+        color: #f5c985;
+        font-size: 1.15rem;
+        line-height: 1.2;
+    }
+
+    .tt-right-card h3 em {
+        font-size: 1.75rem;
+        font-style: normal;
+    }
+
+    .tt-city-lines {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .9rem;
+        margin-top: 1rem;
+        color: #d9a36c;
+        font-size: .7rem;
+    }
+
+    .tt-city-lines strong {
+        display: block;
+        color: #ff8aaa;
+        font-size: 1.1rem;
+        margin-top: 2.7rem;
+    }
+
+    .tt-right-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .tt-mini-event {
+        display: grid;
+        grid-template-columns: 104px 1fr;
+        column-gap: .8rem;
+        margin-top: 1rem;
+        color: #ffd49b;
+    }
+
+    .tt-mini-event div {
+        grid-row: span 2;
+        height: 64px;
+        border: 1px solid rgba(223,138,32,.45);
+        border-radius: 8px;
+        background: url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=320&q=80') center/cover;
+    }
+
+    .tt-mini-event.lantern div {
+        background-image: url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=320&q=80');
+    }
+
+    .tt-mini-event span {
+        color: #d9a36c;
+        font-size: .76rem;
+    }
+
+    .tt-feed-right::after {
+        right: -6vw;
+        bottom: -4vh;
+        width: 340px;
+        height: 360px;
+    }
+}
+
+/* Events page */
+@media (min-width: 901px) {
+    body[data-theme="orchid"] .tt-events-page {
+        overflow-y: auto;
+    }
+
+    .tt-events-wrap {
+        position: relative;
+        min-height: 100vh;
+        padding: 1.55rem clamp(2.2rem, 4vw, 5.4rem) 2rem;
+    }
+
+    .tt-events-brand {
+        position: absolute;
+        left: clamp(2.2rem, 4vw, 5.4rem);
+        top: 1.45rem;
+    }
+
+    .tt-events-tabs {
+        justify-content: center;
+        margin: 0 auto 2.5rem;
+        padding-left: 14rem;
+    }
+
+    .tt-events-hero {
+        position: relative;
+        min-height: 250px;
+        padding-top: 4.5rem;
+    }
+
+    .tt-events-hero .tt-page-title {
+        max-width: 620px;
+        color: #f3c982;
+        font-size: clamp(3rem, 4.7vw, 4.8rem);
+        letter-spacing: .03em;
+    }
+
+    .tt-events-hero .tt-page-subtitle {
+        color: #dfb175;
+        font-size: 1.08rem;
+        letter-spacing: .05em;
+    }
+
+    .tt-city-pills {
+        display: flex;
+        gap: .8rem;
+        margin-top: 1.35rem;
+    }
+
+    .tt-city-pills button {
+        min-width: 120px;
+        min-height: 42px;
+        border: 1px solid rgba(223,138,32,.65);
+        border-radius: 999px;
+        color: #f3c982;
+        background: rgba(4,8,18,.42);
+        letter-spacing: .14em;
+    }
+
+    .tt-events-skyline {
+        position: absolute;
+        right: 20%;
+        top: 3rem;
+        width: min(48vw, 660px);
+        height: 185px;
+        background: url('/static/img/tt-ornament.svg') center/contain no-repeat;
+        opacity: .72;
+        mix-blend-mode: screen;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-tabs {
+        display: none;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-filters {
+        display: flex;
+        align-items: center;
+        gap: 1.35rem;
+        min-height: 58px;
+        margin-bottom: 1.35rem;
+        padding: .65rem .9rem;
+        border: 1px solid rgba(223,138,32,.32);
+        border-radius: 14px;
+        background: rgba(4,8,18,.5);
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-filter {
+        border: 0 !important;
+        color: #e4b978;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-filter.active {
+        border: 1px solid rgba(255,105,173,.86) !important;
+        color: #ff9ac8;
+        background: rgba(255,105,173,.08) !important;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-grid {
+        display: grid;
+        grid-template-columns: minmax(420px, 1.05fr) minmax(300px, .95fr) 320px;
+        gap: 1rem;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-card {
+        min-height: 228px;
+        border-radius: 14px;
+        border-color: rgba(223,138,32,.42) !important;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-card:first-child {
+        grid-row: span 2;
+        min-height: 390px;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-card:first-child .g-title {
+        margin-top: 5.5rem;
+        font-size: 2rem;
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-title {
+        color: #f3c982;
+        font-family: var(--font-heading);
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-actions .btn-primary {
+        border-color: rgba(255,105,173,.86) !important;
+        background: rgba(4,8,18,.5) !important;
+        color: #ff9ac8;
+    }
+
+    .tt-events-wrap::after {
+        right: -2vw;
+        bottom: -5vh;
+        width: 390px;
+        height: 380px;
+    }
+}
+
+/* Mobile reference shell: keep single column, preserve bottom navigation. */
+@media (max-width: 900px) {
+    body[data-theme="orchid"] .tt-shell-page {
+        padding-top: 72px !important;
+        overflow-x: hidden;
+    }
+
+    .tt-shell-brand {
+        gap: .65rem;
+        letter-spacing: .18em;
+        font-size: .68rem;
+    }
+
+    .tt-shell-monogram {
+        width: 58px;
+        height: 34px;
+        font-size: 2.35rem;
+    }
+
+    body[data-theme="orchid"] .tt-messages-layout,
+    body[data-theme="orchid"] .tt-chat-layout,
+    body[data-theme="orchid"] .tt-social-layout {
+        display: block;
+        height: auto;
+        padding-inline: 1rem;
+    }
+
+    body[data-theme="orchid"] .tt-shell-sidebar,
+    .tt-social-sidebar,
+    .tt-feed-right,
+    .tt-chat-profile-panel,
+    .tt-messages-empty .tt-top-icons,
+    .tt-empty-mark,
+    .tt-corner-ornament {
+        display: none !important;
+    }
+
+    body[data-theme="orchid"] .tt-messages-empty {
+        min-height: calc(100vh - 150px);
+        border-radius: 22px;
+        padding: 2rem 1.2rem;
+        text-align: center;
+    }
+
+    .tt-empty-center {
+        position: static;
+        width: auto;
+        transform: none;
+    }
+
+    .tt-empty-center h2 {
+        font-size: 2.2rem;
+        color: #f3c982;
+    }
+
+    .tt-empty-portraits {
+        display: none;
+    }
+
+    .tt-feed-main {
+        padding-bottom: calc(var(--mobile-nav-h) + 1.5rem);
+    }
+
+    .tt-feed-tabs,
+    .tt-events-tabs {
+        display: flex;
+        overflow-x: auto;
+        gap: 1.35rem;
+        margin: .25rem 0 1rem;
+        color: #d9a36c;
+        white-space: nowrap;
+    }
+
+    .tt-post-tools {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+    }
+
+    .tt-events-wrap {
+        padding: 0 1rem calc(var(--mobile-nav-h) + 1.5rem);
+    }
+
+    .tt-events-brand,
+    .tt-events-skyline {
+        display: none;
+    }
+
+    .tt-events-hero {
+        padding: .4rem 0 1rem;
+    }
+
+    .tt-events-hero .tt-page-title {
+        color: #f3c982;
+        font-size: 2.35rem;
+    }
+
+    .tt-city-pills {
+        display: flex;
+        gap: .6rem;
+        margin-top: .9rem;
+    }
+
+    .tt-city-pills button {
+        flex: 1;
+        min-height: 38px;
+        border: 1px solid rgba(223,138,32,.55);
+        border-radius: 999px;
+        color: #f3c982;
+        background: rgba(4,8,18,.42);
+    }
+
+    body[data-theme="orchid"] .tt-events-page .g-grid {
+        grid-template-columns: 1fr;
+    }
+}

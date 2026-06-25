@@ -2,13 +2,32 @@
 {% block title %}動態{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content"><div class="container-sm">
-  <header class="tt-page-head"><div class="tt-kicker">THE TT SOCIAL CLUB</div><h1 class="tt-page-title">今晚，留下你的故事</h1><p class="tt-page-subtitle">從台北的深夜到曼谷的熱風，讓每一個心動都有被看見的地方。</p></header>
-  <div class="filter-chips" style="margin-bottom:1rem"><button type="button" class="chip active" data-feed-filter="" onclick="filterFeed('')">全部動態</button><button type="button" class="chip" data-feed-filter="liked" onclick="filterFeed('liked')">我喜歡的</button></div>
-  <div class="stories-bar" id="storiesBar" aria-label="限時動態"></div>
-  <section class="card create-post mb-2"><div class="card-body"><div style="display:flex;gap:.75rem;align-items:flex-start"><img src="" class="post-avatar" id="feedAvatar" alt="我的頭像"><div style="flex:1"><div class="tt-kicker" style="margin-bottom:.45rem">SHARE A MOMENT</div><textarea class="form-textarea" id="postContent" placeholder="這一刻，想和誰分享？" rows="2"></textarea><div style="display:flex;justify-content:space-between;gap:.5rem;margin-top:.7rem;flex-wrap:wrap"><div class="flex gap-1"><label class="btn btn-ghost btn-sm">照片<input type="file" accept="image/*" id="postImage" hidden></label><label class="btn btn-ghost btn-sm">影片<input type="file" accept="video/*" id="postVideo" hidden></label><button type="button" class="btn btn-ghost btn-sm" id="audioBtn" onclick="toggleRecording()"><span id="audioBtnLabel">語音</span></button></div><button type="button" class="btn btn-primary btn-sm" onclick="createPost()">發佈動態</button></div><div id="imagePreview" class="hidden mt-1" style="position:relative"><img id="previewImg" style="max-height:180px;border-radius:var(--radius-md)" alt="照片預覽"><button type="button" onclick="clearImage()" class="modal-close" style="position:absolute;top:4px;right:4px" aria-label="移除照片">×</button></div><div id="videoPreview" class="hidden mt-1" style="position:relative"><video id="previewVideo" controls style="max-height:240px;max-width:100%;border-radius:var(--radius-md)"></video><button type="button" onclick="clearVideo()" class="modal-close" style="position:absolute;top:4px;right:4px" aria-label="移除影片">×</button></div><div id="audioPreview" class="hidden mt-1"><audio id="previewAudio" controls></audio><button type="button" onclick="clearAudio()" class="btn btn-ghost btn-sm">移除語音</button></div></div></div></div></section>
-  <section id="postsFeed"><div class="flex-center" style="padding:4rem"><div class="spinner"></div></div></section>
-  <div class="hidden" id="feedEmpty"><div class="empty-state-card"><div class="empty-icon">✦</div><div class="empty-title">還沒有動態</div><div class="empty-desc">先分享一個瞬間，讓同頻的人找到你。</div><button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('postContent').focus()">發佈第一則動態</button></div></div>
-</div></main>
+<main class="main-content tt-shell-page tt-feed-page">
+  <div class="tt-social-layout">
+    <aside class="tt-social-sidebar">
+      <a href="/explore" class="tt-shell-brand" aria-label="TT Sawasdee"><span class="tt-shell-monogram">TT</span><span>TT SAWASDEE</span></a>
+      <div class="tt-side-user"><img src="" id="feedSideAvatar" alt=""><strong id="feedSideName">Ploy</strong><a href="#" onclick="goToProfile();return false;">View profile ›</a></div>
+      <nav class="tt-side-nav" aria-label="社群導覽">
+        <a class="active" href="/feed">⌂ 動態</a><a href="/explore">♧ 探索同頻的人</a><a href="/gatherings">▣ 活動</a><a href="/messages">☷ 訊息</a><a href="/settings">⚙ 設定</a>
+      </nav>
+      <button type="button" class="tt-share-moment" onclick="document.getElementById('postContent').focus()">＋ 分享此刻</button>
+      <div class="tt-corner-ornament" aria-hidden="true"></div>
+    </aside>
+    <section class="tt-feed-main">
+      <nav class="tt-feed-tabs"><button class="active" type="button">動態</button><a href="/explore">探索</a><a href="/gatherings">活動</a><span>專屬圈子</span></nav>
+      <div class="stories-bar tt-feed-stories" id="storiesBar" aria-label="限時動態"></div>
+      <section class="card create-post mb-2"><div class="card-body"><div style="display:flex;gap:.75rem;align-items:center"><img src="" class="post-avatar" id="feedAvatar" alt="我的頭像"><textarea class="form-textarea" id="postContent" placeholder="分享今晚的心情…" rows="1"></textarea><div class="tt-post-tools"><label>▧<input type="file" accept="image/*" id="postImage" hidden></label><label>◉<input type="file" accept="video/*" id="postVideo" hidden></label><button type="button" id="audioBtn" onclick="toggleRecording()"><span id="audioBtnLabel">⌕</span></button><button type="button" class="btn btn-primary btn-sm" onclick="createPost()">發布</button></div></div><div id="imagePreview" class="hidden mt-1" style="position:relative"><img id="previewImg" style="max-height:180px;border-radius:var(--radius-md)" alt="照片預覽"><button type="button" onclick="clearImage()" class="modal-close" style="position:absolute;top:4px;right:4px" aria-label="移除照片">×</button></div><div id="videoPreview" class="hidden mt-1" style="position:relative"><video id="previewVideo" controls style="max-height:240px;max-width:100%;border-radius:var(--radius-md)"></video><button type="button" onclick="clearVideo()" class="modal-close" style="position:absolute;top:4px;right:4px" aria-label="移除影片">×</button></div><div id="audioPreview" class="hidden mt-1"><audio id="previewAudio" controls></audio><button type="button" onclick="clearAudio()" class="btn btn-ghost btn-sm">移除語音</button></div></div></section>
+      <section id="postsFeed"><div class="flex-center" style="padding:4rem"><div class="spinner"></div></div></section>
+      <div class="hidden" id="feedEmpty"><div class="empty-state-card"><div class="empty-icon">✦</div><div class="empty-title">還沒有動態</div><div class="empty-desc">先分享一個瞬間，讓同頻的人找到你。</div><button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('postContent').focus()">發佈第一則動態</button></div></div>
+    </section>
+    <aside class="tt-feed-right">
+      <div class="tt-top-icons" aria-hidden="true"><span>♕</span><span>●</span><span>♧</span><span class="tt-top-avatar"></span><span>⌄</span></div>
+      <section class="tt-right-card"><h3>Tonight in<br><em>Taipei × Bangkok</em></h3><div class="tt-city-lines"><div>TAIPEI<br><strong>128</strong><span> Members online</span></div><div>BANGKOK<br><strong>96</strong><span> Members online</span></div></div></section>
+      <section class="tt-right-card"><div class="tt-right-head"><h3>精選聚會</h3><a href="/gatherings">查看全部 ›</a></div><div class="tt-mini-event"><div></div><strong>Rooftop Vibes</strong><span>今晚 9:00 · Taipei</span></div><div class="tt-mini-event lantern"><div></div><strong>Lantern Night</strong><span>明晚 7:00 · Bangkok</span></div></section>
+      <section class="tt-right-card"><h3>熱門標籤</h3><div class="tt-side-tags"><span># TaipeiNights</span><span># BangkokEats</span><span># RooftopVibes</span><span># TTCommunity</span></div></section>
+      <div class="tt-corner-ornament" aria-hidden="true"></div>
+    </aside>
+  </div>
+</main>
 {% endblock %}
 {% block scripts %}<script src="/static/js/feed.js?v=20260623"></script>{% endblock %}

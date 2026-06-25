@@ -18,6 +18,13 @@ function filterFeed(f) {
 const feedAvatar = document.getElementById('feedAvatar');
 if (user.avatar_url) feedAvatar.src = user.avatar_url;
 else feedAvatar.style.background = 'var(--gradient-gold)';
+const feedSideAvatar = document.getElementById('feedSideAvatar');
+if (feedSideAvatar) {
+    if (user.avatar_url) feedSideAvatar.src = user.avatar_url;
+    else feedSideAvatar.style.background = 'var(--gradient-gold)';
+}
+const feedSideName = document.getElementById('feedSideName');
+if (feedSideName) feedSideName.textContent = user.display_name || user.username || 'TT Member';
 
 /* ---------- Image preview ---------- */
 document.getElementById('postImage').addEventListener('change', (e) => {

@@ -2,10 +2,40 @@
 {% block title %}訊息{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content"><div class="container"><header class="tt-page-head"><div class="tt-kicker">YOUR CONNECTIONS</div><h1 class="tt-page-title">訊息</h1><p class="tt-page-subtitle">每一句話，都可能讓距離更近一點。</p></header></div>
-  <div class="messages-layout">
-    <aside class="conversations-list" id="conversationsList"><div class="tt-orchid-rule" style="margin:.5rem">CONVERSATIONS</div><div style="padding:.8rem .5rem"><input type="text" class="form-input" id="convSearch" placeholder="搜尋對話"></div><div style="display:flex;gap:.4rem;padding:0 .5rem .8rem"><button class="chip active" onclick="filterConv('all',this)">全部</button><button class="chip" onclick="filterConv('unread',this)">未讀</button></div><div id="convListContent"><div class="flex-center" style="padding:2rem"><div class="spinner"></div></div></div></aside>
-    <section class="chat-area" id="chatArea"><div class="flex-center" style="flex:1"><div class="empty-state" style="border:0;background:transparent"><div class="empty-icon" style="color:#FF5DB1">✦</div><div class="empty-title">從一句嗨開始</div><div class="empty-desc">選擇一個對話，或探索會員，開始你的台泰連結。</div><a href="/explore" class="btn btn-primary btn-sm">探索會員</a></div></div></section>
+<main class="main-content tt-shell-page tt-messages-page">
+  <div class="messages-layout tt-messages-layout">
+    <aside class="conversations-list tt-shell-sidebar" id="conversationsList">
+      <a href="/explore" class="tt-shell-brand" aria-label="TT Sawasdee">
+        <span class="tt-shell-monogram">TT</span>
+        <span>TT SAWASDEE</span>
+      </a>
+      <h1 class="tt-shell-title">訊息</h1>
+      <label class="tt-shell-search" for="convSearch">
+        <span>⌕</span>
+        <input type="text" class="form-input" id="convSearch" placeholder="搜尋訊息…">
+        <span>≡</span>
+      </label>
+      <div class="tt-shell-filter-row">
+        <button class="chip active" onclick="filterConv('all',this)">全部</button>
+        <button class="chip" onclick="filterConv('unread',this)">未讀</button>
+        <button class="chip" onclick="filterConv('all',this)">收藏</button>
+      </div>
+      <div id="convListContent"><div class="flex-center" style="padding:2rem"><div class="spinner"></div></div></div>
+    </aside>
+    <section class="chat-area tt-messages-empty" id="chatArea">
+      <div class="tt-top-icons" aria-hidden="true"><span>♕</span><span>●</span><span>♧</span><span class="tt-top-avatar"></span><span>⌄</span></div>
+      <div class="tt-empty-mark">TT</div>
+      <div class="tt-empty-center">
+        <h2>今晚，想和誰聊聊？</h2>
+        <div class="tt-empty-rule"><span></span><i>✦</i><span></span></div>
+        <p>探索同頻的人，展開真實又有趣的對話。</p>
+        <div class="tt-empty-portraits" aria-hidden="true">
+          <div></div><div></div><div></div>
+        </div>
+        <a href="/explore" class="btn btn-primary">探索同頻的人</a>
+      </div>
+      <div class="tt-corner-ornament" aria-hidden="true"></div>
+    </section>
   </div>
 </main>
 {% endblock %}

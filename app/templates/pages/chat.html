@@ -3,20 +3,26 @@
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 
 {% block content %}
-<main class="main-content">
-    <div class="chat-desktop-wrap">
-        <aside class="conversations-list chat-conv-sidebar" id="chatConvSidebar" aria-label="對話列表">
-            <div class="tt-orchid-rule" style="margin:.9rem .75rem .6rem;">PRIVATE CONNECTIONS</div>
-            <div style="padding:0 .6rem .8rem;">
-                <input type="search" class="form-input" id="chatConvSearch" placeholder="搜尋對話" aria-label="搜尋對話">
-            </div>
-            <div class="filter-chips" style="padding:0 .6rem .9rem;">
+<main class="main-content tt-shell-page tt-chat-page">
+    <div class="chat-desktop-wrap tt-chat-layout">
+        <aside class="conversations-list chat-conv-sidebar tt-shell-sidebar" id="chatConvSidebar" aria-label="對話列表">
+            <a href="/explore" class="tt-shell-brand" aria-label="TT Sawasdee">
+                <span class="tt-shell-monogram">TT</span>
+                <span>TT SAWASDEE</span>
+            </a>
+            <label class="tt-shell-search" for="chatConvSearch">
+                <span>⌕</span>
+                <input type="search" class="form-input" id="chatConvSearch" placeholder="Search" aria-label="搜尋對話">
+                <span>≡</span>
+            </label>
+            <div class="filter-chips tt-shell-filter-row">
                 <button class="chip active" data-conv-filter="all" onclick="filterConvSidebar('all')" type="button">全部</button>
                 <button class="chip" data-conv-filter="unread" onclick="filterConvSidebar('unread')" type="button">未讀</button>
             </div>
             <div id="chatConvList">
                 <div class="flex-center" style="padding:2rem"><div class="spinner"></div></div>
             </div>
+            <a class="tt-new-conversation" href="/explore">↗ New Conversation</a>
         </aside>
 
         <section class="container-sm chat-container" aria-label="私人聊天室">
@@ -81,6 +87,17 @@
                 <button onclick="actionRecall()" type="button" id="actionRecallBtn" class="chat-action-danger">收回</button>
             </div>
         </section>
+        <aside class="tt-chat-profile-panel" aria-label="對話對象資訊">
+            <div class="tt-top-icons" aria-hidden="true"><span>♕</span><span>●</span><span>♧</span><span class="tt-top-avatar"></span><span>⌄</span></div>
+            <img src="" alt="" id="chatSideAvatar" class="tt-chat-side-avatar">
+            <div class="tt-vibe-score"><strong>92%</strong><span>♡</span></div>
+            <div class="tt-vibe-label">Vibe Match ⓘ</div>
+            <div class="tt-side-divider"></div>
+            <div class="tt-side-kicker">TOP INTERESTS</div>
+            <div class="tt-side-tags"><span>Rooftop Views</span><span>Live Music</span><span>Fine Dining</span></div>
+            <a href="#" id="chatSideProfileLink" class="tt-side-profile-link">View Full Profile ›</a>
+            <div class="tt-corner-ornament" aria-hidden="true"></div>
+        </aside>
     </div>
 </main>
 {% endblock %}

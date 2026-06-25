@@ -2,15 +2,17 @@
 {% block title %}聚會{% endblock %}
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
-<main class="main-content tt-gatherings-page">
-  <div class="container">
-    <header class="tt-page-head" style="display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap">
+<main class="main-content tt-shell-page tt-gatherings-page tt-events-page">
+  <div class="tt-events-wrap">
+    <header class="tt-events-hero">
+      <a href="/explore" class="tt-shell-brand tt-events-brand" aria-label="TT Sawasdee"><span class="tt-shell-monogram">TT</span><span>TT SAWASDEE</span></a>
+      <nav class="tt-feed-tabs tt-events-tabs"><a href="/feed">動態</a><a href="/explore">探索</a><button class="active" type="button">活動</button><span>專屬圈子</span></nav>
       <div>
-        <div class="tt-kicker">CURATED GATHERINGS</div>
         <h1 class="tt-page-title">讓心動走進城市裡</h1>
         <p class="tt-page-subtitle">精心挑選的餐桌、夜色與聲音，讓線上的默契變成真實的相遇。</p>
+        <div class="tt-city-pills"><button type="button">⌖ TAIPEI</button><button type="button">♜ BANGKOK</button></div>
       </div>
-      <button class="btn btn-primary" type="button" onclick="openCreateModal()">建立聚會</button>
+      <div class="tt-events-skyline" aria-hidden="true"></div>
     </header>
 
     <nav class="g-tabs" aria-label="聚會分類">
@@ -19,7 +21,7 @@
     </nav>
     <div id="incomingPanel" class="hidden" style="margin:1rem 0" aria-live="polite"></div>
 
-    <section aria-label="聚會類型">
+    <section class="tt-events-content" aria-label="聚會類型">
       <div class="g-filters">
         <button class="g-filter active" type="button" data-type="" onclick="filterType('')">全部氛圍</button>
         <button class="g-filter" type="button" data-type="meal" onclick="filterType('meal')">餐桌時光</button>
