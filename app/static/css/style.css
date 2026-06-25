@@ -4023,6 +4023,12 @@ body[data-theme="orchid"] .user-card-rich {
     border-radius: 24px;
 }
 
+body[data-theme="orchid"] .user-card-rich::after,
+body[data-theme="orchid"] .g-card::after {
+    opacity: .16 !important;
+    mix-blend-mode: screen;
+}
+
 body[data-theme="orchid"] .user-card-photo {
     background: #060a16;
 }
@@ -4119,12 +4125,21 @@ body[data-theme="orchid"] .profile-tab {
     border: 1px solid transparent;
     border-bottom: 0;
     border-radius: 16px 16px 0 0;
+    color: #a99fba;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body[data-theme="orchid"] .profile-tab:hover {
+    color: #fff1df;
+    border-color: rgba(255,199,122,.16);
+    background: rgba(4,7,18,.36) !important;
 }
 
 body[data-theme="orchid"] .profile-tab.active {
     color: #ffd49b;
     border-color: rgba(255,199,122,.18);
-    background: rgba(4,7,18,.54);
+    background: rgba(4,7,18,.54) !important;
 }
 
 /* Messages list */
