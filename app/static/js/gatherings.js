@@ -2,13 +2,17 @@
 requireAuth();
 
 // Keep this in sync with backend GATHERING_TYPES (app/routers/gatherings.py).
-const TYPE_LABELS = {
-    meal: '🍜 飯局',
-    drinks: '🥂 小酌',
-    karaoke: '🎤 KTV',
-    movie: '🎬 電影',
-    nightlife: '🌙 夜生活',
+const TYPE_NAMES = {
+    meal: '飯局', drinks: '小酌', karaoke: 'KTV', movie: '電影', nightlife: '夜生活',
 };
+const TYPE_ICONS = {
+    meal: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6a2 2 0 0 0 4 0V2"/><path d="M5 10v12"/><path d="M19 2c-1.7 0-3 2-3 5s1.3 4 3 4v11"/></svg>',
+    drinks: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14l-7 8z"/><path d="M12 12v8"/><path d="M8 20h8"/></svg>',
+    karaoke: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg>',
+    movie: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>',
+    nightlife: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>',
+};
+const typeBadge = (t) => `${TYPE_ICONS[t] || ''} ${TYPE_NAMES[t] || t}`;
 
 let currentTab = 'explore';
 let currentType = '';
@@ -136,7 +140,7 @@ function renderCard(g) {
         </div>
         <div class="g-card-body">
             <div class="g-card-top">
-                <span class="g-type-badge">${TYPE_LABELS[g.type] || g.type}</span>
+                <span class="g-type-badge">${typeBadge(g.type)}</span>
                 <span class="g-countdown ${barClass}" data-event="${g.event_at || g.expires_at}">${isPast ? '已開始' : formatRemaining(remaining)}</span>
             </div>
             <h3 class="g-title">${escapeHtml(g.title)}</h3>

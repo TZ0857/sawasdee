@@ -1,11 +1,32 @@
 {% extends "components/base.html" %}
 {% block title %}註冊{% endblock %}
 {% block mobile_nav %}{% endblock %}
+{% block navbar %}{% endblock %}
 {% block content %}
-<div class="auth-page">
-    <div class="auth-card" style="max-width:520px">
-        <h1 class="auth-title">加入 Sawasdee</h1>
-        <p class="auth-subtitle">建立你的會員檔案，開始遇見更有質感的連結。</p>
+<div class="tt-auth">
+    <!-- Left: TT brand visual + 3-step -->
+    <div class="tt-auth-visual">
+        <a href="/" class="tt-auth-brand">
+            <img src="/static/img/tt-logo.png" alt="TT">
+        </a>
+        <div class="tt-auth-tagline">
+            <h2><span class="tt-grad">建立你的帳號</span><br>遇見同頻的人</h2>
+            <p>填寫你的會員檔案，開始這段台灣 × 泰國的跨國連結。</p>
+            <div class="tt-steps">
+                <div class="tt-step active"><span class="tt-step-dot">1</span> 建立帳號</div>
+                <div class="tt-step"><span class="tt-step-dot">2</span> 選擇偏好</div>
+                <div class="tt-step"><span class="tt-step-dot">3</span> 完成註冊</div>
+            </div>
+        </div>
+        <img class="tt-art-sidebar" src="/static/img/neon-skyline.png" alt="" style="opacity:.8;">
+        <img class="tt-auth-orchid" src="/static/img/neon-orchid.png" alt="">
+    </div>
+
+    <!-- Right: registration form -->
+    <div class="tt-auth-form">
+    <div class="tt-auth-card" style="max-width:520px; max-height:92vh; overflow-y:auto;">
+        <h1>建立你的帳號</h1>
+        <p class="tt-auth-sub">建立你的會員檔案，開始遇見更有質感的連結。</p>
         <form id="registerForm">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <div class="form-group">
@@ -71,7 +92,8 @@
             </div>
             <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">建立帳號</button>
         </form>
-        <p class="auth-footer">已有帳號？ <a href="/login">登入</a></p>
+        <p class="auth-footer mt-3">已有帳號？ <a href="/login">登入</a></p>
+    </div>
     </div>
 </div>
 {% endblock %}

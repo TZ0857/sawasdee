@@ -18,7 +18,15 @@ const _AUTO_KEY = `sw_autotr_g:${gatheringId}`;
 let autoTranslate = localStorage.getItem(_AUTO_KEY) === '1';
 let _lastMessageList = [];   // cached for auto-translate sweep on toggle
 
-const TYPE_EMOJI = { meal: '🍜', drinks: '🥂', karaoke: '🎤', movie: '🎬', nightlife: '🌙' };
+const TYPE_NAMES = { meal: '飯局', drinks: '小酌', karaoke: 'KTV', movie: '電影', nightlife: '夜生活' };
+const TYPE_ICONS = {
+    meal: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6a2 2 0 0 0 4 0V2"/><path d="M5 10v12"/><path d="M19 2c-1.7 0-3 2-3 5s1.3 4 3 4v11"/></svg>',
+    drinks: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14l-7 8z"/><path d="M12 12v8"/><path d="M8 20h8"/></svg>',
+    karaoke: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg>',
+    movie: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>',
+    nightlife: '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>',
+};
+const TARGET_ICON = '<svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg>';
 
 function escapeHtml(s) {
     return String(s == null ? '' : s)
@@ -40,7 +48,7 @@ async function loadMyChats() {
             return;
         }
         list.innerHTML = chats.map(c => {
-            const emoji = TYPE_EMOJI[c.type] || '🎯';
+            const emoji = TYPE_ICONS[c.type] || TARGET_ICON;
             const isActive = c.id === gatheringId;
             const eventDate = c.event_at ? new Date(c.event_at + 'Z') : null;
             const timeLabel = eventDate
@@ -251,7 +259,7 @@ async function loadMessages(scrollToBottom = false) {
         // Header info from response
         if (data.gathering) {
             const t = data.gathering;
-            document.getElementById('gChatTitle').textContent = `${TYPE_EMOJI[t.type] || ''} ${t.title}`;
+            document.getElementById('gChatTitle').innerHTML = `${TYPE_ICONS[t.type] || ''} ${escapeHtml(t.title)}`;
         }
 
         const merged = buildMergedList(data.messages || []);
@@ -293,7 +301,7 @@ async function loadMessages(scrollToBottom = false) {
             // 410: gathering has started, chat room closed
             document.getElementById('gChatMessages').innerHTML = `
                 <div class="text-center" style="padding:2.5rem 1rem; color:var(--text-muted);">
-                    <div style="font-size:2rem; margin-bottom:0.5rem;">🌙</div>
+                    <div style="margin-bottom:0.6rem;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--violet-soft)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></div>
                     <div style="color:var(--text-primary); font-weight:600; margin-bottom:0.4rem;">局已開始,聊天室已關閉</div>
                     <div style="font-size:0.85rem; line-height:1.6;">時間到了之後,所有訊息都自動刪除了。<br>祝你們玩得開心!</div>
                     <a href="/gatherings" class="btn btn-primary btn-sm" style="margin-top:1.2rem;">回到組局</a>

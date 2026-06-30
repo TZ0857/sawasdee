@@ -4,7 +4,7 @@
 {% block content %}
 <div class="main-content">
     <div class="container" style="padding-top:2rem;">
-        <h2 style="font-family:var(--font-heading); margin-bottom:1.5rem;">設定</h2>
+        <h2 class="tt-grad" style="margin-bottom:1.5rem; font-weight:700;">設定</h2>
         <div style="display:grid; grid-template-columns:220px 1fr; gap:1.5rem;">
             <!-- Settings Menu -->
             <div class="card" style="height:fit-content; position:sticky; top:5rem;">
@@ -194,7 +194,7 @@
     transition:all 0.2s;
 }
 .settings-menu-item:hover { color:var(--text-primary); background:var(--bg-elevated); }
-.settings-menu-item.active { color:var(--gold); background:rgba(200,169,106,0.08); border-right:2px solid var(--gold); }
+.settings-menu-item.active { color:var(--pink); background:rgba(255,45,141,0.10); border-right:2px solid var(--pink); }
 .settings-row {
     display:flex; justify-content:space-between; align-items:center;
     padding:1rem 0; border-bottom:1px solid var(--border);
@@ -212,8 +212,8 @@
     left:2px; bottom:2px; background:var(--text-muted);
     border-radius:50%; transition:0.3s;
 }
-.toggle input:checked + .toggle-slider { background:var(--gold); border-color:var(--gold); }
-.toggle input:checked + .toggle-slider::before { transform:translateX(20px); background:#1a1a1a; }
+.toggle input:checked + .toggle-slider { background:var(--gradient-gold); border-color:transparent; box-shadow:0 0 12px rgba(255,45,141,0.4); }
+.toggle input:checked + .toggle-slider::before { transform:translateX(20px); background:#fff; }
 @media (max-width:768px) {
     .settings-menu-item.active { border-right:none; border-bottom:2px solid var(--gold); }
     div[style*="grid-template-columns:220px"] { grid-template-columns:1fr !important; }

@@ -6,13 +6,16 @@
     <div class="container">
         <!-- Profile Header -->
         <div class="profile-header">
-            <div class="profile-cover-placeholder" id="profileCover"></div>
+            <div class="profile-cover-placeholder tt-profile-cover" id="profileCover">
+                <img class="tt-cover-skyline" src="/static/img/neon-skyline.png" alt="">
+                <img class="tt-cover-orchid" src="/static/img/neon-orchid.png" alt="">
+            </div>
             <div class="profile-info">
                 <div class="profile-avatar-placeholder" id="profileAvatar">S</div>
                 <div style="padding-bottom:0.5rem">
                     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
                         <h1 class="profile-name" id="profileName">Loading...</h1>
-                        <span class="badge hidden" id="premiumBadge" style="background:var(--gradient-gold); color:#1a1a1a; font-size:0.7rem;">👑 Premium</span>
+                        <span class="badge hidden" id="premiumBadge" style="background:var(--gradient-gold); color:#fff; font-size:0.7rem;"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2 18h20M3 7l4.5 4L12 4l4.5 7L21 7l-1.6 9H4.6L3 7z"/></svg> Premium</span>
                         <span class="badge hidden" id="verifiedBadge" style="background:var(--success); color:#fff; font-size:0.7rem;">✓ 已驗證</span>
                     </div>
                     <p class="profile-meta" id="profileMeta"></p>

@@ -23,3 +23,10 @@ verify-*.png
 sh-*.png
 navfix-*.png
 /tt-*.png
+
+# 本機預覽用的暫存（Jinja 預覽 + 截圖 + 靜態 server）
+tmp/
+tmp-static-server.js
+preview-server.*.log
+/sawasdee-current-*.png
+design/

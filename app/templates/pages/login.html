@@ -1,23 +1,46 @@
 {% extends "components/base.html" %}
 {% block title %}登入{% endblock %}
 {% block mobile_nav %}{% endblock %}
+{% block navbar %}{% endblock %}
 {% block content %}
-<div class="auth-page">
-    <div class="auth-card">
-        <h1 class="auth-title">歡迎回到 Sawasdee</h1>
-        <p class="auth-subtitle">繼續你的高品質跨國社交體驗</p>
-        <form id="loginForm" autocomplete="off">
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="loginEmail" name="sw_email" placeholder="your@email.com" autocomplete="off" required>
+<div class="tt-auth">
+    <!-- Left: big centered TT brand mark (matches design 0102) -->
+    <div class="tt-auth-visual tt-auth-visual--hero">
+        <img class="tt-auth-skyline" src="/static/img/neon-skyline.png" alt="">
+        <img class="tt-auth-orchid" src="/static/img/neon-orchid.png" alt="">
+        <div class="tt-auth-hero">
+            <img class="tt-auth-hero-logo" src="/static/img/tt-logo.png" alt="TT">
+            <div class="tt-auth-hero-title">
+                <span class="tt-grad">TAIWAN</span>
+                <span class="tt-auth-hero-x">×</span>
+                <span class="tt-grad-pink">THAILAND</span>
             </div>
-            <div class="form-group">
-                <label class="form-label">密碼</label>
-                <input type="password" class="form-input" id="loginPassword" name="sw_pw" placeholder="輸入密碼" autocomplete="new-password" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">登入</button>
-        </form>
-        <p class="auth-footer">還沒有帳號？ <a href="/register">立即註冊</a></p>
+            <div class="tt-auth-hero-sub">TWO PLACES. ONE VIBE.</div>
+        </div>
+    </div>
+
+    <!-- Right: glass login card -->
+    <div class="tt-auth-form">
+        <div class="tt-auth-card">
+            <h1>歡迎回來</h1>
+            <p class="tt-auth-sub">登入你的 TT 帳號，繼續探索同頻的人。</p>
+            <form id="loginForm" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label">電子郵件</label>
+                    <input type="email" class="form-input" id="loginEmail" name="sw_email" placeholder="your@email.com" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密碼</label>
+                    <input type="password" class="form-input" id="loginPassword" name="sw_pw" placeholder="輸入密碼" autocomplete="new-password" required>
+                </div>
+                <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.84rem; color:var(--text-secondary); margin:0.2rem 0 0.4rem; cursor:pointer;">
+                    <input type="checkbox" id="loginRemember" checked style="accent-color:var(--pink); width:16px; height:16px;">
+                    保持登入狀態
+                </label>
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">登入</button>
+            </form>
+            <p class="auth-footer mt-3">還沒有帳號？ <a href="/register">立即註冊</a></p>
+        </div>
     </div>
 </div>
 {% endblock %}

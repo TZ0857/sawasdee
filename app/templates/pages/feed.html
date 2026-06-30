@@ -3,10 +3,12 @@
 {% block navbar %}{% include "components/navbar.html" %}{% endblock %}
 {% block content %}
 <div class="main-content">
-    <div class="container-sm">
+    <div class="container">
+      <div class="tt-feed-layout">
+        <div class="tt-feed-main">
         <!-- Page Header -->
         <div class="page-header">
-            <h2 class="page-title">動態</h2>
+            <h2 class="page-title tt-grad">動態</h2>
             <p class="page-subtitle">分享你的日常片刻，讓對的人更了解你</p>
         </div>
 
@@ -84,6 +86,30 @@
                 <button class="btn btn-primary btn-sm" onclick="document.getElementById('postContent').focus()">發布動態</button>
             </div>
         </div>
+        </div><!-- /tt-feed-main -->
+
+        <!-- Right rail -->
+        <aside class="tt-feed-rail">
+            <div class="tt-rail-card tt-rail-tonight">
+                <div class="tt-rail-kicker">Tonight in</div>
+                <div class="tt-rail-cities"><span class="tt-grad">Taipei</span> × <span class="tt-grad-pink">Bangkok</span></div>
+                <img class="tt-rail-skyline" src="/static/img/neon-skyline.png" alt="">
+                <div class="tt-rail-tonight-stats">
+                    <div><b>128</b><span>Taipei 在線</span></div>
+                    <div><b>96</b><span>Bangkok 在線</span></div>
+                </div>
+            </div>
+            <div class="tt-rail-card">
+                <div class="tt-rail-title">熱門標籤</div>
+                <div class="tt-rail-tags">
+                    <span class="chip">#TaipeiNights</span><span class="chip">#BangkokEats</span>
+                    <span class="chip">#RooftopVibes</span><span class="chip">#HiddenGems</span>
+                    <span class="chip">#CityDiaries</span><span class="chip">#TTCommunity</span>
+                </div>
+                <img class="tt-rail-orchid" src="/static/img/neon-orchid.png" alt="">
+            </div>
+        </aside>
+      </div><!-- /tt-feed-layout -->
     </div>
 </div>
 {% endblock %}

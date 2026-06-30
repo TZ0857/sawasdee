@@ -3,7 +3,7 @@
 {% block mobile_nav %}{% endblock %}
 {% block navbar %}
 <nav class="navbar landing-navbar">
-    <a href="/" class="nav-brand">Sawasdee</a>
+    <a href="/" class="nav-brand"><img src="/static/img/tt-logo.png" alt="TT"></a>
     <div class="nav-links" style="gap:0.5rem;">
         <a href="/login" class="btn btn-secondary btn-sm">登入</a>
         <a href="/register" class="btn btn-primary btn-sm">免費註冊</a>
@@ -11,35 +11,56 @@
 </nav>
 {% endblock %}
 {% block content %}
-<div class="landing-hero">
-    <div>
-        <h1 style="font-family:var(--font-heading); font-size:3rem; font-weight:700; margin-bottom:1rem; background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">
-            遇見更有質感的跨國關係
+<div class="container">
+  <div class="tt-landing-hero">
+    <div class="tt-landing-copy">
+        <div class="tt-kicker">TAIWAN <span style="color:var(--violet-soft)">×</span> THAILAND</div>
+        <h1 class="tt-landing-title">
+            <span class="tt-grad">台灣 × 泰國</span><br>心動連線，從這裡開始
         </h1>
-        <p style="font-size:1.15rem; color:var(--text-secondary); max-width:540px; margin:0 auto 2rem; line-height:1.8;">
-            連結台灣與泰國會員，從生活興趣、相處節奏與真誠交流開始。
+        <p class="tt-landing-sub">
+            連結台灣與泰國會員，從生活興趣、相處節奏與真誠交流開始。AI 即時翻譯，讓跨國的心動沒有距離。
         </p>
-        <div class="flex-center gap-2">
+        <div class="flex gap-2" style="flex-wrap:wrap;">
             <a href="/register" class="btn btn-primary btn-lg">開始探索</a>
             <a href="/subscription" class="btn btn-secondary btn-lg">升級 Premium</a>
         </div>
-
         <!-- Stats -->
-        <div class="landing-stats">
-            <div class="text-center">
-                <div class="landing-stat-number">1,000+</div>
-                <div class="landing-stat-label">活躍會員</div>
-            </div>
-            <div class="text-center">
-                <div class="landing-stat-number">500+</div>
-                <div class="landing-stat-label">成功配對</div>
-            </div>
-            <div class="text-center">
-                <div class="landing-stat-number">24/7</div>
-                <div class="landing-stat-label">AI 即時翻譯</div>
-            </div>
+        <div class="tt-landing-stats">
+            <div><div class="landing-stat-number tt-grad">120K+</div><div class="landing-stat-label">註冊會員</div></div>
+            <div class="hero-stat-divider"></div>
+            <div><div class="landing-stat-number tt-grad">2.3M+</div><div class="landing-stat-label">訊息互動</div></div>
+            <div class="hero-stat-divider"></div>
+            <div><div class="landing-stat-number tt-grad">24/7</div><div class="landing-stat-label">AI 即時翻譯</div></div>
         </div>
     </div>
+    <div class="tt-landing-visual tt-hero">
+        <img class="tt-art-skyline" src="/static/img/neon-skyline.png" alt="" style="max-width:100%; height:auto; top:8%;">
+        <img class="tt-art-orchid" src="/static/img/neon-orchid.png" alt="" style="right:-30px; bottom:-20px; width:220px;">
+        <div class="tt-live-pill"><span class="tt-live-dot"></span> 12,488 人在線</div>
+    </div>
+  </div>
+</div>
+
+<!-- Feature cards -->
+<div class="container">
+  <div class="tt-feature-row">
+    <a href="/explore" class="tt-feature-tile">
+        <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <div class="tt-feature-name">探索 <span>DISCOVER</span></div>
+        <p>瀏覽經過驗證的優質會員，找到與你生活同頻的人。</p>
+    </a>
+    <a href="/messages" class="tt-feature-tile">
+        <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="tt-feature-name">聊天 <span>CHAT</span></div>
+        <p>AI 中泰英即時翻譯，跨國交流像母語一樣自然。</p>
+    </a>
+    <a href="/gatherings" class="tt-feature-tile">
+        <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></div>
+        <div class="tt-feature-name">活動 &amp; VIP <span>MEETUPS</span></div>
+        <p>發起限時組局，升級 Premium 解鎖更多專屬權益。</p>
+    </a>
+  </div>
 </div>
 
 <!-- Trust Section -->
@@ -149,7 +170,7 @@
 <!-- Premium CTA -->
 <div style="padding:4rem 1rem; text-align:center; background:var(--bg-card); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
     <div class="container-sm">
-        <div style="font-size:2.5rem; margin-bottom:1rem;">👑</div>
+        <div style="margin-bottom:1rem;"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round" style="filter:drop-shadow(0 0 12px rgba(200,169,106,0.5));"><path d="M2 18h20M3 7l4.5 4L12 4l4.5 7L21 7l-1.6 9H4.6L3 7z"/></svg></div>
         <h2 style="font-family:var(--font-heading); font-size:1.8rem; margin-bottom:0.5rem;">
             升級 Premium，解鎖更高品質的社交體驗
         </h2>
