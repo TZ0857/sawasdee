@@ -2800,7 +2800,7 @@ h1, h2, h3, .nav-brand, .page-title, .auth-title,
     position: absolute; left: 0; right: 0; bottom: 0; width: 100%; z-index: 0;
     mix-blend-mode: screen; opacity: 0.8; pointer-events: none;
 }
-.tt-auth-visual--hero .tt-auth-orchid { right: 2%; bottom: 16%; width: 220px; opacity: 0.7; }
+.tt-auth-visual--hero .tt-auth-orchid { right: 5%; top: 7%; bottom: auto; width: 150px; opacity: 0.55; }
 .tt-auth-hero { position: relative; z-index: 2; text-align: center; transform: translateY(-4%); }
 .tt-auth-hero-logo {
     width: min(70%, 360px); height: auto; display: block; margin: 0 auto 0.4rem;
