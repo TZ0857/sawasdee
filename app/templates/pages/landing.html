@@ -14,51 +14,125 @@
 <div class="container">
   <div class="tt-landing-hero">
     <div class="tt-landing-copy">
-        <div class="tt-kicker">TAIWAN <span style="color:var(--violet-soft)">×</span> THAILAND</div>
+        <div class="tt-brand-lockup">
+            <img class="tt-brand-logo" src="/static/img/tt-logo.png" alt="TT">
+            <div class="tt-brand-caption">
+                <span class="tt-brand-caption-main"><span class="tt-grad">TAIWAN</span> × <span class="tt-grad-pink">THAILAND</span></span>
+                <span class="tt-brand-caption-sub">TWO PLACES · ONE VIBE</span>
+            </div>
+        </div>
         <h1 class="tt-landing-title">
-            <span class="tt-grad">台灣 × 泰國</span><br>心動連線，從這裡開始
+            <span class="tt-grad">台灣 × 泰國</span><br>心動連線
         </h1>
+        <p class="tt-landing-lead">兩種文化，一種心動
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8" style="vertical-align:-3px;"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </p>
         <p class="tt-landing-sub">
-            連結台灣與泰國會員，從生活興趣、相處節奏與真誠交流開始。AI 即時翻譯，讓跨國的心動沒有距離。
+            專屬於台灣與泰國的社交與交友平台，尋找靈魂共鳴，讓距離成為故事的開始。AI 即時翻譯，讓跨國的心動沒有語言隔閡。
         </p>
         <div class="flex gap-2" style="flex-wrap:wrap;">
-            <a href="/register" class="btn btn-primary btn-lg">開始探索</a>
-            <a href="/subscription" class="btn btn-secondary btn-lg">升級 Premium</a>
-        </div>
-        <!-- Stats -->
-        <div class="tt-landing-stats">
-            <div><div class="landing-stat-number tt-grad">120K+</div><div class="landing-stat-label">註冊會員</div></div>
-            <div class="hero-stat-divider"></div>
-            <div><div class="landing-stat-number tt-grad">2.3M+</div><div class="landing-stat-label">訊息互動</div></div>
-            <div class="hero-stat-divider"></div>
-            <div><div class="landing-stat-number tt-grad">24/7</div><div class="landing-stat-label">AI 即時翻譯</div></div>
+            <a href="/register" class="btn btn-primary btn-lg">立即註冊
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px; margin-left:0.3rem;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="/explore" class="btn btn-secondary btn-lg">探索會員
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="vertical-align:-3px; margin-left:0.3rem;"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+            </a>
         </div>
     </div>
-    <div class="tt-landing-visual tt-hero">
-        <img class="tt-art-skyline" src="/static/img/neon-skyline.png" alt="" style="max-width:100%; height:auto; top:8%;">
-        <img class="tt-art-orchid" src="/static/img/neon-orchid.png" alt="" style="right:-30px; bottom:-20px; width:220px;">
-        <div class="tt-live-pill"><span class="tt-live-dot"></span> 12,488 人在線</div>
+    <div class="tt-landing-visual">
+        <img class="tt-hero-photo" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=760&h=920&fit=crop&crop=faces&q=80" alt="TT 會員">
+        <div class="tt-hero-photo-shade"></div>
+        <div class="tt-live-card">
+            <div class="tt-live-card-top"><span class="tt-live-dot"></span> 目前在線</div>
+            <div class="tt-live-card-num tt-grad">12,488+</div>
+            <div class="tt-live-card-cap">真實會員正在連線中</div>
+        </div>
+        <div class="tt-hero-dots"><span class="on"></span><span></span><span></span><span></span><span></span></div>
     </div>
   </div>
 </div>
 
-<!-- Feature cards -->
+<!-- Stat bar (0101) -->
+<div class="container">
+  <div class="tt-stat-bar">
+    <div class="tt-stat">
+        <span class="tt-stat-ico" style="color:var(--cyan);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <div><div class="tt-stat-num tt-grad">120K+</div><div class="tt-stat-label">註冊會員</div></div>
+    </div>
+    <div class="tt-stat">
+        <span class="tt-stat-ico" style="color:var(--pink);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 6-9 11-9 11s-9-5-9-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3z"/></svg></span>
+        <div><div class="tt-stat-num">台灣 × 泰國</div><div class="tt-stat-label">雙文化社群</div></div>
+    </div>
+    <div class="tt-stat">
+        <span class="tt-stat-ico" style="color:var(--cyan);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <div><div class="tt-stat-num tt-grad">2.3M+</div><div class="tt-stat-label">訊息互動</div></div>
+    </div>
+    <div class="tt-stat">
+        <span class="tt-stat-ico" style="color:var(--violet-soft);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <div><div class="tt-stat-num">真人驗證</div><div class="tt-stat-label">安全可靠</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Feature cards (0101) -->
 <div class="container">
   <div class="tt-feature-row">
     <a href="/explore" class="tt-feature-tile">
-        <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
-        <div class="tt-feature-name">探索 <span>DISCOVER</span></div>
-        <p>瀏覽經過驗證的優質會員，找到與你生活同頻的人。</p>
+        <div class="tt-feature-body">
+            <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+            <div class="tt-feature-name">探索 <span>DISCOVER</span></div>
+            <p>智能推薦符合你喜好的會員，找到來自台灣或泰國的有緣人。</p>
+            <span class="tt-feature-link">立即探索 →</span>
+        </div>
+        <div class="tt-feature-preview">
+            <div class="tt-fp-profile">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=220&h=150&fit=crop&crop=faces&q=80" alt="">
+                <div class="tt-fp-profile-meta">
+                    <div class="tt-fp-name">Vivi · 24</div>
+                    <div class="tt-fp-loc">Bangkok, Thailand</div>
+                </div>
+                <div class="tt-fp-actions">
+                    <span class="tt-fp-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                    <span class="tt-fp-act tt-fp-act-like"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+                    <span class="tt-fp-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+                </div>
+            </div>
+        </div>
     </a>
     <a href="/messages" class="tt-feature-tile">
-        <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <div class="tt-feature-name">聊天 <span>CHAT</span></div>
-        <p>AI 中泰英即時翻譯，跨國交流像母語一樣自然。</p>
+        <div class="tt-feature-body">
+            <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="tt-feature-name">聊天 <span>CHAT</span></div>
+            <p>即時聊天，打破距離界線，AI 中泰英翻譯讓對話自然發生。</p>
+            <span class="tt-feature-link">開始聊天 →</span>
+        </div>
+        <div class="tt-feature-preview">
+            <div class="tt-fp-chat">
+                <div class="tt-fp-bubble tt-fp-in">你喜歡台北的夜景嗎？</div>
+                <div class="tt-fp-bubble tt-fp-out">超愛！你最喜歡哪個地方？</div>
+                <div class="tt-fp-bubble tt-fp-in">我的秘密景點等你來發現</div>
+            </div>
+        </div>
     </a>
     <a href="/gatherings" class="tt-feature-tile">
-        <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></div>
-        <div class="tt-feature-name">活動 &amp; VIP <span>MEETUPS</span></div>
-        <p>發起限時組局，升級 Premium 解鎖更多專屬權益。</p>
+        <div class="tt-feature-body">
+            <div class="tt-feature-emoji"><svg class="tt-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2 18h20M3 7l4.5 4L12 4l4.5 7L21 7l-1.6 9H4.6L3 7z"/></svg></div>
+            <div class="tt-feature-name">活動 &amp; VIP <span>MEETUPS</span></div>
+            <p>參加精選聚會與活動，線下見面，讓心動升溫。</p>
+            <span class="tt-feature-link">了解 VIP 權益 →</span>
+        </div>
+        <div class="tt-feature-preview">
+            <div class="tt-fp-events">
+                <div class="tt-fp-event">
+                    <div class="tt-fp-event-title">Rooftop Vibes Taipei</div>
+                    <div class="tt-fp-event-meta">6/21 (六) · 台北信義區</div>
+                </div>
+                <div class="tt-fp-event">
+                    <div class="tt-fp-event-title">Lantern Night Bangkok</div>
+                    <div class="tt-fp-event-meta">6/28 (六) · 曼谷老城區</div>
+                </div>
+            </div>
+        </div>
     </a>
   </div>
 </div>
